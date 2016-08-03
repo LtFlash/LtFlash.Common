@@ -1,7 +1,7 @@
 ﻿using Rage;
-using ScriptManager.Resources;
+using LtFlash.Common.ScriptManager.Resources;
 
-namespace ScriptManager.ScriptStarters
+namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal class TimerControlledScriptStarter : ScriptStarterBase
     {

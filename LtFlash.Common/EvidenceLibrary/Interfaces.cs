@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Rage;
 
-namespace EvidenceLibrary
+namespace LtFlash.Common.EvidenceLibrary
 {
     public interface IEvidence
     {

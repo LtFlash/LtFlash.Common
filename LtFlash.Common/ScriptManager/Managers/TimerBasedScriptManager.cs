@@ -1,6 +1,6 @@
 ﻿using Rage;
 
-namespace ScriptManager.Managers
+namespace LtFlash.Common.ScriptManager.Managers
 {
     public class TimerBasedScriptManager : ScriptManagerBase
     {

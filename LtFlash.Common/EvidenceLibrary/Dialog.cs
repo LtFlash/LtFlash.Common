@@ -1,6 +1,6 @@
 ﻿using Rage;
 
-namespace EvidenceLibrary
+namespace LtFlash.Common.EvidenceLibrary
 {
     //TODO: remove first from a List<string> instead of using index?
     public class Dialog

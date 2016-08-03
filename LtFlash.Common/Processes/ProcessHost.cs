@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Rage;
 
-namespace ScriptManager.Resources
+namespace LtFlash.Common.Processes
 {
     public class ProcessHost
     {

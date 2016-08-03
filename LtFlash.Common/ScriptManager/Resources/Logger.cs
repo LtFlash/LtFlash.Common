@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Rage;
 
-namespace ScriptManager.Resources
+namespace LtFlash.Common.ScriptManager.Resources
 {
     internal static class Logger
     {

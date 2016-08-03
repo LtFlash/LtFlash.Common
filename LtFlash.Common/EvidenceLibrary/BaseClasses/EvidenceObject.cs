@@ -2,7 +2,7 @@
 using Rage;
 using Rage.Native;
 
-namespace EvidenceLibrary.BaseClasses
+namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
     public abstract class EvidenceObject : EvidenceBase
     {

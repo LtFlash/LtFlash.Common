@@ -99,7 +99,7 @@
     <Compile Include="ScriptManager\Managers\SequentialScriptManager.cs" />
     <Compile Include="ScriptManager\Managers\TimerBasedScriptManager.cs" />
     <Compile Include="ScriptManager\Resources\Logger.cs" />
-    <Compile Include="ScriptManager\Resources\ProcessHost.cs" />
+    <Compile Include="Processes\ProcessHost.cs" />
     <Compile Include="ScriptManager\Resources\Zones.cs" />
     <Compile Include="ScriptManager\ScriptStartController\AreaBasedStartController.cs" />
     <Compile Include="ScriptManager\ScriptStartController\DelayedStartController.cs" />
@@ -117,6 +117,10 @@
     <Compile Include="ScriptManager\Scripts\Enums.cs" />
     <Compile Include="ScriptManager\Scripts\Interfaces.cs" />
     <Compile Include="ScriptManager\Scripts\ScriptBase.cs" />
+    <Compile Include="InputHandling\ControlSet.cs" />
+    <Compile Include="Serialization\ControlsSerializeAdapter.cs" />
+    <Compile Include="InputHandling\Input.cs" />
+    <Compile Include="Serialization\Serializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Correct.wav" />
@@ -133,6 +137,7 @@
   <ItemGroup>
     <None Include="Resources\NearbyEvidence.wav" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Rage;
-using ScriptManager.ScriptStartController;
+using LtFlash.Common.ScriptManager.ScriptStartController;
 
-namespace ScriptManager.Scripts
+namespace LtFlash.Common.ScriptManager.Scripts
 {
     public abstract class ScriptBase
     {

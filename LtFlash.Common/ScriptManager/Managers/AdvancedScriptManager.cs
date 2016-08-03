@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Rage;
-using ScriptManager.ScriptStarters;
+using LtFlash.Common.ScriptManager.ScriptStarters;
+using LtFlash.Common.Processes;
 
-namespace ScriptManager.Managers
+namespace LtFlash.Common.ScriptManager.Managers
 {
     public class AdvancedScriptManager
     {
@@ -21,7 +22,7 @@ namespace ScriptManager.Managers
 
         private Dictionary<string, bool> _statusOfScripts = new Dictionary<string, bool>();
 
-        private Resources.ProcessHost _stages = new Resources.ProcessHost();
+        private ProcessHost _stages = new ProcessHost();
 
         public AdvancedScriptManager()
         {

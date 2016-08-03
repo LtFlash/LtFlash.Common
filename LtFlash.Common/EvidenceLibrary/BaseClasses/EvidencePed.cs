@@ -1,6 +1,6 @@
 ﻿using Rage;
 
-namespace EvidenceLibrary.BaseClasses
+namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
     public abstract class EvidencePed : EvidenceBase
     {

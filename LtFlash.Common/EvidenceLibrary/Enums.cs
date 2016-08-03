@@ -1,4 +1,4 @@
-﻿namespace EvidenceLibrary
+﻿namespace LtFlash.Common.EvidenceLibrary
 {
     public enum ETraces
     {

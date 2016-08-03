@@ -1,7 +1,7 @@
 ﻿using System;
 using Rage;
 
-namespace ScriptManager.ScriptStartController
+namespace LtFlash.Common.ScriptManager.ScriptStartController
 {
     public class TimeRangeStartController : IScriptStartController
     {

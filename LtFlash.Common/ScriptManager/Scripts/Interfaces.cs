@@ -1,4 +1,4 @@
-﻿namespace ScriptManager.Scripts
+﻿namespace LtFlash.Common.ScriptManager.Scripts
 {
     /// <summary>
     /// Common interface for different types of scripts.

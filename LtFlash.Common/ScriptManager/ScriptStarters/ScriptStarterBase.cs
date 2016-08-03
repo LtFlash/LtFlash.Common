@@ -1,4 +1,6 @@
-﻿namespace ScriptManager.ScriptStarters
+﻿using LtFlash.Common.Processes;
+
+namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal abstract class ScriptStarterBase : IScriptStarter
     {
@@ -22,8 +24,8 @@
         protected bool StartScriptInThisTick { get; set; }
         protected bool ScriptStarted { get; private set; }
         protected bool AutoRestart { get; private set; }
-        protected Resources.ProcessHost Stages { get; private set; } 
-            = new Resources.ProcessHost();
+        protected ProcessHost Stages { get; private set; } 
+            = new ProcessHost();
 
         //PRIVATE
         private bool _finishedUnsuccessfully;

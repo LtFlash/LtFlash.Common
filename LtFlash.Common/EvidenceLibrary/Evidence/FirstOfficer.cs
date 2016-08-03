@@ -1,6 +1,6 @@
 ﻿using Rage;
 
-namespace EvidenceLibrary.Evidence
+namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class FirstOfficer : Witness
     {

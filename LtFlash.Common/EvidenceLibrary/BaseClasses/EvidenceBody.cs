@@ -1,7 +1,7 @@
 ﻿using Rage;
 using System.Windows.Forms;
 
-namespace EvidenceLibrary.BaseClasses
+namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
     public abstract class EvidenceBody : EvidencePed
     {

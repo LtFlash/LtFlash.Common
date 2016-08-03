@@ -1,7 +1,7 @@
 ﻿using Rage;
 using System.Media;
 
-namespace ScriptManager.Scripts
+namespace LtFlash.Common.ScriptManager.Scripts
 {
     public abstract class CalloutScriptBase : ScriptBase
     {

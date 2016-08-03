@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Rage;
-using ScriptManager.Resources;
+using LtFlash.Common.ScriptManager.Resources;
 
-namespace ScriptManager.ScriptStartController
+namespace LtFlash.Common.ScriptManager.ScriptStartController
 {
     class AreaBasedStartController : IScriptStartController
     {

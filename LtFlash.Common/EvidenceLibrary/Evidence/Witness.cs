@@ -1,8 +1,8 @@
 ﻿using Rage;
-using EvidenceLibrary.BaseClasses;
+using LtFlash.Common.EvidenceLibrary.BaseClasses;
 using LSPD_First_Response.Mod.API;
 
-namespace EvidenceLibrary.Evidence
+namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class Witness : EvidencePed
     {

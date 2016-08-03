@@ -1,5 +1,5 @@
 ﻿
-namespace ScriptManager.ScriptStarters
+namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     interface IScriptStarter
     {

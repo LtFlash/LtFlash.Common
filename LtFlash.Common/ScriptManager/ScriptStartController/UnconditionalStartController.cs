@@ -1,4 +1,4 @@
-﻿namespace ScriptManager.ScriptStartController
+﻿namespace LtFlash.Common.ScriptManager.ScriptStartController
 {
     public class UnconditionalStartController : IScriptStartController
     {

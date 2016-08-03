@@ -1,7 +1,7 @@
 ﻿using Rage;
-using EvidenceLibrary.BaseClasses;
+using LtFlash.Common.EvidenceLibrary.BaseClasses;
 
-namespace EvidenceLibrary.Evidence
+namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class Object : EvidenceObject
     {

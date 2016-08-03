@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScriptManager.Scripts
+namespace LtFlash.Common.ScriptManager.Scripts
 {
     public class CaseController : ScriptBase
     {

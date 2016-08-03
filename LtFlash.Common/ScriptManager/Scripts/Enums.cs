@@ -1,4 +1,4 @@
-﻿namespace ScriptManager.Scripts
+﻿namespace LtFlash.Common.ScriptManager.Scripts
 {
     public enum EInitModels
     {

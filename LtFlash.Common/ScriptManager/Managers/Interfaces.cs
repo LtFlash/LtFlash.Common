@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScriptManager.Managers
+namespace LtFlash.Common.ScriptManager.Managers
 {
     public interface IScriptManager
     {

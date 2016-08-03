@@ -3,7 +3,7 @@ using System.Linq;
 using Rage;
 using System;
 
-namespace ScriptManager.Managers
+namespace LtFlash.Common.ScriptManager.Managers
 {
     public abstract class ScriptManagerBase : IScriptManager
     {

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ScriptManager.Managers
+namespace LtFlash.Common.ScriptManager.Managers
 {
     public class ScriptStatus
     {

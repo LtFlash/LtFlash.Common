@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using LtFlash.Common.Properties;
 
-namespace EvidenceLibrary.BaseClasses
+namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
     public abstract class EvidenceBase : IHandleable
     {

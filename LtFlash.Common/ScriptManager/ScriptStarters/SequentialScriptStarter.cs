@@ -1,7 +1,7 @@
-﻿using ScriptManager.Managers;
-using ScriptManager.Resources;
+﻿using LtFlash.Common.ScriptManager.Managers;
+using LtFlash.Common.ScriptManager.Resources;
 
-namespace ScriptManager.ScriptStarters
+namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal class SequentialScriptStarter : ScriptStarterBase
     {

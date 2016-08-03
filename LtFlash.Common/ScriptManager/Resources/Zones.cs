@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Rage;
 using System.Runtime.InteropServices;
 
-namespace ScriptManager.Resources
+namespace LtFlash.Common.ScriptManager.Resources
 {
     public static class Zones
     {

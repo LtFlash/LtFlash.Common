@@ -2,7 +2,7 @@
 using Rage;
 using System.Linq;
 
-namespace EvidenceLibrary
+namespace LtFlash.Common.EvidenceLibrary.Resources
 {
     internal static class Hospitals
     {

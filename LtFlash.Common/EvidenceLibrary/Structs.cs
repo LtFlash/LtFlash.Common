@@ -1,6 +1,6 @@
 ﻿using Rage;
 
-namespace EvidenceLibrary
+namespace LtFlash.Common.EvidenceLibrary
 {
     public struct SpawnPoint
     {

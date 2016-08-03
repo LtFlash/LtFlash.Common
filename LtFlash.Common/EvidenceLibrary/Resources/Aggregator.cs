@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Rage;
 
-namespace EvidenceLibrary.Resources
+namespace LtFlash.Common.EvidenceLibrary.Resources
 {
     internal class Aggregator<T> where T : struct
     {

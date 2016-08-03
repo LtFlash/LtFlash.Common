@@ -1,6 +1,6 @@
 ﻿using Rage;
 
-namespace ScriptManager.ScriptStartController
+namespace LtFlash.Common.ScriptManager.ScriptStartController
 {
     public class ProximityStartController : IScriptStartController
     {
