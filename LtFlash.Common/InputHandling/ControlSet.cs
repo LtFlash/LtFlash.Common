@@ -26,9 +26,9 @@ namespace LtFlash.Common.InputHandling
 
         public ControlSet(
             Keys key, Keys mod, ControllerButtons ctrlBtn, 
-            string colorTag) : this(key, mod, ctrlBtn)
+            string colorTagOfDescription) : this(key, mod, ctrlBtn)
         {
-            CTAG = colorTag;
+            CTAG = colorTagOfDescription;
         }
 
         private string GetDescription()

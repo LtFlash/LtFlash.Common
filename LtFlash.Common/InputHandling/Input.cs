@@ -9,19 +9,28 @@ namespace LtFlash.Common.InputHandling
         private Dictionary<TEnum, ControlSet> Controls 
             = new Dictionary<TEnum, ControlSet>();
 
-        public Input(string path)
+        private string _path;
+
+        public Input(string pathToLoadFrom)
         {
             if (!typeof(TEnum).IsEnum)
             {
-                throw new ArgumentException($"{nameof(Input<TEnum>)}: TEnum must be an enumerated type");
+                throw new ArgumentException(
+                    $"{nameof(Input<TEnum>)}: TEnum must be an enumerated type");
             }
 
-            Controls = Serializer.DeserializeControls<TEnum>(path);
+            Controls = Serializer.DeserializeControls<TEnum>(pathToLoadFrom);
+            _path = pathToLoadFrom;
         }
 
-        public void SaveConfig(string path)
+        public void SaveConfig()
         {
-            Serializer.SerializeControls(Controls, path);
+            SaveConfig(_path);
+        }
+
+        public void SaveConfig(string pathToSaveTo)
+        {
+            Serializer.SerializeControls(Controls, pathToSaveTo);
         }
 
         public bool GetControlStatus(TEnum action)
