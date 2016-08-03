@@ -10,7 +10,7 @@ namespace LtFlash.Common.Serialization
     {
         public static void SaveToNode(string file, string node, string value)
         {
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             using (TextReader reader = new StreamReader(file))
             {
                 doc.Load(reader);
@@ -28,12 +28,13 @@ namespace LtFlash.Common.Serialization
 
         public static string ReadFromNode(string file, string node)
         {
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             using (TextReader reader = new StreamReader(file))
             {
                 doc.Load(reader);
             }
             XmlNode n = doc.SelectSingleNode(node);
+
             return n.InnerText;
         }
 
@@ -52,6 +53,7 @@ namespace LtFlash.Common.Serialization
 
             for (int i = 0; i < files.Length; i++)
             {
+                //TODO: use LoadFromXML
                 XmlSerializer deserializer = new XmlSerializer(typeof(List<T>));
                 using (TextReader reader = new StreamReader(files[i]))
                 {
@@ -119,34 +121,20 @@ namespace LtFlash.Common.Serialization
 
             foreach (KeyValuePair<TEnum, ControlSet> item in dic)
             {
-                list.Add(new ControlsSerializeAdapter<TEnum>(item.Key, 
+                list.Add(new ControlsSerializeAdapter<TEnum>(
+                    item.Key, 
                     item.Value.Key, item.Value.Modifier, item.Value.ControllerBtn));
             }
 
             SaveToXML(list, path);
         }
 
-        //TODO: add Combine/other filepath validation
-        public static List<T> LoadFromXML<T>(string sPath, string FileName)
-        {
-            var list = new List<T>();
-
-            var deserializer = new XmlSerializer(typeof(List<T>));
-
-            using (TextReader reader = new StreamReader(sPath + FileName + ".xml"))
-            {
-                list = (List<T>)deserializer.Deserialize(reader);
-            }
-
-            return list;
-        }
-
-        public static List<T> LoadFromXML<T>(string sFullPath)
+        public static List<T> LoadFromXML<T>(string path)
         {
             List<T> list = new List<T>();
 
             var deserializer = new XmlSerializer(typeof(List<T>));
-            using (TextReader reader = new StreamReader(sFullPath))
+            using (TextReader reader = new StreamReader(path))
             {
                 list = (List<T>)deserializer.Deserialize(reader);
             }
@@ -161,20 +149,29 @@ namespace LtFlash.Common.Serialization
                 Directory.CreateDirectory(sPath);
             }
 
-            if (File.Exists(sPath + FileName + ".xml"))
+            string path = sPath + FileName + ".xml";
+
+            if (File.Exists(path))
             {
-                List<T> listOfSpawns = LoadFromXML<T>(sPath, FileName);
+                List<T> listOfSpawns = LoadFromXML<T>(path);
                 listOfSpawns.Add(ObjectToAdd);
 
-                SaveToXML<T>(listOfSpawns, sPath + FileName + ".xml");
+                SaveToXML<T>(listOfSpawns, path);
             }
             else
             {
                 List<T> list = new List<T>();
                 list.Add(ObjectToAdd);
 
-                SaveToXML<T>(list, sPath + FileName + ".xml");
+                SaveToXML<T>(list, path);
             }
+        }
+
+        private static void ValidatePath(string path)
+        {
+            //TODO: implement
+            // - 1. check dir existance
+            // - 2. check extension
         }
     }
 }

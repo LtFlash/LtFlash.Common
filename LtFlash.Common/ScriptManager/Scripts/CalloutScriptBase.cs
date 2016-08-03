@@ -140,7 +140,6 @@ namespace LtFlash.Common.ScriptManager.Scripts
             }
         }
 
-        //TODO: to use with ShowAreaBlip()
         private void SetMinimapZoom(int zoomLevel)
             => Rage.Native.NativeFunction.Natives.SetRadarZoom(zoomLevel);
 

@@ -6,11 +6,11 @@ using Rage;
 
 namespace LtFlash.Common.Logging
 {
+    //TODO: 
+    // - delegate? GetTime + enum to determine the output string
+    //   of elapsed time
     public class PerformanceLogger
     {
-        private Dictionary<string, Stopwatch> _performance 
-            = new Dictionary<string, Stopwatch>();
-
         private string TimeStamp
         {
             get
@@ -20,15 +20,12 @@ namespace LtFlash.Common.Logging
         }
 
         private int FPS
-        {
-            get
-            {
-                return (int)Game.FrameRate;
-            }
-        }
+            { get { return (int)Game.FrameRate; } }
+
+        private Dictionary<string, Stopwatch> _performance 
+            = new Dictionary<string, Stopwatch>();
 
         private string _path;
-
         private List<string> _linesBuffer = new List<string>();
         private const int BUFFER_LENGHT = 300;
 
