@@ -67,5 +67,10 @@ namespace LtFlash.Common.InputHandling
 
             return Game.IsControllerButtonDown(ControllerBtn);
         }
+
+        public static implicit operator bool(ControlSet ctrlSet)
+        {
+            return ctrlSet.IsActive;
+        }
     }
 }

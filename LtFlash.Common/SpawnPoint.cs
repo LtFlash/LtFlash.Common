@@ -6,6 +6,8 @@ namespace LtFlash.Common
     {
         public float Heading { get; set; }
         public Vector3 Position { get; set; }
+        public static SpawnPoint Zero
+            { get { return new SpawnPoint(0.0f, Vector3.Zero); } }
 
         public SpawnPoint(float heading, Vector3 position)
         {
@@ -18,9 +20,6 @@ namespace LtFlash.Common
         {
 
         }
-
-        public static SpawnPoint Zero
-            { get { return new SpawnPoint(0.0f, Vector3.Zero); } }
 
         public float Distance(SpawnPoint spawn)
             => Vector3.Distance(Position, spawn.Position);
