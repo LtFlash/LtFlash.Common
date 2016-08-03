@@ -96,29 +96,12 @@ namespace LtFlash.Common.Serialization
             return item;
         }
 
-        public static Dictionary<EAction, ControlSet>
-            DeserializeControls(string path)
+        public static Dictionary<TEnum, ControlSet>
+            DeserializeControls<TEnum>(string path)
         {
-            var dic = new Dictionary<EAction,ControlSet>();
+            var dic = new Dictionary<TEnum, ControlSet>();
 
-            var ctrls = LoadFromXML<ControlsSerializeAdapter>(path);
-
-            for (int i = 0; i < ctrls.Count; i++)
-            {
-                dic.Add(
-                    ctrls[i].Action, 
-                    new ControlSet(ctrls[i].Key, ctrls[i].Modifier, ctrls[i].ControllerBtn));
-            }
-            
-            return dic;
-        }
-
-        public static Dictionary<T, ControlSet>
-            DeserializeControls<T>(string path)
-        {
-            var dic = new Dictionary<T, ControlSet>();
-
-            var ctrls = LoadFromXML<ControlsSerializeAdapter<T>>(path);
+            var ctrls = LoadFromXML<ControlsSerializeAdapter<TEnum>>(path);
 
             for (int i = 0; i < ctrls.Count; i++)
             {
@@ -130,26 +113,13 @@ namespace LtFlash.Common.Serialization
             return dic;
         }
 
-        public static void SerializeControls(Dictionary<EAction, ControlSet> dic, string path)
+        public static void SerializeControls<TEnum>(Dictionary<TEnum, ControlSet> dic, string path)
         {
-            var list = new List<ControlsSerializeAdapter>();
+            var list = new List<ControlsSerializeAdapter<TEnum>>();
 
-            foreach (KeyValuePair<EAction, ControlSet> item in dic)
+            foreach (KeyValuePair<TEnum, ControlSet> item in dic)
             {
-                list.Add(new ControlsSerializeAdapter(item.Key, 
-                    item.Value.Key, item.Value.Modifier, item.Value.ControllerBtn));
-            }
-
-            SaveToXML(list, path);
-        }
-
-        public static void SerializeControls<T>(Dictionary<T, ControlSet> dic, string path)
-        {
-            var list = new List<ControlsSerializeAdapter<T>>();
-
-            foreach (KeyValuePair<T, ControlSet> item in dic)
-            {
-                list.Add(new ControlsSerializeAdapter<T>(item.Key, 
+                list.Add(new ControlsSerializeAdapter<TEnum>(item.Key, 
                     item.Value.Key, item.Value.Modifier, item.Value.ControllerBtn));
             }
 

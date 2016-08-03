@@ -1,16 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using LtFlash.Common.Serialization;
 
 namespace LtFlash.Common.InputHandling
 {
-    internal class Input<T>
+    internal class Input<TEnum> where TEnum : struct, IConvertible
     {
-        private Dictionary<T, ControlSet> Controls 
-            = new Dictionary<T, ControlSet>();
+        private Dictionary<TEnum, ControlSet> Controls 
+            = new Dictionary<TEnum, ControlSet>();
 
         public Input(string path)
         {
-            Controls = Serializer.DeserializeControls<T>(path);
+            if (!typeof(TEnum).IsEnum)
+            {
+                throw new ArgumentException($"{nameof(Input<TEnum>)}: TEnum must be an enumerated type");
+            }
+
+            Controls = Serializer.DeserializeControls<TEnum>(path);
         }
 
         public void SaveConfig(string path)
@@ -18,12 +24,12 @@ namespace LtFlash.Common.InputHandling
             Serializer.SerializeControls(Controls, path);
         }
 
-        public bool GetControlStatus(T action)
+        public bool GetControlStatus(TEnum action)
         {
             return Controls[action].IsActive;
         }
 
-        public string GetControlDescription(T action)
+        public string GetControlDescription(TEnum action)
         {
             return Controls[action].Description;
         }

@@ -7,30 +7,17 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public Ped Ped { get; protected set; }
 
         public override Vector3 Position
-        {
-            get
-            {
-                return Ped ? Ped.Position : Vector3.Zero;
-            }
-        }
+            { get { return Ped ? Ped.Position : Vector3.Zero; } }
 
         public override PoolHandle Handle
-        {
-            get
-            {
-                return Ped ? Ped.Handle : new PoolHandle();
-            }
-        }
+            { get { return Ped ? Ped.Handle : new PoolHandle(); } }
 
         protected override Entity EvidenceEntity
-        {
-            get
-            {
-                return Ped;
-            }
-        }
+            { get { return Ped; } }
 
-        public EvidencePed(string id, string description, SpawnPoint spawn, Model model) : base(id, description)
+        public EvidencePed(
+            string id, string description, 
+            SpawnPoint spawn, Model model) : base(id, description)
         {
             Ped = new Ped(model, spawn.Position, spawn.Heading);
             Ped.RandomizeVariation();
@@ -39,7 +26,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         protected override void End()
         {
-            if(Ped) Ped.Dismiss();
+            if (Ped)
+            {
+                Ped.Tasks.Wander();
+                Ped.Dismiss();
+            }
         }
 
         public override void Dismiss()

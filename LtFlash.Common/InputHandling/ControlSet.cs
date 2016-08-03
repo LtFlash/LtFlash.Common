@@ -12,7 +12,7 @@ namespace LtFlash.Common.InputHandling
         public bool IsActive { get { return _IsActive(); } }
         public string Description { get; private set; }
 
-        private const string CTAG = "~g~";
+        private string CTAG = "~g~";
         private const string RTAG = "~s~"; //color reset
 
         public ControlSet(Keys key, Keys mod, ControllerButtons ctrlBtn)
@@ -24,23 +24,25 @@ namespace LtFlash.Common.InputHandling
             Description = GetDescription();
         }
 
+        public ControlSet(
+            Keys key, Keys mod, ControllerButtons ctrlBtn, 
+            string colorTag) : this(key, mod, ctrlBtn)
+        {
+            CTAG = colorTag;
+        }
+
         private string GetDescription()
         {
             string result;
 
-            if (Modifier == Keys.None)
-            {
-                result = Key.ToString();
-            }
-            else
-            {
-                //TODO: add color tags
-                result = Modifier.ToString() + " + " + Key.ToString();
-            }
-            //ControllerButtons.RightShoulder
+            result = Modifier == Keys.None ?
+                $"{CTAG}{Key.ToString()}{RTAG}" :
+                $"{CTAG}{Modifier.ToString()}{RTAG} + {CTAG}{Key.ToString()}{RTAG}";
+
+
             if (Game.IsControllerConnected && ControllerBtn != ControllerButtons.None)
             {
-                result += "~s~ or ~g~" + ControllerBtn.ToString();
+                result += $" or {CTAG}{ControllerBtn.ToString()}{RTAG}";
             }
 
             return result;
@@ -53,31 +55,17 @@ namespace LtFlash.Common.InputHandling
 
         private bool AreKeyboardControlsActive()
         {
-            if (Modifier == Keys.None)
-            {
-                if (Game.IsKeyDown(Key))
-                    return true;
-            }
-            else
-            {
-                if (Game.IsKeyDownRightNow(Modifier) &&
-                    Game.IsKeyDown(Key))
-                    return true;
-            }
-
-            return false;
+            return Modifier == Keys.None ? 
+                Game.IsKeyDown(Key) : 
+                Game.IsKeyDownRightNow(Modifier) && Game.IsKeyDown(Key);
         }
 
         private bool AreControllerControlsActive()
         {
-            if (!Game.IsControllerConnected ||
-                ControllerBtn == ControllerButtons.None)
-                return false;
+            if (!Game.IsControllerConnected || 
+                ControllerBtn == ControllerButtons.None) return false;
 
-            if (Game.IsControllerButtonDown(ControllerBtn))
-                return true;
-
-            return false;
+            return Game.IsControllerButtonDown(ControllerBtn);
         }
     }
 }

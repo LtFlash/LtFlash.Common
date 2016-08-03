@@ -1,23 +1,23 @@
-﻿using Rage;
+﻿using System.Windows.Forms;
+using Rage;
 using LtFlash.Common.EvidenceLibrary.BaseClasses;
 
 namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class Object : EvidenceObject
     {
+        public string TextHelpWhileExamining { get; set; }
         //PROTECTED
-        protected System.Windows.Forms.Keys _keyRotate = System.Windows.Forms.Keys.R;
+        protected Keys _keyRotate = Keys.R;
 
-        public Object(string id, string description, Model model, Vector3 position) :
-            base(id, description, model, position)
+
+        public Object(
+            string id, string description, 
+            Model model, Vector3 position) : base(id, description, model, position)
         {
             TextInteractWithEvidence = $"Press ~y~{KeyInteract} ~s~to examine the object.";
+            TextHelpWhileExamining = $@"Press ~y~{_keyRotate} ~s~to flip the object.~n~Press ~y~{KeyCollect} ~s~to include the item to the evidence.~n~Press ~y~{KeyLeave} ~s~to leave the object.";
         }
-
-        //protected override void DisplayInfoInteractWithEvidence()
-        //{
-        //    Game.DisplayHelp(, 100);
-        //}
 
         private enum EStages
         {
@@ -41,7 +41,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
                     break;
                 case EStages.ManipulateItem:
 
-                    Game.DisplayHelp($@"Press ~y~{_keyRotate} ~s~to flip the object.~n~Press ~y~{KeyCollect} ~s~to include the item to the evidence.~n~Press ~y~{KeyLeave} ~s~to leave the object.");
+                    Game.DisplayHelp(TextHelpWhileExamining);
 
                     if (Game.IsKeyDown(_keyRotate))
                     {
