@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Rage;
 
@@ -12,14 +13,14 @@ namespace LtFlash.Common.Processes
         //PRIVATE
         private GameFiber _process;
         private bool _canRun = true;
-        private List<Stage> _stages = new List<Stage>();
+        private List<Proc> _processes = new List<Proc>();
 
-        private class Stage
+        private class Proc
         {
             public Action Function;
             public bool Active;
 
-            public Stage(Action act, bool active)
+            public Proc(Action act, bool active)
             {
                 Function = act;
                 Active = active;
@@ -47,23 +48,28 @@ namespace LtFlash.Common.Processes
         {
             IsRunning = false;
             _canRun = false;
-            //Abort() has to be the last as it does not return control to function!
-            _process.Abort();
         }
 
         public void AddProcess(Action proc)
         {
-            _stages.Add(new Stage(proc, false));
+            if(!CheckIfListed(proc)) _processes.Add(new Proc(proc, false));
         }
 
         public void ActivateProcess(Action proc)
         {
-            _stages.Find(a => a.Function == proc).Active = true;
+            if (!CheckIfListed(proc)) AddProcess(proc);
+            _processes.Find(a => a.Function == proc).Active = true;
         }
 
         public void DeactivateProcess(Action proc)
         {
-            _stages.Find(a => a.Function == proc).Active = false;
+            if(CheckIfListed(proc))
+                _processes.Find(a => a.Function == proc).Active = false;
+        }
+
+        private bool CheckIfListed(Action proc)
+        {
+            return _processes.FirstOrDefault(s => s.Function == proc) != null;
         }
 
         public void SwapProcesses(Action toDisable, Action toEnable)
@@ -83,9 +89,9 @@ namespace LtFlash.Common.Processes
 
         public void Process()
         {
-            for (int i = 0; i < _stages.Count; i++)
+            for (int i = 0; i < _processes.Count; i++)
             {
-                if (_stages[i].Active) _stages[i].Function();
+                if (_processes[i].Active) _processes[i].Function();
             }
         }
     }
