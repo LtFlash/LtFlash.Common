@@ -1,5 +1,5 @@
 ﻿using LtFlash.Common.ScriptManager.Managers;
-using LtFlash.Common.ScriptManager.Resources;
+using LtFlash.Common.Logging;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {

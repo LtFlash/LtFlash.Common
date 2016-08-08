@@ -226,7 +226,6 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public void Dispose()
         {
             _canRun = false;
-            _process?.Abort();
 
             if (_blipME.Exists()) _blipME.Delete();
             if (_vehicle) _vehicle.Dismiss();

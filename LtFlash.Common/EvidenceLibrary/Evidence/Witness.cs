@@ -30,6 +30,8 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
             DialogRefuseTransportToStation = _dialogRefuseBeingTransported;
             TextInteractWithEvidence = $"Press ~y~{KeyInteract} ~s~to talk to the witness.";
+
+            TextWhileInspecting = $"Press ~y~{KeyInteract} ~s~to release the witness.~n~Press ~y~{KeyLeave} ~s~to tell the witness to stay at scene.~n~Press ~y~{KeyCollect} ~s~to transport the witness to the station.";
         }
 
         private enum EState
@@ -85,8 +87,8 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         {
             if (!IsPlayerClose) return;
 
-            Game.DisplayHelp($"Press ~y~{KeyInteract} ~s~to release the witness.~n~Press ~y~{KeyLeave} ~s~to tell the witness to stay at scene.~n~Press ~y~{KeyCollect} ~s~to transport the witness to the station.");
-
+            Game.DisplayHelp(GetTextWhileInspectingWithAdditional());
+            
             //release -> done
             //tell to stay -> set Checked to true and set state to WaitFor... in the next contact?
 

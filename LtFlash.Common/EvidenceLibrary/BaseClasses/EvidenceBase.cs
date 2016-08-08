@@ -5,7 +5,6 @@ using Rage.Native;
 using System.Media;
 using System.Drawing;
 using System.Windows.Forms;
-using LtFlash.Common.Properties;
 
 namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
@@ -24,7 +23,8 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             protected set
             {
                 _collected = value;
-                if (IsImportant && PlaySoundImportantEvidenceCollected) _soundImportantEvidenceCollected.Play();
+                if (IsImportant && PlaySoundImportantEvidenceCollected)
+                    _soundImportantEvidenceCollected.Play();
             }
         }
         public bool Checked { get; protected set; }
@@ -32,26 +32,22 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public List<ETraces> Traces { get; } = new List<ETraces>();
         public float ActivationDistance
         {
-            get
-            {
-                return _distanceEvidenceClose;
-            }
-            set
-            {
-                _distanceEvidenceClose = value;
-            }
+            get { return _distanceEvidenceClose; }
+            set { _distanceEvidenceClose = value; }
         }
         public bool CanBeInspected { get; set; } = true;
         public virtual bool IsPlayerClose
         {
             get
             {
-                return Vector3.Distance(Game.LocalPlayer.Character.Position, Position) 
+                return Vector3.Distance(PlayerPos, Position) 
                     <= _distanceEvidenceClose;
             }
         }
 
-        public string TextInteractWithEvidence { get; set; }
+        public string TextInteractWithEvidence { get; set; } = string.Empty;
+        public string TextWhileInspecting { get; set; } = string.Empty;
+        public string AdditionalTextWhileInspecting { get; set; } = string.Empty;
 
         public bool PlaySoundPlayerNearby
         {
@@ -77,16 +73,18 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public abstract PoolHandle Handle { get; }
 
         //PROTECTED
+        protected Vector3 PlayerPos
+            { get { return Game.LocalPlayer.Character.Position; } }
         protected abstract Entity EvidenceEntity { get; }
         protected float _distanceEvidenceClose = 3f;
 
 
         //PRIVATE
         private SoundPlayer _soundEvidenceNearby 
-            = new SoundPlayer(LtFlash.Common.Properties.Resources.EvidenceNearby);
+            = new SoundPlayer(Properties.Resources.EvidenceNearby);
 
         private SoundPlayer _soundImportantEvidenceCollected 
-            = new SoundPlayer(LtFlash.Common.Properties.Resources.ImportantEvidenceCollected);
+            = new SoundPlayer(Properties.Resources.ImportantEvidenceCollected);
 
         private bool _collected = false;
         private GameFiber _process;
@@ -136,6 +134,8 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         
         private void PlaySoundEvidenceNearby()
         {
+            if (!CanBeInspected) return;
+
             if(HasStateChanged(ref _prevState_CanBeActivated, IsPlayerClose))
             {
                 if(IsPlayerClose) 
@@ -240,7 +240,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             End();
 
             _canRun = false;
-            _process.Abort();
             if (Blip.Exists()) Blip.Delete();
             _soundEvidenceNearby.Dispose();
             _soundImportantEvidenceCollected.Dispose();
@@ -338,12 +337,19 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             if (waitForCompletion) GameFiber.Sleep(totaltime);
         }
 
+        protected string GetTextWhileInspectingWithAdditional()
+        {
+            return AdditionalTextWhileInspecting == string.Empty ?
+                TextWhileInspecting :
+                TextWhileInspecting + "~n~" + AdditionalTextWhileInspecting;
+        }
+
         public virtual void Dismiss()
         {
             Game.LogVerbose("EvidenceBase.Dismiss()");
             RemoveBlip();
             _canRun = false;
-            _process.Abort();
+            //_process.Abort();
         }
 
         public abstract bool IsValid();

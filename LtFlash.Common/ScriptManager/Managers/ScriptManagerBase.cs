@@ -33,7 +33,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             if (type.GetInterfaces().Contains(typeof(Scripts.IScript)))
             {
-                _scripts.Add(new ScriptStatus(id, type, ""));
+                _scripts.Add(new ScriptStatus(id, type));
             }
         }
 

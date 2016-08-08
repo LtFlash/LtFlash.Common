@@ -5,7 +5,7 @@ using LtFlash.Common.ScriptManager.Resources;
 
 namespace LtFlash.Common.ScriptManager.ScriptStartController
 {
-    class AreaBasedStartController : IScriptStartController
+    public class AreaBasedStartController : IScriptStartController
     {
         private List<string> _zones = new List<string>();
 

@@ -7,7 +7,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStartController
     {
         private TimeSpan HourStart { get; set; }
         private TimeSpan HourEnd { get; set; }
-
+        //TimeSpan.Parse("22:00"); // 10 PM
         public TimeRangeStartController(TimeSpan hourStart, TimeSpan hourEnd)
         {
             HourStart = hourStart;
@@ -16,29 +16,18 @@ namespace LtFlash.Common.ScriptManager.ScriptStartController
 
         public bool CanBeStarted()
         {
-            TimeSpan start = HourStart; //TimeSpan.Parse("22:00"); // 10 PM
-            TimeSpan end = HourEnd; // TimeSpan.Parse("02:00");   // 2 AM
             TimeSpan now = World.DateTime.TimeOfDay; //DateTime.Now.TimeOfDay;
 
-            if (start <= end)
+            if (HourStart <= HourEnd)
             {
-                // start and stop times are in the same day
-                if (now >= start && now <= end)
-                {
-                    // current time is between start and stop
-                    return true;
-                }
+                // HourStart and stop times are in the same day
+                return now >= HourStart && now <= HourEnd;
             }
             else
             {
-                // start and stop times are in different days
-                if (now >= start || now <= end)
-                {
-                    // current time is between start and stop
-                    return true;
-                }
+                // HourStart and stop times are in different days
+                return now >= HourStart || now <= HourEnd;
             }
-            return false;
         }
     }
 }

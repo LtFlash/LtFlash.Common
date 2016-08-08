@@ -1,9 +1,13 @@
 ﻿using Rage;
+using System;
 using System.Media;
+using Rage.Native;
+using System.Timers;
+using Forms = System.Windows.Forms;
 
 namespace LtFlash.Common.ScriptManager.Scripts
 {
-    public abstract class CalloutScriptBase : ScriptBase
+    public abstract class CalloutScriptBase : ScriptBase, IScript
     {
         //PUBLIC
         public float DistanceSoundPlayerClosingIn { get; set; } = 80f;
@@ -16,17 +20,12 @@ namespace LtFlash.Common.ScriptManager.Scripts
             }
         }
         public SoundPlayer SoundPlayerClosingIn
-        {
-            set
-            {
-                _soundPlayerClosingIn = value;
-            }
-        }
+            { set { _soundPlayerClosingIn = value; } }
 
         //PROTECTED
-        protected System.Windows.Forms.Keys KeyAcceptCallout { get; set; } 
-            = System.Windows.Forms.Keys.Y;
-        protected double Timeout { set { _callNotAcceptedTimer.Interval = value; } }
+        protected Forms.Keys KeyAcceptCallout { get; set; } = Forms.Keys.Y;
+        protected double Timeout
+            { set { _callNotAcceptedTimer.Interval = value; } }
 
         //PRIVATE
         private const double TIME_CALL_NOT_ACCEPTED = 10000;
@@ -34,8 +33,8 @@ namespace LtFlash.Common.ScriptManager.Scripts
         private const float BLIP_ALPHA = 0.3f;
 
         private System.Drawing.Color _blipAreaColor = System.Drawing.Color.Blue;
-        private SoundPlayer _soundPlayerClosingIn = new SoundPlayer(LtFlash.Common.Properties.Resources.CaseApproach);
-        private System.Timers.Timer _callNotAcceptedTimer = new System.Timers.Timer(TIME_CALL_NOT_ACCEPTED);
+        private SoundPlayer _soundPlayerClosingIn = new SoundPlayer(Properties.Resources.CaseApproach);
+        private Timer _callNotAcceptedTimer = new Timer(TIME_CALL_NOT_ACCEPTED);
         private bool _timeElapsed = false;
         private bool _zoomOutMinimap = false;
         private Blip _blipArea;
@@ -66,7 +65,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         private void PlaySoundWhenPlayerNearby()
         {
-            if (Vector3.Distance(Game.LocalPlayer.Character.Position, _callPosition)
+            if (Vector3.Distance(PlayerPos, _callPosition)
                 <= DistanceSoundPlayerClosingIn)
             {
                 _soundPlayerClosingIn.Play();
@@ -83,10 +82,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
             }
 
             _callNotAcceptedTimer.Start();
-            _callNotAcceptedTimer.Elapsed += (s, args) =>
-            {
-                _timeElapsed = true;
-            };
+            _callNotAcceptedTimer.Elapsed += (s, args) => _timeElapsed = true;
 
             SwapStages(InternalInitialize, WaitForAcceptKey);
         }
@@ -132,8 +128,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         private void RemoveAreaWhenClose()
         {
-            if(Game.LocalPlayer.Character.Position.DistanceTo(_blipRoutePosition)
-                <= _blipRouteRadius)
+            if(PlayerPos.DistanceTo(_blipRoutePosition) <= _blipRouteRadius)
             {
                 RemoveAreaBlipWithRoute();
                 DeactivateStage(RemoveAreaWhenClose);
@@ -141,10 +136,10 @@ namespace LtFlash.Common.ScriptManager.Scripts
         }
 
         private void SetMinimapZoom(int zoomLevel)
-            => Rage.Native.NativeFunction.Natives.SetRadarZoom(zoomLevel);
+            => NativeFunction.Natives.SetRadarZoom(zoomLevel);
 
         private void FlashMinimap()
-            => Rage.Native.NativeFunction.Natives.FlashMinimapDisplay();
+            => NativeFunction.Natives.FlashMinimapDisplay();
 
         private void RemoveAreaBlip()
         {
@@ -182,15 +177,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
         }
 
         private void InternalAccepted()
-        {
-            if (!Accepted())
-            {
-                SwapStages(InternalAccepted, InternalEnd);
-                return;
-            }
-
-            SwapStages(InternalAccepted, Process);
-        }
+            =>SwapStages(InternalAccepted, (Accepted() ? (Action)Process : InternalEnd));
 
 
         private void InternalNotAccepted()

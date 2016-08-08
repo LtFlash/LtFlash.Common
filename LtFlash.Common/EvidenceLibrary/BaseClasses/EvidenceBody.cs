@@ -12,6 +12,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             Ped.Kill();
             TextInteractWithEvidence = $"Press ~y~{KeyInteract}~s~ to inspect the body.";
+            TextWhileInspecting = $"Press ~y~{KeyLeave}~s~ to quit inspecting the body.";
         }
 
         //protected override void DisplayInfoInteractWithEvidence()
@@ -47,8 +48,8 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
                 case EState.InspectingEvidence:
 
-                    Game.DisplayHelp($"Press ~y~{KeyLeave}~s~ to quit inspecting the body.", 100);
-
+                    Game.DisplayHelp(GetTextWhileInspectingWithAdditional(), 100);
+                    
                     if (Game.IsKeyDown(KeyLeave))
                     {
                         _state = EState.InterpolateCamBack;

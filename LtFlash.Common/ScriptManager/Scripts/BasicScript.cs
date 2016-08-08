@@ -38,6 +38,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
         public void SetScriptFinished(bool completed)
         {
             Completed = completed;
+            HasFinished = true;
             InternalEnd();
         }
     }

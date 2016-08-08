@@ -14,7 +14,10 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         //PROTECTED
         protected virtual IScriptStartController ScriptStartController
-        { get; } = new UnconditionalStartController();
+            { get; } = new UnconditionalStartController();
+
+        protected Vector3 PlayerPos
+            { get { return Game.LocalPlayer.Character.Position; } }
 
         //PRIVATE
         private GameFiber _process;
@@ -54,9 +57,6 @@ namespace LtFlash.Common.ScriptManager.Scripts
             _canRun = false;
             HasFinished = true;
             IsRunning = false;
-
-            //Abort() has to be the last as it does not return control to function!
-            _process.Abort();
         }
 
         protected void AddStage(Action stage)

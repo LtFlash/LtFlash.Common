@@ -1,5 +1,5 @@
 ﻿using Rage;
-using LtFlash.Common.ScriptManager.Resources;
+using LtFlash.Common.Logging;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
@@ -41,10 +41,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
                 Logger.Log(nameof(TimerControlledScriptStarter), 
                     nameof(TimerTick), ScriptStarted.ToString());
             }
-            else if(script.HasFinishedSuccessfully)
-            {
-                _timer.Stop();
-            }
+            else if(script.HasFinishedSuccessfully) _timer.Stop();
 
             _timer.Interval = GetRandomInterval(_intervalMin, _intervalMax);
         }
