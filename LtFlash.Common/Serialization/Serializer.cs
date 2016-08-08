@@ -141,37 +141,34 @@ namespace LtFlash.Common.Serialization
 
             return list;
         }
-        //TODO: validate xml and Path.Combine
-        public static void AppendToXML<T>(T ObjectToAdd, string sPath, string FileName)
+
+        public static void AppendToXML<T>(T objectToAdd, string path)
         {
-            if (!Directory.Exists(sPath))
-            {
-                Directory.CreateDirectory(sPath);
-            }
+            List<T> list = new List<T>();
 
-            string path = sPath + FileName + ".xml";
+            if (ValidatePath(path)) list = LoadFromXML<T>(path);
 
-            if (File.Exists(path))
-            {
-                List<T> listOfSpawns = LoadFromXML<T>(path);
-                listOfSpawns.Add(ObjectToAdd);
+            list.Add(objectToAdd);
 
-                SaveToXML<T>(listOfSpawns, path);
-            }
-            else
-            {
-                List<T> list = new List<T>();
-                list.Add(ObjectToAdd);
-
-                SaveToXML<T>(list, path);
-            }
+            SaveToXML<T>(list, path);
         }
-
-        private static void ValidatePath(string path)
+        /// <summary>
+        /// Creates folder in case it doesn't exist and checks file existance.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>false when a file does not exist.</returns>
+        private static bool ValidatePath(string path)
         {
             //TODO: implement
-            // - 1. check dir existance
-            // - 2. check extension
+            // - check extension
+            string dir = Path.GetDirectoryName(path);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+                return false;
+            }
+
+            return File.Exists(path);
         }
     }
 }
