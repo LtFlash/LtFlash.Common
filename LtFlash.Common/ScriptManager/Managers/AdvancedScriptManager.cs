@@ -10,10 +10,11 @@ namespace LtFlash.Common.ScriptManager.Managers
     public class AdvancedScriptManager
     {
         //PUBLIC
+        public bool IsRunning { get; private set; }
         public double DefaultTimerIntervalMax { get; set; } = 30000;
         public double DefaultTimerIntervalMin { get; set; } = 15000;
-        public bool IsRunning { get; private set; }
         public bool AutoSwapFromSequentialToTimer { get; set; } = true;
+        public bool HasFinished { get; private set; }
 
         //PRIVATE
         private List<ScriptStatus> _off = new List<ScriptStatus>();
@@ -29,6 +30,7 @@ namespace LtFlash.Common.ScriptManager.Managers
             _stages.AddProcess(Process_RunScriptsFromQueue);
             _stages.AddProcess(Process_UnsuccessfullyFinishedScripts);
             _stages.AddProcess(Process_WaitScriptsForFinish);
+            _stages.AddProcess(Process_CheckIfAllFinished);
         }
 
         public void AddScript(
@@ -102,6 +104,7 @@ namespace LtFlash.Common.ScriptManager.Managers
             _stages.ActivateProcess(Process_RunScriptsFromQueue);
             _stages.ActivateProcess(Process_UnsuccessfullyFinishedScripts);
             _stages.ActivateProcess(Process_WaitScriptsForFinish);
+            _stages.ActivateProcess(Process_CheckIfAllFinished);
             _stages.Start();
         }
 
@@ -151,6 +154,20 @@ namespace LtFlash.Common.ScriptManager.Managers
             }
 
             RemoveScripts(fs, _running);
+        }
+
+        private void Process_CheckIfAllFinished()
+        {
+            if(_off.Count == 0 && _queue.Count == 0 && _running.Count == 0)
+            {
+                HasFinished = true;
+                Stop();
+
+                Logging.Logger.Log(
+                    nameof(AdvancedScriptManager), 
+                    nameof(Process_CheckIfAllFinished), 
+                    "All script finished");
+            }
         }
 
         private void AddNewScriptToList(ScriptStatus script, string id)
@@ -250,28 +267,22 @@ namespace LtFlash.Common.ScriptManager.Managers
             }
         }
 
-        private List<IScriptStarter> GetSuccessfullyFinishedScripts(
-            List<IScriptStarter> running)
+        private List<IScriptStarter> GetSuccessfullyFinishedScripts(List<IScriptStarter> running)
             => GetScripts(running, s => s.HasFinishedSuccessfully);
 
-        private List<IScriptStarter> GetUnsuccessfullyFinishedScripts(
-            List<IScriptStarter> running)
+        private List<IScriptStarter> GetUnsuccessfullyFinishedScripts(List<IScriptStarter> running)
             => GetScripts(running, s => s.HasFinishedUnsuccessfully);
         
 
-        private List<IScriptStarter> GetScriptsWithSequentialStarter(
-            List<IScriptStarter> running)
+        private List<IScriptStarter> GetScriptsWithSequentialStarter(List<IScriptStarter> running)
             => GetScripts(running, s => s.GetScriptStatus()
-            .InitModel == Scripts.EInitModels.Sequential);
+               .InitModel == Scripts.EInitModels.Sequential);
         
 
         private List<IScriptStarter> GetScripts(
             List<IScriptStarter> running,
             Func<IScriptStarter, bool> conditions)
-        {
-            Game.LogVerbose($"{nameof(AdvancedScriptManager)}.{nameof(GetScripts)}");
-            return running.Where(conditions).ToList();
-        }
+            => running.Where(conditions).ToList();
 
         private void SetScriptStatusAsFinished(List<IScriptStarter> scripts)
         {
@@ -308,6 +319,11 @@ namespace LtFlash.Common.ScriptManager.Managers
             {
                 MoveInactiveScriptToQueue(scriptsToRun[i], _off, _queue);
             }
+        }
+
+        private void Stop()
+        {
+            _stages.Stop();
         }
     }
 }
