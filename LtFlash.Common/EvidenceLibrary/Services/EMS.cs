@@ -224,7 +224,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public void Dispose()
         {
             _canRun = false;
-            _process?.Abort();
+            //_process?.Abort();
 
             if (_ambulance) _ambulance.Dismiss();
             if (_EMT) _EMT.Dismiss();

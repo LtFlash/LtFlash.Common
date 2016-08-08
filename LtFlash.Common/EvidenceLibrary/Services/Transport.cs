@@ -150,7 +150,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                         if (_policeCar.Exists()) _policeCar.Dismiss();
 
                         _canRun = false;
-                        _process.Abort();
+                        //_process.Abort();
 
                         break;
 
