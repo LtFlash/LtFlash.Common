@@ -3,7 +3,6 @@ using System;
 using System.Media;
 using Rage.Native;
 using System.Timers;
-using System.Drawing;
 using Forms = System.Windows.Forms;
 
 namespace LtFlash.Common.ScriptManager.Scripts
@@ -33,11 +32,11 @@ namespace LtFlash.Common.ScriptManager.Scripts
         private const float RADAR_ZOOM_LEVEL = 200f;
         private const float BLIP_ALPHA = 0.3f;
 
-        private Color _blipAreaColor = Color.Blue;
+        private System.Drawing.Color _blipAreaColor = System.Drawing.Color.Blue;
         private SoundPlayer _soundPlayerClosingIn = new SoundPlayer(Properties.Resources.CaseApproach);
         private Timer _callNotAcceptedTimer = new Timer(TIME_CALL_NOT_ACCEPTED);
-        private bool _timeElapsed;
-        private bool _zoomOutMinimap;
+        private bool _timeElapsed = false;
+        private bool _zoomOutMinimap = false;
         private Blip _blipArea;
         private Blip _blipRoute;
         private float _blipRouteRadius;
@@ -88,6 +87,10 @@ namespace LtFlash.Common.ScriptManager.Scripts
             SwapStages(InternalInitialize, WaitForAcceptKey);
         }
 
+        protected void DisplayCalloutInfo(string text)
+        {
+            Game.DisplayNotification(text);
+        }
 
         protected void ShowAreaBlip(
             Vector3 position, float radius, 
@@ -105,7 +108,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         protected void ShowAreaWithRoute(
             Vector3 position, float radius, 
-            Color color)
+            System.Drawing.Color color)
         {
             _blipRoute = new Blip(position, radius);
             _blipRoute.Alpha = BLIP_ALPHA;
@@ -144,13 +147,12 @@ namespace LtFlash.Common.ScriptManager.Scripts
             SetMinimapZoom(0);
         }
 
-        protected void DisplayCalloutInfo(string text)
-            => Game.DisplayNotification(text);
-
         public void DisplayCalloutInfo(
             string textureDictionaryName, string textureName,
             string title, string subtitle, string text)
-            => Game.DisplayNotification(textureDictionaryName, textureName, title, subtitle, text);
+        {
+            Game.DisplayNotification(textureDictionaryName, textureName, title, subtitle, text);
+        }
 
         private void WaitForAcceptKey()
         {
@@ -175,7 +177,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
         }
 
         private void InternalAccepted()
-            => SwapStages(InternalAccepted, (Accepted() ? (Action)Process : InternalEnd));
+            =>SwapStages(InternalAccepted, (Accepted() ? (Action)Process : InternalEnd));
 
 
         private void InternalNotAccepted()

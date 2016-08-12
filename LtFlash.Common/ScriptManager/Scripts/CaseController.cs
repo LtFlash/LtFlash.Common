@@ -1,31 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LtFlash.Common.ScriptManager.Managers;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace LtFlash.Common.ScriptManager.Scripts
 {
-    public abstract class CaseController : BasicScript, IScript
+    public class CaseController : ScriptBase
     {
-        protected AdvancedScriptManager Stages { get; private set; }
-            = new AdvancedScriptManager();
-
-        public CaseController() : base()
-        {
-            AddStagesOfCase();
-        }
-
-        public abstract void AddStagesOfCase();
+        private Managers.TimerBasedScriptManager _cases = new Managers.TimerBasedScriptManager();
 
         protected override bool Initialize()
         {
-            Stages.Start();
             return true;
         }
-
         protected override void Process()
         {
-            if(Stages.HasFinished) SetScriptFinished(true);
+            //if all finished SetScriptFinished
+
+        }
+
+        protected override void End()
+        {
         }
     }
 }

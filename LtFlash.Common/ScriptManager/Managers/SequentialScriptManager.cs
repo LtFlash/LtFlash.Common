@@ -1,18 +1,31 @@
 ﻿namespace LtFlash.Common.ScriptManager.Managers
 {
-    public class SequentialScriptManager : NewScriptManagerBase
+    public class SequentialScriptManager : ScriptManagerBase
     {
         public SequentialScriptManager() : base()
         {
-            _proc.AddProcess(StartNewScript);
-            _proc.ActivateProcess(StartNewScript);
+
         }
 
-        private void StartNewScript()
+        protected override void Process()
         {
-            if (!canStartNewScript) return;
-            StartFromFirstScript();
-            canStartNewScript = false;
+            for (int i = 0; i < _scripts.Count; i++)
+            {
+                if (_scripts[i].Processed) continue;
+
+                if(_scripts[i].HasFinishedSuccessfully)
+                {
+                    //TODO: refactor!!!
+                    StartScript(_scripts[i].NextScriptToRunIds[0], true);
+
+                    _scripts[i].Processed = true;
+                }
+                else if(_scripts[i].HasFinishedUnsuccessfully)
+                {
+                    //restart the same script
+                    _scripts[i].Start();
+                }
+            }
         }
     }
 }

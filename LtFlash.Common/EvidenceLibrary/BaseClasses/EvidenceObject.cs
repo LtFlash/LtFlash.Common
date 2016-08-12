@@ -1,38 +1,53 @@
-﻿using Rage;
+﻿using System;
+using Rage;
 using Rage.Native;
 
 namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
     public abstract class EvidenceObject : EvidenceBase
     {
-        //PUBLIC
+        protected Rage.Object _object;
+
         public override Vector3 Position
-            { get { return _object ? _object.Position : Vector3.Zero; } }
+        {
+            get
+            {
+                return _object ? _object.Position : Vector3.Zero;
+            }
+        }
 
         public override PoolHandle Handle
-            { get { return _object ? _object.Handle : new PoolHandle(); } }
+        {
+            get
+            {
+                return _object ? _object.Handle : new PoolHandle();
+            }
+        }
 
         protected override Entity EvidenceEntity
-            { get { return _object; } }
-
-        //PROTECTED
-        protected Object _object;
-
-        public EvidenceObject(
-            string id, string description, Model model, Vector3 position) 
-            : base(id, description)
         {
-            _object = new Object(model, position);
+            get
+            {
+                return _object;
+            }
+        }
+
+        public EvidenceObject(string id, string description, Model model, Vector3 position) : base(id, description)
+        {
+            _object = new Rage.Object(model, position);
 
             PlaceObjectOnGround(_object);
 
-            NativeFunction.Natives.SetEntityHasGravity(_object, true);
+            NativeFunction.CallByName<uint>("SET_ENTITY_HAS_GRAVITY", _object, true);
             GameFiber.Sleep(3000);
             _object.IsPositionFrozen = true;
         }
 
-        private void PlaceObjectOnGround(Object obj)
-            => NativeFunction.Natives.PlaceObjectOnGroundProperly(obj);
+        private void PlaceObjectOnGround(Rage.Object obj)
+        {
+            const ulong PLACE_OBJECT_ON_GROUND_PROPERLY = 0x58A850EAEE20FAA3;
+            NativeFunction.CallByHash<uint>(PLACE_OBJECT_ON_GROUND_PROPERLY, obj);
+        }
 
         public override void Dismiss()
         {

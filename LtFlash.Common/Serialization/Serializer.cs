@@ -10,48 +10,61 @@ namespace LtFlash.Common.Serialization
     {
         public static void SaveToNode(string file, string node, string value)
         {
-            XmlNode n = SelectNodeFromXml(file, node);
-
-            if (n == null)
-                throw new KeyNotFoundException("SaveToNode: Specified node does not exists!");
-
-            n.InnerText = value;
             var doc = new XmlDocument();
-            doc.Save(file);
+            using (TextReader reader = new StreamReader(file))
+            {
+                doc.Load(reader);
+            }
+
+            XmlNode n = doc.SelectSingleNode(node);
+
+            if (n != null)
+            {
+                n.InnerText = value;
+
+                doc.Save(file);
+            }
         }
 
         public static string ReadFromNode(string file, string node)
-        {   
-            return SelectNodeFromXml(file, node).InnerText;
-        }
-
-        private static XmlNode SelectNodeFromXml(string file, string node)
         {
             var doc = new XmlDocument();
             using (TextReader reader = new StreamReader(file))
             {
                 doc.Load(reader);
             }
-            return doc.SelectSingleNode(node);
+            XmlNode n = doc.SelectSingleNode(node);
+
+            return n.InnerText;
         }
 
-        public static List<T> LoadAllXML<T>(string path)
+        public static void LoadAllXML<T>(ref List<T> listOfItems, string path)
         {
-            return LoadAllXML<T>(path, SearchOption.AllDirectories);            
+            LoadAllXML(ref listOfItems, path, SearchOption.AllDirectories);            
         }
 
-        public static List<T> LoadAllXML<T>(string path, SearchOption searchOption)
+        public static void LoadAllXML<T>(
+            ref List<T> listOfItems, string path, SearchOption searchOption)
         {
-            List<T> result = new List<T>();
+            List<T> storage = new List<T>();
+            List<T> temp = new List<T>();
 
             string[] files = Directory.GetFiles(path, "*.xml", searchOption);
 
             for (int i = 0; i < files.Length; i++)
             {
-                result.AddRange(LoadFromXML<T>(files[i]));
+                //TODO: use LoadFromXML
+                XmlSerializer deserializer = new XmlSerializer(typeof(List<T>));
+                using (TextReader reader = new StreamReader(files[i]))
+                {
+                    temp = new List<T>();
+                    temp = (List<T>)deserializer.Deserialize(reader);
+                }
+
+                storage.AddRange(temp);
             }
 
-            return result;
+            listOfItems = storage;
         }
 
         public static void SaveToXML<T>(List<T> list, string path)
@@ -148,7 +161,6 @@ namespace LtFlash.Common.Serialization
         {
             //TODO: implement
             // - check extension
-            // - bool param: createDir
             string dir = Path.GetDirectoryName(path);
             if (!Directory.Exists(dir))
             {

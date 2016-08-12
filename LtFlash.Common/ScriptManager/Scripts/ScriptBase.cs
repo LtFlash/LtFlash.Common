@@ -22,7 +22,6 @@ namespace LtFlash.Common.ScriptManager.Scripts
         //PRIVATE
         private GameFiber _process;
         private bool _canRun = true;
-
         private List<Stage> _stages = new List<Stage>();
         private class Stage
         {

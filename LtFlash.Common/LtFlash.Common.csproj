@@ -83,16 +83,9 @@
     <Compile Include="EvidenceLibrary\Resources\MedicalCenters.cs" />
     <Compile Include="EvidenceLibrary\Resources\PoliceStations.cs" />
     <Compile Include="EvidenceLibrary\Services\Coroner.cs" />
-    <Compile Include="EvidenceLibrary\Services\Coroner_.cs" />
     <Compile Include="EvidenceLibrary\Services\EMS.cs" />
-    <Compile Include="EvidenceLibrary\Services\EMS_.cs" />
-    <Compile Include="EvidenceLibrary\Services\ServiceBase.cs" />
     <Compile Include="EvidenceLibrary\Services\Transport.cs" />
     <Compile Include="Logging\PerformanceLogger.cs" />
-    <Compile Include="ScriptManager\Managers\NewScriptManagerBase.cs" />
-    <Compile Include="ScriptManager\Managers\RandomScriptManager.cs" />
-    <Compile Include="ScriptManager\Managers\TimerBasedScriptManager.cs" />
-    <Compile Include="ScriptManager\Scripts\CasesAggregator.cs" />
     <Compile Include="SpawnPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -105,8 +98,8 @@
     <Compile Include="ScriptManager\Managers\ScriptManagerBase.cs" />
     <Compile Include="ScriptManager\Managers\ScriptStatus.cs" />
     <Compile Include="ScriptManager\Managers\SequentialScriptManager.cs" />
-    <Compile Include="ScriptManager\Managers\TimerBasedScriptManager_Old.cs" />
-    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="ScriptManager\Managers\TimerBasedScriptManager.cs" />
+    <Compile Include="ScriptManager\Resources\Logger.cs" />
     <Compile Include="Processes\ProcessHost.cs" />
     <Compile Include="ScriptManager\Resources\Zones.cs" />
     <Compile Include="ScriptManager\ScriptStartController\AreaBasedStartController.cs" />
@@ -147,9 +140,6 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "D:\Software\Rockstar Games\Grand Theft Auto V\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

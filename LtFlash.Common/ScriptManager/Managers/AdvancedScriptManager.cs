@@ -21,16 +21,16 @@ namespace LtFlash.Common.ScriptManager.Managers
         private List<ScriptStatus> _queue = new List<ScriptStatus>();
         private List<IScriptStarter> _running = new List<IScriptStarter>();
 
-        private Dictionary<string, bool> statusOfScripts = new Dictionary<string, bool>();
+        private Dictionary<string, bool> _statusOfScripts = new Dictionary<string, bool>();
 
-        private ProcessHost stages = new ProcessHost();
+        private ProcessHost _stages = new ProcessHost();
 
         public AdvancedScriptManager()
         {
-            stages.AddProcess(Process_RunScriptsFromQueue);
-            stages.AddProcess(Process_UnsuccessfullyFinishedScripts);
-            stages.AddProcess(Process_WaitScriptsForFinish);
-            stages.AddProcess(Process_CheckIfAllFinished);
+            _stages.AddProcess(Process_RunScriptsFromQueue);
+            _stages.AddProcess(Process_UnsuccessfullyFinishedScripts);
+            _stages.AddProcess(Process_WaitScriptsForFinish);
+            _stages.AddProcess(Process_CheckIfAllFinished);
         }
 
         public void AddScript(
@@ -90,22 +90,22 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public bool HasScriptFinished(string id)
         {
-            if(!statusOfScripts.ContainsKey(id))
+            if(!_statusOfScripts.ContainsKey(id))
             {
                 throw new ArgumentException(
                     $"{nameof(HasScriptFinished)}: Script with id [{id}] does not exist.");
             }
 
-            return statusOfScripts[id];
+            return _statusOfScripts[id];
         }
 
         private void RegisterProcesses()
         {
-            stages.ActivateProcess(Process_RunScriptsFromQueue);
-            stages.ActivateProcess(Process_UnsuccessfullyFinishedScripts);
-            stages.ActivateProcess(Process_WaitScriptsForFinish);
-            stages.ActivateProcess(Process_CheckIfAllFinished);
-            stages.Start();
+            _stages.ActivateProcess(Process_RunScriptsFromQueue);
+            _stages.ActivateProcess(Process_UnsuccessfullyFinishedScripts);
+            _stages.ActivateProcess(Process_WaitScriptsForFinish);
+            _stages.ActivateProcess(Process_CheckIfAllFinished);
+            _stages.Start();
         }
 
         private void Process_RunScriptsFromQueue()
@@ -173,7 +173,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         private void AddNewScriptToList(ScriptStatus script, string id)
         {
             _off.Add(script);
-            statusOfScripts.Add(id, false);
+            _statusOfScripts.Add(id, false);
         }
 
         private bool CheckIfScriptCanBeStarted(ScriptStatus script)
@@ -182,7 +182,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 return true;
             else
                 return CheckIfNecessaryScriptsAreFinished(
-                    script.ScriptsToFinishPriorThis, statusOfScripts);
+                    script.ScriptsToFinishPriorThis, _statusOfScripts);
         }
 
         private ScriptStatus GetScriptById(string id, List<ScriptStatus> from)
@@ -288,7 +288,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             for (int i = 0; i < scripts.Count; i++)
             {
-                statusOfScripts[scripts[i].Id] = true;
+                _statusOfScripts[scripts[i].Id] = true;
             }
         }
 
@@ -323,7 +323,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void Stop()
         {
-            stages.Stop();
+            _stages.Stop();
         }
     }
 }

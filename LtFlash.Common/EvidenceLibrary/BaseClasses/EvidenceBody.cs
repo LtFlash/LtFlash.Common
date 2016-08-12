@@ -15,6 +15,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             TextWhileInspecting = $"Press ~y~{KeyLeave}~s~ to quit inspecting the body.";
         }
 
+        //protected override void DisplayInfoInteractWithEvidence()
+        //{
+        //    Game.DisplayHelp(TextInteractWithEvidence, 100);
+        //}
+
         private enum EState
         {
             InterpolateCam,
