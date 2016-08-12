@@ -10,6 +10,9 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public VehicleDrivingFlags VehDrivingFlags { get; set; } 
             = VehicleDrivingFlags.Emergency;
 
+        public System.Windows.Forms.Keys KeyStartDialogue { get; set; }
+            = System.Windows.Forms.Keys.Y;
+
         //PROTECTED
         protected Ped PedDriver { get; private set; }
         protected Ped PedWorker { get; private set; }
@@ -17,6 +20,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         protected Vector3 PlayerPos
             { get { return Game.LocalPlayer.Character.Position; } }
+
+        protected Dialog Dialogue { get; set; }
 
         //PRIVATE
         private string _vehModel;
@@ -29,11 +34,12 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         private SpawnPoint _spawnPos;
         private SpawnPoint _destPoint;
 
-        private Processes.ProcessHost _proc = new Processes.ProcessHost();
+        protected Processes.ProcessHost Proc { get; private set; } 
+            = new Processes.ProcessHost();
 
         public ServiceBase(
             string vehModel, string modelPedDriver, string modelPedWorker,
-            SpawnPoint spawnPos, SpawnPoint dest)
+            SpawnPoint spawnPos, SpawnPoint dest, string[] dialogue)
         {
             _vehModel = vehModel;
             _spawnPos = spawnPos;
@@ -42,16 +48,21 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             _modelPedDriver = modelPedDriver;
             _modelPedWorker = modelPedWorker;
 
-            _proc.AddProcess(CreateEntities);
-            _proc.AddProcess(DispatchFromSpawnPoint);
-            _proc.AddProcess(WaitForArrival);
-            _proc.AddProcess(PostArrival);
-            _proc.AddProcess(BackToVehicle);
-            _proc.AddProcess(CheckIfPedDriverCloseToVeh);
-            _proc.AddProcess(CheckIfPedWorkerCloseToVeh);
-            _proc.AddProcess(CheckIfPedsAreInVeh);
-            _proc.AddProcess(DriveBackToSpawn);
-            _proc.AddProcess(CheckIfCanBeDisposed);
+            Dialogue = new Dialog(dialogue);
+
+            Proc.AddProcess(CreateEntities);
+            Proc.AddProcess(DispatchFromSpawnPoint);
+            Proc.AddProcess(WaitForArrival);
+            Proc.AddProcess(PostArrival);
+            Proc.AddProcess(BackToVehicle);
+            Proc.AddProcess(CheckIfPedDriverCloseToVeh);
+            Proc.AddProcess(CheckIfPedWorkerCloseToVeh);
+            Proc.AddProcess(CheckIfPedsAreInVeh);
+            Proc.AddProcess(DriveBackToSpawn);
+            Proc.AddProcess(CheckIfCanBeDisposed);
+
+            Proc.ActivateProcess(CreateEntities);
+            Proc.Start();
         }        
 
         private void CreateEntities()
@@ -77,7 +88,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
             PostSpawn();
 
-            _proc.SwapProcesses(CreateEntities, DispatchFromSpawnPoint);
+            Proc.SwapProcesses(CreateEntities, DispatchFromSpawnPoint);
         }
 
         protected abstract void PostSpawn();
@@ -85,10 +96,10 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         private void DispatchFromSpawnPoint()
         {
             PedDriver.Tasks.DriveToPosition(
-                Vehicle, _spawnPos.Position, 
+                Vehicle, _destPoint.Position, 
                 VehicleDrivingSpeed, VehDrivingFlags, 5f);
 
-            _proc.SwapProcesses(DispatchFromSpawnPoint, WaitForArrival);
+            Proc.SwapProcesses(DispatchFromSpawnPoint, WaitForArrival); 
         }
 
         private void WaitForArrival()
@@ -96,7 +107,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (Vehicle.Position.DistanceTo(_destPoint.Position) <= 10f && 
                 Vehicle.Speed == 0f)
             {
-                _proc.SwapProcesses(WaitForArrival, PostArrival);
+                Proc.SwapProcesses(WaitForArrival, PostArrival);
             }
         }
 
@@ -107,9 +118,9 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             PedWorker.Tasks.GoToOffsetFromEntity(Vehicle, 0.1f, 0f, 1f);
             PedDriver.Tasks.GoToOffsetFromEntity(Vehicle, 0.1f, 0f, 1f);
 
-            _proc.DeactivateProcess(BackToVehicle);
-            _proc.ActivateProcess(CheckIfPedDriverCloseToVeh);
-            _proc.ActivateProcess(CheckIfPedWorkerCloseToVeh);
+            Proc.DeactivateProcess(BackToVehicle);
+            Proc.ActivateProcess(CheckIfPedDriverCloseToVeh);
+            Proc.ActivateProcess(CheckIfPedWorkerCloseToVeh);
         }
 
         private void CheckIfPedDriverCloseToVeh()
@@ -117,7 +128,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (Vector3.Distance(PedDriver.Position, Vehicle.Position) <= 5f)
             {
                 PedDriver.Tasks.EnterVehicle(Vehicle, -1);
-                _proc.SwapProcesses(CheckIfPedDriverCloseToVeh, CheckIfPedsAreInVeh);
+                Proc.SwapProcesses(CheckIfPedDriverCloseToVeh, CheckIfPedsAreInVeh);
             }
         }
 
@@ -126,7 +137,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (Vector3.Distance(PedWorker.Position, Vehicle.Position) <= 5f)
             {
                 PedWorker.Tasks.EnterVehicle(Vehicle, 0);
-                _proc.SwapProcesses(CheckIfPedDriverCloseToVeh, CheckIfPedsAreInVeh);
+                Proc.SwapProcesses(CheckIfPedWorkerCloseToVeh, CheckIfPedsAreInVeh);
             }
         }
 
@@ -135,7 +146,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (PedDriver.IsInVehicle(Vehicle, false) && 
                 PedWorker.IsInVehicle(Vehicle, false))
             {
-                _proc.SwapProcesses(CheckIfPedsAreInVeh, DriveBackToSpawn);
+                Proc.SwapProcesses(CheckIfPedsAreInVeh, DriveBackToSpawn);
             }
         }
 
@@ -146,7 +157,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             PedDriver.Tasks.DriveToPosition(
                 _spawnPos.Position, VehicleDrivingSpeed, VehDrivingFlags);
 
-            _proc.SwapProcesses(DriveBackToSpawn, CheckIfCanBeDisposed);
+            Proc.SwapProcesses(DriveBackToSpawn, CheckIfCanBeDisposed);
         }
 
         private void CheckIfCanBeDisposed()
@@ -154,7 +165,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (Vector3.Distance(PlayerPos, Vehicle.Position) >= DisposeDistance ||
                 Vector3.Distance(Vehicle.Position, _spawnPos.Position) <= 10f)
             {
-                _proc.DeactivateProcess(CheckIfCanBeDisposed);
+                Proc.DeactivateProcess(CheckIfCanBeDisposed);
                 InternalDispose();
             }
         }

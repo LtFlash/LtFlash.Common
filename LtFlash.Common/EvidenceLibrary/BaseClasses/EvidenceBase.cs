@@ -78,7 +78,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         protected abstract Entity EvidenceEntity { get; }
         protected float _distanceEvidenceClose = 3f;
 
-
         //PRIVATE
         private SoundPlayer _soundEvidenceNearby 
             = new SoundPlayer(Properties.Resources.EvidenceNearby);

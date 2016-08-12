@@ -6,14 +6,16 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class Witness : EvidencePed
     {
+        //PUBLIC
         public bool IsArrested { get; protected set; }
         public bool IsCompliant { get; set; }
         public string[] DialogRefuseTransportToStation { get; set; }
 
-        private Dialog _dialog;
-        private Services.Transport _witnessTransport;
-        private Vector3 _pickupPos;
-        private string[] _dialogRefuseBeingTransported = new string[]
+        //PRIVATE
+        private Dialog dialog;
+        private Services.Transport transport;
+        private Vector3 pickupPos;
+        private string[] dialogRefuseTransport = new string[]
         {
             "No way, I'm not going to get involved!",
             "I'd be dead in 12 hours!",
@@ -25,10 +27,10 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
             string[] dialog, Vector3 pickupPos) 
             : base(id, description, spawn, model)
         {
-            _dialog = new Dialog(dialog);
-            _pickupPos = pickupPos;
+            this.dialog = new Dialog(dialog);
+            this.pickupPos = pickupPos;
 
-            DialogRefuseTransportToStation = _dialogRefuseBeingTransported;
+            DialogRefuseTransportToStation = dialogRefuseTransport;
             TextInteractWithEvidence = $"Press ~y~{KeyInteract} ~s~to talk to the witness.";
 
             TextWhileInspecting = $"Press ~y~{KeyInteract} ~s~to release the witness.~n~Press ~y~{KeyLeave} ~s~to tell the witness to stay at scene.~n~Press ~y~{KeyCollect} ~s~to transport the witness to the station.";
@@ -44,10 +46,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
         protected override void Process()
         {
-            if(!Ped)
-            {
-                Dismiss();
-            }
+            if(!Ped) Dismiss();
 
             if(Functions.IsPedArrested(Ped))
             {
@@ -61,13 +60,13 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
                     if (Collected) return;
 
-                    _dialog.StartDialog(Ped, Game.LocalPlayer.Character);
+                    dialog.StartDialog(Ped, Game.LocalPlayer.Character);
                     Checked = true;
                     _state = EState.CheckIfDialogFinished;
 
                     break;
                 case EState.CheckIfDialogFinished:
-                    if(_dialog.HasEnded)
+                    if(dialog.HasEnded)
                     {
                         Collected = true;
                         _state = EState.WaitForFurtherInstructions;
@@ -108,7 +107,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
                 if (IsCompliant)
                 {
                     SetEvidenceCollected();
-                    _witnessTransport = new Services.Transport(Ped, _pickupPos);
+                    transport = new Services.Transport(Ped, pickupPos);
                 }
                 else
                 {

@@ -1,75 +1,55 @@
-﻿using Rage;
+﻿using System.Timers;
+using Rage;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
-    public class TimerBasedScriptManager : ScriptManagerBase
+    public class TimerBasedScriptManager : NewScriptManagerBase
     {
-        private System.Timers.Timer _scriptRunTimer = new System.Timers.Timer();
+        private Timer _scriptRunTimer = new Timer();
         private double _intervalMax = 3 * 60 * 1000;
         private double _intervalMin = 1 * 60 * 1000;
+        private bool _elapsed = false;
 
         public TimerBasedScriptManager(
-            bool autoStart = false, 
-            double intervalMax = 180000, double intervalMin = 60000) : base()
+            double intervalMin = 60000, double intervalMax = 180000) : base()
         {
             _intervalMax = intervalMax;
             _intervalMin = intervalMin;
-
-            if (autoStart) StartTimer();
         }
 
         public void StartTimer()
         {
-            _scriptRunTimer.Interval = GetRandomTimerInterval();
-            _scriptRunTimer.Elapsed += StartNextScript;
+            _scriptRunTimer.Interval = GetRandomInterval();
+            _scriptRunTimer.Elapsed += TimerTick;
             _scriptRunTimer.AutoReset = true;
             _scriptRunTimer.Start();
+            canStartNewScript = true;
         }
 
-        private double GetRandomTimerInterval()
+        private double GetRandomInterval()
+            => MathHelper.GetRandomDouble(_intervalMin, _intervalMax);
+
+        private void StartNewScript()
         {
-            return MathHelper.GetRandomDouble(_intervalMin, _intervalMax);
+            if (!canStartNewScript || !_elapsed) return;
+            StartScript();
+            _elapsed = false; 
+            canStartNewScript = false;
         }
 
-        private void StartNextScript(object sender, System.Timers.ElapsedEventArgs e)
+        protected virtual void StartScript() => StartFromFirstScript();
+
+        private void TimerTick(object sender, ElapsedEventArgs e)
         {
-            _scriptRunTimer.Interval = GetRandomTimerInterval(); 
+            _scriptRunTimer.Interval = GetRandomInterval();
+            _elapsed = true;
 
-            if (IsAnyScriptRunning()) return;
+            StartNewScript();
 
-            ScriptStatus _scriptToRun = GetNextScriptReadyToRun();
-
-            StartScriptInsideMainLoop(_scriptToRun);
-             
-            Game.LogVerbose("ScriptManager.StartNextScript | interval: " + _scriptRunTimer.Interval);
-        }
-
-        private void StartScriptInsideMainLoop(ScriptStatus scriptToRun)
-        {
-            _scriptToRunInFiber = scriptToRun;
-        }
-
-        private ScriptStatus GetNextScriptReadyToRun()
-        {
-            //TODO: extract functions
-
-            //FindLastIndex returns -1 when no id found
-            int _idLastScript = _scripts.FindLastIndex(s => s.HasFinishedSuccessfully);
-
-            //no index found
-            if (_idLastScript == -1) return _scripts.Count > 0 ? _scripts[0] : null;
-            //last script on the list
-            if (_scripts.Count - 1 == _idLastScript) return null;
-
-            int _idNextScriptToRun = _scripts[_idLastScript].HasFinishedSuccessfully ? _idLastScript + 1 : _idLastScript;
-            if (_scripts.Count - 1 >= _idNextScriptToRun) return _scripts[_idNextScriptToRun];
-            else return null;
-        } 
-
-        private bool IsAnyScriptRunning()
-        {
-            int noOfRunningScripts = _scripts.FindAll(s => s.IsRunning).Count;
-            return noOfRunningScripts > 0;
+            Logging.Logger.Log(
+                nameof(TimerBasedScriptManager), 
+                nameof(TimerTick), 
+                "interval: " + _scriptRunTimer.Interval / 1000);
         }
     }
 }
