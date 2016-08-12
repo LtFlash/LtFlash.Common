@@ -9,11 +9,23 @@ namespace LtFlash.Common.Processes
     {
         //PUBLIC
         public bool IsRunning { get; private set; }
+        public bool this[Action proc]
+        {
+            get
+            {
+                return IsListed(proc) ? Find(proc).Active : false;
+            }
+            set
+            {
+                if (value) ActivateProcess(proc);
+                else DeactivateProcess(proc);
+            }
+        }
 
         //PRIVATE
-        private GameFiber _process;
-        private bool _canRun = true;
-        private List<Proc> _processes = new List<Proc>();
+        private GameFiber fiber;
+        private bool canRun = true;
+        private List<Proc> processes = new List<Proc>();
 
         private class Proc
         {
@@ -29,7 +41,7 @@ namespace LtFlash.Common.Processes
 
         public ProcessHost()
         {
-            _process = new GameFiber(InternalProcess);
+            fiber = new GameFiber(InternalProcess);
         }
 
         public ProcessHost(bool autoRun) : base()
@@ -40,36 +52,45 @@ namespace LtFlash.Common.Processes
         public void Start()
         {
             IsRunning = true;
-            _canRun = true;
-            _process.Start();
+            canRun = true;
+            fiber.Start();
         }
 
         public void Stop()
         {
             IsRunning = false;
-            _canRun = false;
+            canRun = false;
         }
 
         public void AddProcess(Action proc)
         {
-            if(!CheckIfListed(proc)) _processes.Add(new Proc(proc, false));
+            AddProcess(proc, false);
+        }
+
+        public void AddProcess(Action proc, bool isActive)
+        {
+            if (!IsListed(proc)) processes.Add(new Proc(proc, isActive));
         }
 
         public void ActivateProcess(Action proc)
         {
-            if (!CheckIfListed(proc)) AddProcess(proc);
-            _processes.Find(a => a.Function == proc).Active = true;
+            if (!IsListed(proc)) AddProcess(proc);
+            Find(proc).Active = true;
         }
 
         public void DeactivateProcess(Action proc)
         {
-            if(CheckIfListed(proc))
-                _processes.Find(a => a.Function == proc).Active = false;
+            if(IsListed(proc)) Find(proc).Active = false;
         }
 
-        private bool CheckIfListed(Action proc)
+        private Proc Find(Action proc)
         {
-            return _processes.FirstOrDefault(s => s.Function == proc) != null;
+            return processes.Find(a => a.Function == proc);
+        }
+
+        private bool IsListed(Action proc)
+        {
+            return processes.FirstOrDefault(s => s.Function == proc) != null;
         }
 
         public void SwapProcesses(Action toDisable, Action toEnable)
@@ -80,7 +101,7 @@ namespace LtFlash.Common.Processes
 
         private void InternalProcess()
         {
-            while (_canRun)
+            while (canRun)
             {
                 Process();
                 GameFiber.Yield();
@@ -89,9 +110,9 @@ namespace LtFlash.Common.Processes
 
         public void Process()
         {
-            for (int i = 0; i < _processes.Count; i++)
+            for (int i = 0; i < processes.Count; i++)
             {
-                if (_processes[i].Active) _processes[i].Function();
+                if (processes[i].Active) processes[i].Function();
             }
         }
     }

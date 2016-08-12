@@ -46,6 +46,8 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public bool Start()
         {
+            if(Script == null) Script = CreateInstance(TypeImplIScript);
+
             if (Script.CanBeStarted())
             {
                 Script.Start();
@@ -59,16 +61,29 @@ namespace LtFlash.Common.ScriptManager.Managers
             return (Scripts.IScript)Activator.CreateInstance(type);
         }
 
-        //NOTE: to use with simple SM
+        /// <summary>
+        /// Use with simple script managers.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="typeOfBaseScript"></param>
+        /// <param name="nextScriptToRunId"></param>
         public ScriptStatus(
-            string id, Type typeOfBaseScript, 
-            string nextScriptToRunId = "")
+            string id, Type typeOfBaseScript) 
+            : this(id, typeOfBaseScript, Scripts.EInitModels.TimerBased, 
+                  new string[0], new List<string[]>(), 0, 0)
         {
-            Id = id;
-            TypeImplIScript = typeOfBaseScript;
-            NextScriptToRunIds = new string[] { nextScriptToRunId };
         }
 
+        /// <summary>
+        /// Use with AdvancedScriptManager.
+        /// </summary>
+        /// <param name="id">Unique ID of the script.</param>
+        /// <param name="typeOfBaseScript">Type of a script which implements IScript.</param>
+        /// <param name="initModel">Initialization model.</param>
+        /// <param name="nextScriptToRunId">Defines which script will be started after finishing this one.</param>
+        /// <param name="scriptsToFinishPrior">Defines which script has to be finished before this one starts.</param>
+        /// <param name="timerMin">Minimal startup time when using with TimerControlledScriptStarter.</param>
+        /// <param name="timerMax">Maximal startup time when using with TimerControlledScriptStarter.</param>
         public ScriptStatus(
             string id, Type typeOfBaseScript, Scripts.EInitModels initModel,
             string[] nextScriptToRunId, List<string[]> scriptsToFinishPrior,
@@ -82,8 +97,6 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             TimerIntervalMin = timerMin;
             TimerIntervalMax = timerMax;
-
-            Script = CreateInstance(TypeImplIScript);
         }
     }
 }

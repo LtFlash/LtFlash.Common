@@ -1,81 +1,73 @@
-﻿using Rage;
+﻿using System.Timers;
+using Rage;
+using Rage.Native;
 
 namespace LtFlash.Common.EvidenceLibrary
 {
-    //TODO: remove first from a List<string> instead of using index?
     public class Dialog
     {
+        //PUBLIC
+        public bool IsRunning { get; private set; }
         public bool HasEnded { get; private set; }
+        public int TimerInterval { get; set; } = 3000;
+        public int LineDuration { get; set; } = 2500;
 
         //use to play anims?
         //private Ped _ped1;
         //private Ped _ped2;
-
-        //TODO: properties to change times
-        private const int TIME_LINE = 2500;
-        private const int TIME_LINE_PAUSE = 3000;
-
-        private string[] _dialog;
-        private int timeTimer = TIME_LINE_PAUSE;
-        private int timeLine = TIME_LINE;
-        private System.Timers.Timer _timer;
+        
+        //PRIVATE
+        private string[] dialog;
+        private Timer timer;
          
-        private int _currentLine = 0; 
-        private int _linesInDialog;
+        private int currentLine; 
+        private int linesInDialog;
 
         public Dialog(string[] dialog)
         {
-            _dialog = dialog;
-            _linesInDialog = _dialog.Length;
+            this.dialog = dialog;
+            linesInDialog = this.dialog.Length;
 
-            _timer = new System.Timers.Timer(timeTimer);
-            _timer.AutoReset = true;
-            _timer.Elapsed += delegate
-            {
-                ShowLine();
-            };
+            timer = new Timer(TimerInterval);
+            timer.AutoReset = true;
+            timer.Elapsed += (s, e) => ShowLine();
         }
 
         public void StartDialog()
         {
-            _timer.Start();
+            if (IsRunning) return;
+            timer.Start();
             ShowLine();
+            IsRunning = true;
+            HasEnded = false;
         }
 
         public void StartDialog(Ped ped1, Ped ped2)
         {
             TurnTo(ped1, ped2);
-            TurnTo(ped1, ped2);
+            TurnTo(ped2, ped1);
 
             StartDialog();
         } 
          
         private void TurnTo(Ped ped, Entity entity, int duration = 1500)
-        {
-            const ulong TASK_TURN_PED_TO_FACE_ENTITY = 0x5AD23D40115353AC;
-            Rage.Native.NativeFunction.CallByHash<uint>(TASK_TURN_PED_TO_FACE_ENTITY, ped, entity, duration);
-        }
+            => NativeFunction.Natives.TaskTurnPedToFaceEntity(ped, entity, duration);
 
         private void ShowLine()
         {
             GameFiber.StartNew(delegate
             {
-                Game.DisplaySubtitle(_dialog[_currentLine], timeLine);
-                //Game.LogVerbose($"Dialog.ShowLine.Line: {_currentLine}, text: {_dialog[_currentLine]}");
+                Game.DisplaySubtitle(dialog[currentLine], LineDuration);
              
-                _currentLine++;
+                currentLine++;
 
-                if (_currentLine == _linesInDialog) 
+                if (currentLine == linesInDialog) 
                 {
-                    _timer.Stop();
-                    End();
+                    timer.Stop();
+                    HasEnded = true;
+                    IsRunning = false;
                 }
             });
-        }
-
-        private void End()
-        {
-            HasEnded = true;
         }
     }
 }
