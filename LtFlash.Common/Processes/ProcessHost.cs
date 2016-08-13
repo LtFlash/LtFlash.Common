@@ -44,11 +44,6 @@ namespace LtFlash.Common.Processes
             fiber = new GameFiber(InternalProcess);
         }
 
-        public ProcessHost(bool autoRun) : base()
-        {
-            if (autoRun) Start();
-        }
-
         public void Start()
         {
             IsRunning = true;
