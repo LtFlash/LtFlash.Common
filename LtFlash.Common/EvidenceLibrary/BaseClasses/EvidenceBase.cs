@@ -5,6 +5,7 @@ using Rage.Native;
 using System.Media;
 using System.Drawing;
 using System.Windows.Forms;
+using LtFlash.Common.Processes;
 
 namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
@@ -18,11 +19,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             get
             {
-                return _collected;
+                return collected;
             }
             protected set
             {
-                _collected = value;
+                collected = value;
                 if (IsImportant && PlaySoundImportantEvidenceCollected)
                     _soundImportantEvidenceCollected.Play();
             }
@@ -78,38 +79,25 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         private SoundPlayer _soundImportantEvidenceCollected 
             = new SoundPlayer(Properties.Resources.ImportantEvidenceCollected);
 
-        private bool _collected = false;
-        private GameFiber _process;
-        private bool _canRun = true;
-        private Camera _camera;
-        private Camera _gameCam;
-        private bool _prevState_CanBeActivated = false; // to play sounds
+        private bool collected;
+        private bool canRun = true;
+        private Camera camera;
+        private Camera gameCam;
+        private bool prevState_CanBeActivated; // to play sounds
 
         private const int CAM_INTERPOLATION_TIME = 3000;
         private const int SCREEN_FADE_TIME = 1000;
         private const int INFO_INTERACT_TIME = 100;
 
-        private List<Stage> _stages = new List<Stage>();
-        private class Stage
-        {
-            public Action Function;
-            public bool Active;
-
-            public Stage(Action act, bool active)
-            {
-                Function = act;
-                Active = active;
-            }
-        }
+        private ProcessHost ProcHost = new ProcessHost();
 
         public EvidenceBase(string id, string description)
         {
             Id = id;
             Description = description;
 
-            _process = new GameFiber(InternalProcess);
-            _process.Start();
             RegisterStages();
+            ProcHost.Start();
         }
 
         private void RegisterStages()
@@ -128,7 +116,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             if (!CanBeInspected) return;
 
-            if(HasStateChanged(ref _prevState_CanBeActivated, IsPlayerClose))
+            if(HasStateChanged(ref prevState_CanBeActivated, IsPlayerClose))
             {
                 if(IsPlayerClose) 
                 {
@@ -164,34 +152,17 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             if (Blip.Exists()) Blip.Delete();
         }
 
-        protected void AddStage(Action stage)
-        {
-            _stages.Add(new Stage(stage, false));
-        }
+        protected void AddStage(Action stage) => ProcHost.AddProcess(stage);
 
-        protected void ActivateStage(Action stage)
-        {
-            _stages.Find(a => a.Function == stage).Active = true;
-        }
+        protected void ActivateStage(Action stage) 
+            => ProcHost.ActivateProcess(stage);
 
         protected void DeactivateStage(Action stage)
-        {
-            _stages.Find(a => a.Function == stage).Active = false;
-        }
+            => ProcHost.DeactivateProcess(stage);
 
         protected void SwapStages(Action toDisable, Action toEnable)
-        {
-            DeactivateStage(toDisable);
-            ActivateStage(toEnable);
-        }
+            => ProcHost.SwapProcesses(toDisable, toEnable);
 
-        private void ExecStages()
-        {
-            for (int i = 0; i < _stages.Count; i++)
-            {
-                if (_stages[i].Active) _stages[i].Function();
-            }
-        }
         //protected - to SwapStage from derived classes
         protected void AwayOrClose()
         {
@@ -231,7 +202,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             End();
 
-            _canRun = false;
+            canRun = false;
             if (Blip.Exists()) Blip.Delete();
             _soundEvidenceNearby.Dispose();
             _soundImportantEvidenceCollected.Dispose();
@@ -239,27 +210,17 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         protected abstract void End();
 
-        private void InternalProcess()
-        {
-            while(_canRun)
-            {
-                ExecStages();
-
-                GameFiber.Yield();
-            }
-        }
-
         protected void FocusCamOnObjectWithInterpolation(Vector3 camPos, Entity pointAt)
         {
-            _camera = new Camera(false);
+            camera = new Camera(false);
 
-            _camera.Position = camPos;
-            _camera.PointAtEntity(pointAt, Vector3.Zero, false);
+            camera.Position = camPos;
+            camera.PointAtEntity(pointAt, Vector3.Zero, false);
 
-            _gameCam = RetrieveGameCam();
-            _gameCam.Active = true;
-            CamInterpolate(_gameCam, _camera, CAM_INTERPOLATION_TIME, true, true, true);
-            _camera.Active = true;
+            gameCam = RetrieveGameCam();
+            gameCam.Active = true;
+            CamInterpolate(gameCam, camera, CAM_INTERPOLATION_TIME, true, true, true);
+            camera.Active = true;
 
             SetLocalPlayerPropertiesWhileCamOn(true);
         }
@@ -273,15 +234,15 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         protected void InterpolateCameraBack()
         {
-            if (_gameCam == null || _camera == null) return;
+            if (gameCam == null || camera == null) return;
 
-            CamInterpolate(_camera, _gameCam, CAM_INTERPOLATION_TIME, true, true, true);
+            CamInterpolate(camera, gameCam, CAM_INTERPOLATION_TIME, true, true, true);
 
-            _camera.Active = false;
-            _camera.Delete();
-            _camera = null;
-            _gameCam.Delete();
-            _gameCam = null;
+            camera.Active = false;
+            camera.Delete();
+            camera = null;
+            gameCam.Delete();
+            gameCam = null;
 
             SetLocalPlayerPropertiesWhileCamOn(false);
         }
@@ -290,10 +251,10 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             Game.FadeScreenOut(SCREEN_FADE_TIME);
 
-            if (_camera.Exists())
+            if (camera.Exists())
             {
-                _camera.Active = false;
-                _camera.Delete();
+                camera.Active = false;
+                camera.Delete();
             }
 
             Game.FadeScreenIn(SCREEN_FADE_TIME);
@@ -338,9 +299,10 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         public virtual void Dismiss()
         {
-            Game.LogVerbose("EvidenceBase.Dismiss()");
             RemoveBlip();
-            _canRun = false;
+            canRun = false;
+            ProcHost.Stop();
+            Logging.Logger.LogDebug(nameof(EvidenceBase), nameof(Dismiss), "invoked");
         }
 
         public abstract bool IsValid();
