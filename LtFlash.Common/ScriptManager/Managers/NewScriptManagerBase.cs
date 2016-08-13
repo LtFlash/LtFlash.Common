@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Rage;
+using LtFlash.Common.Processes;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
     public class NewScriptManagerBase
     {
         //PROTECTED
-        protected Processes.ProcessHost _proc { get; private set; } 
-            = new Processes.ProcessHost();
+        protected ProcessHost ProcHost { get; private set; } = new ProcessHost();
         
         protected bool canStartNewScript = true;
         protected bool removeOnStart = true;
@@ -19,7 +19,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         private ScriptStatus _await;
         private ScriptStatus _running;
 
-        private Dictionary<string, bool> _statusOfScripts 
+        private Dictionary<string, bool> statusOfScripts 
             = new Dictionary<string, bool>();
 
         private bool _restartOnFailure;
@@ -27,16 +27,16 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public NewScriptManagerBase()
         {
-            _proc.AddProcess(CheckWaiting);
-            _proc.AddProcess(CheckRunningScript);
+            ProcHost.AddProcess(CheckWaiting);
+            ProcHost.AddProcess(CheckRunningScript);
 
-            _proc.Start();
+            ProcHost.Start();
         }
 
         public void AddScript(string id, Type typeImplIScript)
         {
             _off.Add(new ScriptStatus(id, typeImplIScript));
-            _statusOfScripts.Add(id, false);
+            statusOfScripts.Add(id, false);
         }
 
         protected bool StartFromFirstScript()
@@ -59,7 +59,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             _await = script;
             if(removeOnStart) _off.Remove(script);
-            _proc.ActivateProcess(CheckWaiting);
+            ProcHost.ActivateProcess(CheckWaiting);
         }
 
         private void CheckWaiting()
@@ -70,7 +70,7 @@ namespace LtFlash.Common.ScriptManager.Managers
             {
                 _running = _await;
                 _await = null;
-                _proc.SwapProcesses(CheckWaiting, CheckRunningScript);
+                ProcHost.SwapProcesses(CheckWaiting, CheckRunningScript);
             }
         }
 
@@ -80,10 +80,10 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             if (_running.HasFinishedSuccessfully)
             {
-                _statusOfScripts[_running.Id] = true;
+                statusOfScripts[_running.Id] = true;
                 _running = null;
                 canStartNewScript = true;
-                _proc.DeactivateProcess(CheckRunningScript);
+                ProcHost.DeactivateProcess(CheckRunningScript);
             }
             //TODO: if unsuccessful -> add current to _await list
         }

@@ -37,13 +37,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         }
         public bool CanBeInspected { get; set; } = true;
         public virtual bool IsPlayerClose
-        {
-            get
-            {
-                return Vector3.Distance(PlayerPos, Position) 
-                    <= _distanceEvidenceClose;
-            }
-        }
+            => Vector3.Distance(PlayerPos, Position) <= _distanceEvidenceClose;
 
         public string TextInteractWithEvidence { get; set; } = string.Empty;
         public string TextWhileInspecting { get; set; } = string.Empty;
@@ -73,8 +67,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public abstract PoolHandle Handle { get; }
 
         //PROTECTED
-        protected Vector3 PlayerPos
-            { get { return Game.LocalPlayer.Character.Position; } }
+        protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
         protected abstract Entity EvidenceEntity { get; }
         protected float _distanceEvidenceClose = 3f;
 
@@ -348,7 +341,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             Game.LogVerbose("EvidenceBase.Dismiss()");
             RemoveBlip();
             _canRun = false;
-            //_process.Abort();
         }
 
         public abstract bool IsValid();

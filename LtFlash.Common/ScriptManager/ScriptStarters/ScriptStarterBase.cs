@@ -1,12 +1,12 @@
 ﻿using LtFlash.Common.Processes;
+using LtFlash.Common.ScriptManager.Managers;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal abstract class ScriptStarterBase : IScriptStarter
     {
         //PUBLIC
-        public bool HasFinishedSuccessfully
-            { get { return script.HasFinishedSuccessfully; } }
+        public bool HasFinishedSuccessfully => script.HasFinishedSuccessfully;
 
         public bool HasFinishedUnsuccessfully
         {
@@ -14,13 +14,12 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             protected set { _finishedUnsuccessfully = value; }
         }
 
-        public string Id { get { return script.Id; } }
+        public string Id => script.Id;
 
-        public string[] NextScriptsToRun
-            { get { return script.NextScriptToRunIds; } }
+        public string[] NextScriptsToRun => script.NextScriptToRunIds;
 
         //PROTECTED
-        protected Managers.ScriptStatus script;
+        protected ScriptStatus script;
         protected bool StartScriptInThisTick { get; set; }
         protected bool ScriptStarted { get; private set; }
         protected bool AutoRestart { get; private set; }
@@ -30,9 +29,9 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         //PRIVATE
         private bool _finishedUnsuccessfully;
 
-        public ScriptStarterBase(Managers.ScriptStatus s, bool autoRestart)
+        public ScriptStarterBase(ScriptStatus scriptStatus, bool autoRestart)
         {
-            script = s;
+            script = scriptStatus;
 
             AutoRestart = autoRestart;
 
@@ -43,7 +42,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 
         public abstract void Start();
 
-        public Managers.ScriptStatus GetScriptStatus()
+        public ScriptStatus GetScriptStatus()
         {
             return script;
         }

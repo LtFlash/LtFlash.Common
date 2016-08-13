@@ -29,7 +29,7 @@ namespace LtFlash.Common.Processes
 
         private class Proc
         {
-            public Action Function;
+            public readonly Action Function;
             public bool Active;
 
             public Proc(Action act, bool active)

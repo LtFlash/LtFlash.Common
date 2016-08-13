@@ -1,5 +1,4 @@
-﻿using Rage;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace LtFlash.Common.ScriptManager.Managers
@@ -20,29 +19,13 @@ namespace LtFlash.Common.ScriptManager.Managers
         public Scripts.EInitModels InitModel { get; set; }
 
         public bool HasFinishedSuccessfully
-        {
-            get
-            {
-                return Script != null && Script.Completed;
-            }
-        }
+            => Script != null && Script.Completed;
 
         public bool HasFinishedUnsuccessfully
-        {
-            get
-            {
-                return Script != null && Script.HasFinished && !Script.Completed;
+            => Script != null && Script.HasFinished && !Script.Completed;
 
-            }
-        }
 
-        public bool IsRunning
-        {
-            get
-            {
-                return Script != null && Script.IsRunning;
-            }
-        }
+        public bool IsRunning => Script != null && Script.IsRunning;
 
         public bool Start()
         {
@@ -69,7 +52,9 @@ namespace LtFlash.Common.ScriptManager.Managers
         /// <param name="nextScriptToRunId"></param>
         public ScriptStatus(
             string id, Type typeOfBaseScript) 
-            : this(id, typeOfBaseScript, Scripts.EInitModels.TimerBased, 
+            : this(
+                  id, typeOfBaseScript, 
+                  Scripts.EInitModels.TimerBased, 
                   new string[0], new List<string[]>(), 0, 0)
         {
         }

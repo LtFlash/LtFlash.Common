@@ -4,8 +4,8 @@
     {
         public SequentialScriptManager() : base()
         {
-            _proc.AddProcess(StartNewScript);
-            _proc.ActivateProcess(StartNewScript);
+            ProcHost.AddProcess(StartNewScript);
+            ProcHost.ActivateProcess(StartNewScript);
         }
 
         private void StartNewScript()

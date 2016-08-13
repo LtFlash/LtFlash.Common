@@ -5,35 +5,35 @@ namespace LtFlash.Common.ScriptManager.Managers
 {
     public class TimerBasedScriptManager : NewScriptManagerBase
     {
-        private Timer _scriptRunTimer = new Timer();
-        private double _intervalMax = 3 * 60 * 1000;
-        private double _intervalMin = 1 * 60 * 1000;
-        private bool _elapsed = false;
+        private Timer timer = new Timer();
+        private double intervalMax = 3 * 60 * 1000;
+        private double intervalMin = 1 * 60 * 1000;
+        private bool elapsed = false;
 
         public TimerBasedScriptManager(
             double intervalMin = 60000, double intervalMax = 180000) : base()
         {
-            _intervalMax = intervalMax;
-            _intervalMin = intervalMin;
+            this.intervalMax = intervalMax;
+            this.intervalMin = intervalMin;
         }
 
         public void StartTimer()
         {
-            _scriptRunTimer.Interval = GetRandomInterval();
-            _scriptRunTimer.Elapsed += TimerTick;
-            _scriptRunTimer.AutoReset = true;
-            _scriptRunTimer.Start();
+            timer.Interval = GetRandomInterval();
+            timer.Elapsed += TimerTick;
+            timer.AutoReset = true;
+            timer.Start();
             canStartNewScript = true;
         }
 
         private double GetRandomInterval()
-            => MathHelper.GetRandomDouble(_intervalMin, _intervalMax);
+            => MathHelper.GetRandomDouble(intervalMin, intervalMax);
 
         private void StartNewScript()
         {
-            if (!canStartNewScript || !_elapsed) return;
+            if (!canStartNewScript || !elapsed) return;
             StartScript();
-            _elapsed = false; 
+            elapsed = false; 
             canStartNewScript = false;
         }
 
@@ -41,15 +41,15 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void TimerTick(object sender, ElapsedEventArgs e)
         {
-            _scriptRunTimer.Interval = GetRandomInterval();
-            _elapsed = true;
+            timer.Interval = GetRandomInterval();
+            elapsed = true;
 
             StartNewScript();
 
             Logging.Logger.Log(
                 nameof(TimerBasedScriptManager), 
                 nameof(TimerTick), 
-                "interval: " + _scriptRunTimer.Interval / 1000);
+                "interval: " + timer.Interval / 1000);
         }
     }
 }
