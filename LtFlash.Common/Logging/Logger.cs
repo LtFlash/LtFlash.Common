@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Rage;
+﻿using Rage;
 
 namespace LtFlash.Common.Logging
 {
     internal static class Logger
     {
+        //TODO: instance + customizable output?
         private static bool LOG = true;
+        private static bool DEBUG = true;
+
+        public static void LogDebug(string className, string function, string msg)
+        {
+            if (!DEBUG) return;
+            Log(className, function, msg);
+        }
 
         public static void Log(string className, string function, string msg)
         {
