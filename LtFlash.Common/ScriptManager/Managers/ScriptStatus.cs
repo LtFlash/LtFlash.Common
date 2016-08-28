@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LtFlash.Common.ScriptManager.Scripts;
+using Rage;
+using System;
 using System.Collections.Generic;
 
 namespace LtFlash.Common.ScriptManager.Managers
@@ -7,8 +9,8 @@ namespace LtFlash.Common.ScriptManager.Managers
     {
         public string Id { get; private set; }
         public Type TypeImplIScript { get; private set; }
-        public Scripts.IScript Script { get; private set; }
-        public bool Processed { get; set; } = false;
+        public IScript Script { get; private set; }
+        //public bool Processed { get; set; } = false;
 
         public double TimerIntervalMax { get; set; }
         public double TimerIntervalMin { get; set; }
@@ -16,10 +18,9 @@ namespace LtFlash.Common.ScriptManager.Managers
         public string[] NextScriptToRunIds { get; private set; }
         public List<string[]> ScriptsToFinishPriorThis { get; set; }
 
-        public Scripts.EInitModels InitModel { get; set; }
+        public EInitModels InitModel { get; set; }
 
-        public bool HasFinishedSuccessfully
-            => Script != null && Script.Completed;
+        public bool HasFinishedSuccessfully => Script != null && Script.Completed;
 
         public bool HasFinishedUnsuccessfully
             => Script != null && Script.HasFinished && !Script.Completed;
@@ -29,9 +30,11 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public bool Start()
         {
-            if(Script == null) Script = CreateInstance(TypeImplIScript);
-
-            if (Script.CanBeStarted())
+            if(Script == null || Script.HasFinished) Script = CreateInstance(TypeImplIScript);
+            bool b = Script.CanBeStarted();
+            Game.LogVerbose("ScriptStatus.CanStart: " + b);
+            Logging.Logger.LogDebug(nameof(ScriptStatus), nameof(Start), "ScriptID: " + Id);
+            if (b)
             {
                 Script.Start();
                 return true;
@@ -39,10 +42,8 @@ namespace LtFlash.Common.ScriptManager.Managers
             else return false;
         }
 
-        private Scripts.IScript CreateInstance(Type type)
-        {
-            return (Scripts.IScript)Activator.CreateInstance(type);
-        }
+        private IScript CreateInstance(Type type)
+            => (IScript)Activator.CreateInstance(type);
 
         /// <summary>
         /// Use with simple script managers.
@@ -53,8 +54,8 @@ namespace LtFlash.Common.ScriptManager.Managers
         public ScriptStatus(
             string id, Type typeOfBaseScript) 
             : this(
-                  id, typeOfBaseScript, 
-                  Scripts.EInitModels.TimerBased, 
+                  id, typeOfBaseScript,
+                  EInitModels.TimerBased, 
                   new string[0], new List<string[]>(), 0, 0)
         {
         }
@@ -70,7 +71,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         /// <param name="timerMin">Minimal startup time when using with TimerControlledScriptStarter.</param>
         /// <param name="timerMax">Maximal startup time when using with TimerControlledScriptStarter.</param>
         public ScriptStatus(
-            string id, Type typeOfBaseScript, Scripts.EInitModels initModel,
+            string id, Type typeOfBaseScript, EInitModels initModel,
             string[] nextScriptToRunId, List<string[]> scriptsToFinishPrior,
             double timerMin, double timerMax)
         {

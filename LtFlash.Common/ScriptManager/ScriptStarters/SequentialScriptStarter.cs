@@ -1,5 +1,6 @@
 ﻿using LtFlash.Common.ScriptManager.Managers;
 using LtFlash.Common.Logging;
+using System;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
@@ -26,6 +27,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
                 }
 
                 StartScriptInThisTick = true;
+
                 Logger.Log(nameof(SequentialScriptStarter),
                     nameof(TimerTick), ScriptStarted.ToString());
             }
@@ -38,6 +40,11 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         public override void Start()
         {
             _timer.Start();
+        }
+
+        public override void Stop()
+        {
+            _timer.Stop();
         }
     }
 }

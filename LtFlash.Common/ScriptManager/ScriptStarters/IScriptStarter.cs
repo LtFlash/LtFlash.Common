@@ -8,6 +8,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         string Id { get; }
         string[] NextScriptsToRun { get; }
         void Start();
+        void Stop();
         Managers.ScriptStatus GetScriptStatus();
     }
 }

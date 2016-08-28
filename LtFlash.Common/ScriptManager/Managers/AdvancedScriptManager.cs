@@ -4,6 +4,7 @@ using System.Linq;
 using Rage;
 using LtFlash.Common.ScriptManager.ScriptStarters;
 using LtFlash.Common.Processes;
+using LtFlash.Common.Logging;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
@@ -128,16 +129,28 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             for (int i = 0; i < ufs.Count; i++)
             {
+                ufs[i].Stop();
+
                 ScriptStatus s = ufs[i].GetScriptStatus();
+
                 ScriptStatus newScript = new ScriptStatus(
                     s.Id, s.TypeImplIScript, Scripts.EInitModels.TimerBased,
                     s.NextScriptToRunIds, new List<string[]>(), 
                     s.TimerIntervalMin, s.TimerIntervalMax);
 
-                _running.Add(CreateScriptStarter(s));
+                _queue.Add(newScript/*CreateScriptStarter(s)*/);
             }
+            Logger.LogDebug(
+                nameof(AdvancedScriptManager), 
+                nameof(Process_UnsuccessfullyFinishedScripts), 
+                "pre removing: running; " + _running.Count);
 
-            RemoveScripts(_running, ufs);
+            RemoveScripts(ufs, _running);
+
+            Logger.LogDebug(
+                nameof(AdvancedScriptManager), 
+                nameof(Process_UnsuccessfullyFinishedScripts), 
+                "removed: running; " + _running.Count);
         }
 
         private void Process_WaitScriptsForFinish()
@@ -263,7 +276,10 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             for (int i = 0; i < scriptsToRemove.Count; i++)
             {
-                from.Remove(scriptsToRemove[i]);
+                for (int j = 0; j < from.Count; j++)
+                {
+                    if (from[j].Id == scriptsToRemove[i].Id) from.RemoveAt(j);
+                }
             }
         }
 

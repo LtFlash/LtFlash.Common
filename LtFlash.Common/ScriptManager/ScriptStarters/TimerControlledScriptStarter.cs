@@ -51,10 +51,10 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             _timer.Start();
         }
 
-        public void Stop()
+        public override void Stop()
         {
             _timer.Stop();
-        }
+        } 
 
         private double GetRandomInterval(double min, double max)
         {

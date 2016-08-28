@@ -8,6 +8,9 @@ namespace LtFlash.Common.ScriptManager.Managers
 {
     public class NewScriptManagerBase
     {
+        //PUBLIC
+        public bool HasFinished { get; private set; }
+
         //PROTECTED
         protected ProcessHost ProcHost { get; private set; } = new ProcessHost();
         
@@ -29,7 +32,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             ProcHost.AddProcess(CheckWaiting);
             ProcHost.AddProcess(CheckRunningScript);
-
+            //ProcHost.ActivateProcess(ShowStatusOfScripts);
             ProcHost.Start();
         }
 
@@ -62,6 +65,13 @@ namespace LtFlash.Common.ScriptManager.Managers
             ProcHost.ActivateProcess(CheckWaiting);
         }
 
+        //private void ShowStatusOfScripts()
+        //{
+        //    Game.DisplaySubtitle("_off.Count: " + _off.Count + 
+        //        " | await: " + (_await != null) + " | running: " + (_running != null) + 
+        //        "~n~" + "canStart: " + canStartNewScript);
+        //}
+
         private void CheckWaiting()
         {
             if (_await == null) return;
@@ -84,8 +94,26 @@ namespace LtFlash.Common.ScriptManager.Managers
                 _running = null;
                 canStartNewScript = true;
                 ProcHost.DeactivateProcess(CheckRunningScript);
+
+                if(_off.Count == 0)
+                {
+                    HasFinished = true;
+                    Stop();
+                }
             }
-            //TODO: if unsuccessful -> add current to _await list
+            //TODO: if unsuccessful -> add current to _await list/add as [0] to _off
+            else if(_running.HasFinishedUnsuccessfully)
+            {
+                _off.Insert(0, _running);
+                _running = null;
+                canStartNewScript = true;
+                ProcHost.DeactivateProcess(CheckRunningScript);
+            }
+        }
+
+        public void Stop()
+        {
+            ProcHost.Stop();
         }
 
         private ScriptStatus GetScriptById(string id, List<ScriptStatus> from)

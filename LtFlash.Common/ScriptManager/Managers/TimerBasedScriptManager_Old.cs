@@ -41,7 +41,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             StartScriptInsideMainLoop(_scriptToRun);
              
-            Game.LogVerbose("ScriptManager.StartNextScript | interval: " + _scriptRunTimer.Interval);
+            Game.LogVerbose("ScriptManager_Old.StartNextScript | interval: " + _scriptRunTimer.Interval);
         }
 
         private void StartScriptInsideMainLoop(ScriptStatus scriptToRun)

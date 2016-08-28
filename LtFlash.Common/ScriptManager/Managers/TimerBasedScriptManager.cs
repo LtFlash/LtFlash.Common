@@ -1,5 +1,6 @@
 ﻿using System.Timers;
 using Rage;
+using System;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
@@ -31,10 +32,14 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void StartNewScript()
         {
-            if (!canStartNewScript || !elapsed) return;
+            if (!(canStartNewScript && elapsed)) return;
+
             StartScript();
-            elapsed = false; 
+            elapsed = false;
             canStartNewScript = false;
+
+            Logging.Logger.LogDebug(
+                nameof(TimerBasedScriptManager), nameof(StartNewScript), "Called");
         }
 
         protected virtual void StartScript() => StartFromFirstScript();
@@ -46,10 +51,10 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             StartNewScript();
 
-            Logging.Logger.Log(
+            Logging.Logger.LogDebug(
                 nameof(TimerBasedScriptManager), 
                 nameof(TimerTick), 
-                "interval: " + timer.Interval / 1000);
+                "interval: " + Math.Round(timer.Interval / 1000) + "s");
         }
     }
 }

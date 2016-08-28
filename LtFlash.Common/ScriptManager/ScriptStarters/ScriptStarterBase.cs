@@ -41,6 +41,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         }
 
         public abstract void Start();
+        public abstract void Stop();
 
         public ScriptStatus GetScriptStatus()
         {
