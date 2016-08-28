@@ -1,4 +1,5 @@
 ﻿using Rage;
+using System.Windows.Forms;
 
 namespace LtFlash.Common.EvidenceLibrary.Services
 {
@@ -10,29 +11,27 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public VehicleDrivingFlags VehDrivingFlags { get; set; } 
             = VehicleDrivingFlags.Emergency;
 
-        public System.Windows.Forms.Keys KeyStartDialogue { get; set; }
-            = System.Windows.Forms.Keys.Y;
+        public Keys KeyStartDialogue { get; set; } = Keys.Y;
 
         //PROTECTED
         protected Ped PedDriver { get; private set; }
         protected Ped PedWorker { get; private set; }
         protected Vehicle Vehicle { get; private set; }
 
-        protected Vector3 PlayerPos
-            { get { return Game.LocalPlayer.Character.Position; } }
+        protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
 
         protected Dialog Dialogue { get; set; }
 
         //PRIVATE
-        private string _vehModel;
+        private string vehModel;
 
-        private Blip _blipVeh;
+        private Blip blipVeh;
 
-        private string _modelPedDriver;
-        private string _modelPedWorker;
+        private string modelPedDriver;
+        private string modelPedWorker;
 
-        private SpawnPoint _spawnPos;
-        private SpawnPoint _destPoint;
+        private SpawnPoint spawnPos;
+        private SpawnPoint destPoint;
 
         protected Processes.ProcessHost Proc { get; private set; } 
             = new Processes.ProcessHost();
@@ -41,12 +40,12 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             string vehModel, string modelPedDriver, string modelPedWorker,
             SpawnPoint spawnPos, SpawnPoint dest, string[] dialogue)
         {
-            _vehModel = vehModel;
-            _spawnPos = spawnPos;
-            _destPoint = dest;
+            this.vehModel = vehModel;
+            this.spawnPos = spawnPos;
+            destPoint = dest;
 
-            _modelPedDriver = modelPedDriver;
-            _modelPedWorker = modelPedWorker;
+            this.modelPedDriver = modelPedDriver;
+            this.modelPedWorker = modelPedWorker;
 
             Dialogue = new Dialog(dialogue);
 
@@ -67,20 +66,20 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         private void CreateEntities()
         {
-            Vehicle = new Vehicle(_vehModel, _spawnPos.Position);
-            Vehicle.Heading = _spawnPos.Heading;
+            Vehicle = new Vehicle(vehModel, spawnPos.Position);
+            Vehicle.Heading = spawnPos.Heading;
             Vehicle.MakePersistent();
-            _blipVeh = new Blip(Vehicle);
-            _blipVeh.Scale = 0.5f;
+            blipVeh = new Blip(Vehicle);
+            blipVeh.Scale = 0.5f;
             Vehicle.IsInvincible = true;
 
-            PedDriver = new Ped(_modelPedDriver, Vehicle.Position.Around2D(5f), 0f);
+            PedDriver = new Ped(modelPedDriver, Vehicle.Position.Around2D(5f), 0f);
             PedDriver.RandomizeVariation();
             PedDriver.WarpIntoVehicle(Vehicle, -1);
             PedDriver.BlockPermanentEvents = true;
             PedDriver.KeepTasks = true;
 
-            PedWorker = new Ped(_modelPedWorker, Vehicle.Position.Around2D(5f), 0f);
+            PedWorker = new Ped(modelPedWorker, Vehicle.Position.Around2D(5f), 0f);
             PedWorker.RandomizeVariation();
             PedWorker.WarpIntoVehicle(Vehicle, 0);
             PedWorker.BlockPermanentEvents = true;
@@ -96,7 +95,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         private void DispatchFromSpawnPoint()
         {
             PedDriver.Tasks.DriveToPosition(
-                Vehicle, _destPoint.Position, 
+                Vehicle, destPoint.Position, 
                 VehicleDrivingSpeed, VehDrivingFlags, 5f);
 
             Proc.SwapProcesses(DispatchFromSpawnPoint, WaitForArrival); 
@@ -104,7 +103,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         private void WaitForArrival()
         {
-            if (Vehicle.Position.DistanceTo(_destPoint.Position) <= 10f && 
+            if (Vehicle.Position.DistanceTo(destPoint.Position) <= 10f && 
                 Vehicle.Speed == 0f)
             {
                 Proc.SwapProcesses(WaitForArrival, PostArrival);
@@ -155,7 +154,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             Vehicle.GetAttachedBlip().Delete();
 
             PedDriver.Tasks.DriveToPosition(
-                _spawnPos.Position, VehicleDrivingSpeed, VehDrivingFlags);
+                spawnPos.Position, VehicleDrivingSpeed, VehDrivingFlags);
 
             Proc.SwapProcesses(DriveBackToSpawn, CheckIfCanBeDisposed);
         }
@@ -163,7 +162,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         private void CheckIfCanBeDisposed()
         {
             if (Vector3.Distance(PlayerPos, Vehicle.Position) >= DisposeDistance ||
-                Vector3.Distance(Vehicle.Position, _spawnPos.Position) <= 10f)
+                Vector3.Distance(Vehicle.Position, spawnPos.Position) <= 10f)
             {
                 Proc.DeactivateProcess(CheckIfCanBeDisposed);
                 InternalDispose();
@@ -172,7 +171,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         private void InternalDispose()
         {
-            if (_blipVeh) _blipVeh.Delete();
+            if (blipVeh) blipVeh.Delete();
             if (PedDriver) PedDriver.Dismiss();
             if (PedWorker) PedWorker.Dismiss();
             if (Vehicle) Vehicle.Dismiss();

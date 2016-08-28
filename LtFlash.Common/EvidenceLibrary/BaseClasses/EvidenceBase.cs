@@ -25,7 +25,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             {
                 collected = value;
                 if (IsImportant && PlaySoundImportantEvidenceCollected)
-                    _soundImportantEvidenceCollected.Play();
+                    soundImportantEvidenceCollected.Play();
             }
         }
         public bool Checked { get; protected set; }
@@ -55,9 +55,9 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public bool PlaySoundImportantEvidenceCollected { get; set; } = true;
 
         public SoundPlayer SoundPlayerNearby
-            { set { _soundEvidenceNearby = value; } }
+            { set { soundEvidenceNearby = value; } }
         public SoundPlayer SoundImportantEvidenceCollected
-            { set { _soundImportantEvidenceCollected = value; } }
+            { set { soundImportantEvidenceCollected = value; } }
 
         public Blip Blip { get; set; }
 
@@ -73,10 +73,10 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         protected float _distanceEvidenceClose = 3f;
 
         //PRIVATE
-        private SoundPlayer _soundEvidenceNearby 
+        private SoundPlayer soundEvidenceNearby 
             = new SoundPlayer(Properties.Resources.EvidenceNearby);
 
-        private SoundPlayer _soundImportantEvidenceCollected 
+        private SoundPlayer soundImportantEvidenceCollected 
             = new SoundPlayer(Properties.Resources.ImportantEvidenceCollected);
 
         private bool collected;
@@ -118,10 +118,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
             if(HasStateChanged(ref prevState_CanBeActivated, IsPlayerClose))
             {
-                if(IsPlayerClose) 
-                {
-                    _soundEvidenceNearby.Play();
-                }
+                if(IsPlayerClose) soundEvidenceNearby.Play();
             }
         }
 
@@ -204,8 +201,8 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
             canRun = false;
             if (Blip.Exists()) Blip.Delete();
-            _soundEvidenceNearby.Dispose();
-            _soundImportantEvidenceCollected.Dispose();
+            soundEvidenceNearby.Dispose();
+            soundImportantEvidenceCollected.Dispose();
         }
 
         protected abstract void End();
@@ -307,9 +304,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         public abstract bool IsValid();
 
-        public bool Equals(IHandleable other)
-        {
-            return ReferenceEquals(other, this);
-        }
+        public bool Equals(IHandleable other) => ReferenceEquals(other, this);
     }
 }
