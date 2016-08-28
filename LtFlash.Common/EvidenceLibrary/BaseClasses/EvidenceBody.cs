@@ -7,7 +7,9 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
     {
         protected Keys _keyRotate = Keys.R;
         
-        public EvidenceBody(string id, string description, SpawnPoint spawn, Model model) :
+        public EvidenceBody(
+            string id, string description, 
+            SpawnPoint spawn, Model model) :
             base(id, description, spawn, model)
         {
             Ped.Kill();
@@ -39,6 +41,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
                     FocusCamOnObjectWithInterpolation(camPos, Ped);
 
                     _state = EState.InspectingEvidence;
+
                     break;
 
                 case EState.InspectingEvidence:

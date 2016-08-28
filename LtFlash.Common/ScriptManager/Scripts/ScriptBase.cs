@@ -12,8 +12,8 @@ namespace LtFlash.Common.ScriptManager.Scripts
         public bool IsRunning { get; private set; }
 
         //PROTECTED
-        protected virtual IScriptStartController ScriptStartController
-            { get; } = new UnconditionalStartController();
+        protected virtual IScriptStartController ScriptStartController { get; } 
+            = new UnconditionalStartController();
 
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
 
@@ -29,7 +29,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         public void Start()
         {
-            ProcHost.Start();
+            if(!ProcHost.IsRunning) ProcHost.Start();
             IsRunning = true;
         }
 

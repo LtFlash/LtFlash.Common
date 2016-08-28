@@ -5,20 +5,22 @@ namespace LtFlash.Common.InputHandling
 {
     public class ControlSet
     {
+        //PUBLIC
         public Keys Key { get; private set; }
         public Keys Modifier { get; private set; }
         public ControllerButtons ControllerBtn { get; private set; }
 
-        public bool IsActive { get { return _IsActive(); } }
+        public bool IsActive => _IsActive();
         public string Description { get; private set; }
 
+        //PRIVATE
         private string CTAG = "~g~";
         private const string RTAG = "~s~"; //color reset
 
-        public ControlSet(Keys key, Keys mod, ControllerButtons ctrlBtn)
+        public ControlSet(Keys key, Keys modifier, ControllerButtons ctrlBtn)
         {
             Key = key;
-            Modifier = mod;
+            Modifier = modifier;
             ControllerBtn = ctrlBtn;
 
             Description = GetDescription();
@@ -26,16 +28,15 @@ namespace LtFlash.Common.InputHandling
 
         public ControlSet(
             Keys key, Keys mod, ControllerButtons ctrlBtn, 
-            string colorTagOfDescription) : this(key, mod, ctrlBtn)
+            string colorTagOfDescription) : 
+            this(key, mod, ctrlBtn)
         {
             CTAG = colorTagOfDescription;
         }
 
         private string GetDescription()
         {
-            string result;
-
-            result = Modifier == Keys.None ?
+            string result = Modifier == Keys.None ?
                 $"{CTAG}{Key.ToString()}{RTAG}" :
                 $"{CTAG}{Modifier.ToString()}{RTAG} + {CTAG}{Key.ToString()}{RTAG}";
 

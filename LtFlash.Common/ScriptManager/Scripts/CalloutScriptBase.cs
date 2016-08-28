@@ -21,28 +21,29 @@ namespace LtFlash.Common.ScriptManager.Scripts
             }
         }
         public SoundPlayer SoundPlayerClosingIn
-            { set { _soundPlayerClosingIn = value; } }
+            { set { soundPlayerClosingIn = value; } }
 
         //PROTECTED
         protected Forms.Keys KeyAcceptCallout { get; set; } = Forms.Keys.Y;
         protected double Timeout
-            { set { _callNotAcceptedTimer.Interval = value; } }
+            { set { callNotAcceptedTimer.Interval = value; } }
 
         //PRIVATE
         private const double TIME_CALL_NOT_ACCEPTED = 10000;
         private const float RADAR_ZOOM_LEVEL = 200f;
         private const float BLIP_ALPHA = 0.3f;
 
-        private Color _blipAreaColor = Color.Blue;
-        private SoundPlayer _soundPlayerClosingIn = new SoundPlayer(Properties.Resources.CaseApproach);
-        private Timer _callNotAcceptedTimer = new Timer(TIME_CALL_NOT_ACCEPTED);
-        private bool _timeElapsed;
-        private bool _zoomOutMinimap;
-        private Blip _blipArea;
-        private Blip _blipRoute;
-        private float _blipRouteRadius;
-        private Vector3 _blipRoutePosition;
-        private Vector3 _callPosition;
+        private Color blipAreaColor = Color.Blue;
+        private SoundPlayer soundPlayerClosingIn 
+            = new SoundPlayer(Properties.Resources.CaseApproach);
+        private Timer callNotAcceptedTimer = new Timer(TIME_CALL_NOT_ACCEPTED);
+        private bool timeElapsed;
+        private bool zoomOutMinimap;
+        private Blip blipArea;
+        private Blip blipRoute;
+        private float blipRouteRadius;
+        private Vector3 blipRoutePosition;
+        private Vector3 callPosition;
 
         public CalloutScriptBase()
         {
@@ -66,10 +67,10 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         private void PlaySoundWhenPlayerNearby()
         {
-            if (Vector3.Distance(PlayerPos, _callPosition)
+            if (Vector3.Distance(PlayerPos, callPosition)
                 <= DistanceSoundPlayerClosingIn)
             {
-                _soundPlayerClosingIn.Play();
+                soundPlayerClosingIn.Play();
                 DeactivateStage(PlaySoundWhenPlayerNearby);
             }
         }
@@ -82,8 +83,8 @@ namespace LtFlash.Common.ScriptManager.Scripts
                 return;
             }
 
-            _callNotAcceptedTimer.Start();
-            _callNotAcceptedTimer.Elapsed += (s, args) => _timeElapsed = true;
+            callNotAcceptedTimer.Start();
+            callNotAcceptedTimer.Elapsed += (s, args) => timeElapsed = true;
 
             SwapStages(InternalInitialize, WaitForAcceptKey);
         }
@@ -93,13 +94,13 @@ namespace LtFlash.Common.ScriptManager.Scripts
             Vector3 position, float radius, 
             bool zoomOutMinimap = true, bool flashMinimap = true)
         {
-            _blipArea = new Blip(position, radius);
-            _blipArea.Color = _blipAreaColor;
-            _blipArea.Alpha = BLIP_ALPHA; //max val == 1f
+            blipArea = new Blip(position, radius);
+            blipArea.Color = blipAreaColor;
+            blipArea.Alpha = BLIP_ALPHA; //max val == 1f
 
-            _callPosition = position;
+            callPosition = position;
 
-            _zoomOutMinimap = zoomOutMinimap;
+            this.zoomOutMinimap = zoomOutMinimap;
             if (flashMinimap) FlashMinimap();
         }
 
@@ -107,25 +108,25 @@ namespace LtFlash.Common.ScriptManager.Scripts
             Vector3 position, float radius, 
             Color color)
         {
-            _blipRoute = new Blip(position, radius);
-            _blipRoute.Alpha = BLIP_ALPHA;
-            _blipRoute.Color = color;
-            _blipRoute.EnableRoute(color);
+            blipRoute = new Blip(position, radius);
+            blipRoute.Alpha = BLIP_ALPHA;
+            blipRoute.Color = color;
+            blipRoute.EnableRoute(color);
 
-            _blipRouteRadius = radius;
-            _blipRoutePosition = position;
+            blipRouteRadius = radius;
+            blipRoutePosition = position;
 
             ActivateStage(RemoveAreaWhenClose);
         }
 
         protected void RemoveAreaBlipWithRoute()
         {
-            if (_blipRoute.Exists()) _blipRoute.Delete();
+            if (blipRoute.Exists()) blipRoute.Delete();
         }
 
         private void RemoveAreaWhenClose()
         {
-            if(PlayerPos.DistanceTo(_blipRoutePosition) <= _blipRouteRadius)
+            if(PlayerPos.DistanceTo(blipRoutePosition) <= blipRouteRadius)
             {
                 RemoveAreaBlipWithRoute();
                 DeactivateStage(RemoveAreaWhenClose);
@@ -140,7 +141,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         private void RemoveAreaBlip()
         {
-            if (_blipArea.Exists()) _blipArea.Delete();
+            if (blipArea.Exists()) blipArea.Delete();
             SetMinimapZoom(0);
         }
 
@@ -161,16 +162,16 @@ namespace LtFlash.Common.ScriptManager.Scripts
                 return;
             }
 
-            if(_blipArea.Exists() && _zoomOutMinimap)
+            if(blipArea.Exists() && zoomOutMinimap)
             {
                 Game.SetRadarZoomLevelThisFrame(RADAR_ZOOM_LEVEL);
             }
             
-            if(_timeElapsed)
+            if(timeElapsed)
             {
                 RemoveAreaBlip();
                 SwapStages(WaitForAcceptKey, InternalNotAccepted);
-                _callNotAcceptedTimer.Dispose();
+                callNotAcceptedTimer.Dispose();
             }
         }
 
@@ -186,7 +187,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         private void InternalEnd()
         {
-            _soundPlayerClosingIn.Dispose();
+            soundPlayerClosingIn.Dispose();
             RemoveAreaBlipWithRoute();
             RemoveAreaBlip();
             End();

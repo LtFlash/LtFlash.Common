@@ -6,7 +6,7 @@ namespace LtFlash.Common.EvidenceLibrary
 {
     public class Dialog
     {
-        //PUBLIC
+        // PUBLIC
         public bool IsRunning { get; private set; }
         public bool HasEnded { get; private set; }
         public int TimerInterval { get; set; } = 3000;
@@ -16,7 +16,7 @@ namespace LtFlash.Common.EvidenceLibrary
         //private Ped _ped1;
         //private Ped _ped2;
         
-        //PRIVATE
+        // PRIVATE
         private string[] dialog;
         private Timer timer;
          

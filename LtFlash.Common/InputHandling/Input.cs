@@ -6,23 +6,17 @@ namespace LtFlash.Common.InputHandling
 {
     internal class Input<TEnum> where TEnum : struct, IConvertible
     {
-        public ControlSet this[TEnum id]
-        {
-            get
-            {
-                return Controls[id];
-            }
-        }
+        public ControlSet this[TEnum id] => Controls[id];
 
         private Dictionary<TEnum, ControlSet> Controls 
             = new Dictionary<TEnum, ControlSet>();
 
-        private string _path;
+        private string path;
 
         public Input(string pathToLoadFrom) : this()
         {
             Controls = Serializer.DeserializeControls<TEnum>(pathToLoadFrom);
-            _path = pathToLoadFrom;
+            path = pathToLoadFrom;
         }
 
         public Input()
@@ -36,7 +30,7 @@ namespace LtFlash.Common.InputHandling
 
         public void SaveConfig()
         {
-            SaveConfig(_path);
+            SaveConfig(path);
         }
 
         public void SaveConfig(string pathToSaveTo)

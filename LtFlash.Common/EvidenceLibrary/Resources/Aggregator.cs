@@ -15,7 +15,6 @@ namespace LtFlash.Common.EvidenceLibrary.Resources
         {
             return _spawns.Values.OrderBy(s => Vector3.Distance(pos, s.Position)).First();
         }
-
         //public 
     }
 }
