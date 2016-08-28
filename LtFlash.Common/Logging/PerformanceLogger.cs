@@ -3,71 +3,95 @@ using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Rage;
+using System.Linq;
 
 namespace LtFlash.Common.Logging
 {
+	public class BenchmarkData
+	{
+		//PUBLIC	
+		public string Id { get; private set; }
+		public TimeSpan Time => GetExecTime();
+		public int Attempts => times.Count;
+		//PRIVATE
+		private List<TimeSpan> times = new List<TimeSpan>();
+		private Stopwatch sw;
+
+		public BenchmarkData(string id)
+		{
+		}
+
+		private TimeSpan GetExecTime()
+		{
+			if(times.Count == 0) return new TimeSpan();
+			if(times.Count == 1) return times[0];
+
+			return TimeSpan.FromMilliseconds(times.Average(l => l.Milliseconds));
+		}
+	}
+
+
     //TODO: 
     // - delegate? GetTime + enum to determine the output string
     //   of elapsed time
+    // - logging avg time of exec for given id
     public class PerformanceLogger
     {
         private string TimeStamp
-        {
-            get
-            {
-                return $"[{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day} | {DateTime.Now.TimeOfDay}]";
-            }
-        }
+            => $"[{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day} | {DateTime.Now.TimeOfDay}]";
 
-        private int FPS
-            { get { return (int)Game.FrameRate; } }
+        private int FPS => (int)Game.FrameRate;
 
-        private Dictionary<string, Stopwatch> _performance 
+        private Dictionary<string, Stopwatch> performance 
             = new Dictionary<string, Stopwatch>();
 
-        private string _path;
-        private List<string> _linesBuffer = new List<string>();
+        private string path;
+        private List<string> linesBuffer = new List<string>();
         private const int BUFFER_LENGHT = 300;
+
+        //TODO: use in new Benchmark class
+        private TimeSpan GetAvgTime(List<TimeSpan> list)
+            => TimeSpan.FromMilliseconds(list.Average(l => l.Milliseconds));
 
         public PerformanceLogger(string pathToSaveTo)
         {
-            _path = pathToSaveTo;
+            path = pathToSaveTo;
         }
 
         public void LogPerformanceStart(string id)
         {
-            if (_performance.ContainsKey(id))
+            if (performance.ContainsKey(id))
             {
-                _performance[id].Restart();
+                performance[id].Restart();
             }
             else
             {
                 var sw = Stopwatch.StartNew();
-                _performance.Add(id, sw);
+                performance.Add(id, sw);
             }
         }
 
         public void LogPerformanceStop(string id, string description)
         {
-            if (!_performance.ContainsKey(id)) return;
+            if (!performance.ContainsKey(id)) return;
 
-            _performance[id].Stop();
-            LogPerformance(description, _performance[id].Elapsed.ToString());
+            performance[id].Stop();
+            LogPerformance(description, performance[id].Elapsed.ToString());
         }
 
         private void LogPerformance(string descr, string timeElapsed)
         {
             string text = $"{TimeStamp} FPS: {FPS} | {descr} | {timeElapsed} |";
 
-            _linesBuffer.Add(text);
+            linesBuffer.Add(text);
 
-            if (_linesBuffer.Count < BUFFER_LENGHT) return;
+            if (linesBuffer.Count < BUFFER_LENGHT) return;
 
-            _linesBuffer.Add("----------SAVE TO FILE-----------");
+            linesBuffer.Add("----------SAVE TO FILE-----------");
 
-            SaveToFile(_path, _linesBuffer);
+            SaveToFile(path, linesBuffer);
 
-            _linesBuffer.Clear();
+            linesBuffer.Clear();
         }
 
         private void SaveToFile(string path, List<string> lines)
