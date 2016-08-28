@@ -3,9 +3,11 @@ using System.Windows.Forms;
 
 namespace LtFlash.Common.EvidenceLibrary.Services
 {
-    public abstract class ServiceBase
+    public abstract class ServiceBase : ICollectable
     {
         //PUBLIC
+        public bool IsCollected { get; protected set; }
+        public string MsgIsCollected { get; set; }
         public float DisposeDistance { get; set; } = 200.0f;
         public float VehicleDrivingSpeed { get; set; } = 10.0f;
         public VehicleDrivingFlags VehDrivingFlags { get; set; } 
@@ -114,12 +116,20 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         protected void BackToVehicle()
         {
+            DisplayMsgIsCollected();
+
             PedWorker.Tasks.GoToOffsetFromEntity(Vehicle, 0.1f, 0f, 1f);
             PedDriver.Tasks.GoToOffsetFromEntity(Vehicle, 0.1f, 0f, 1f);
 
             Proc.DeactivateProcess(BackToVehicle);
             Proc.ActivateProcess(CheckIfPedDriverCloseToVeh);
             Proc.ActivateProcess(CheckIfPedWorkerCloseToVeh);
+        }
+
+        private void DisplayMsgIsCollected()
+        {
+            if(MsgIsCollected != string.Empty)
+                Game.DisplayHelp(MsgIsCollected);
         }
 
         private void CheckIfPedDriverCloseToVeh()
