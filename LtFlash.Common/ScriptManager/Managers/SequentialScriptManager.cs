@@ -1,6 +1,6 @@
 ﻿namespace LtFlash.Common.ScriptManager.Managers
 {
-    public class SequentialScriptManager : NewScriptManagerBase
+    public class SequentialScriptManager : ScriptManagerBase
     {
         public SequentialScriptManager() : base()
         {

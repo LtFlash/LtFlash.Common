@@ -4,7 +4,7 @@ using System;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
-    public class TimerBasedScriptManager : NewScriptManagerBase
+    public class TimerBasedScriptManager : ScriptManagerBase
     {
         private Timer timer = new Timer();
         private double intervalMax = 3 * 60 * 1000;

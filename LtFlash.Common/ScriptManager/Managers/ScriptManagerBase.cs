@@ -1,75 +1,127 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Rage;
-using System;
+using LtFlash.Common.Processes;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
-    public abstract class ScriptManagerBase : IScriptManager
+    public class ScriptManagerBase
     {
+        //PUBLIC
+        public bool HasFinished { get; private set; }
+
         //PROTECTED
-        protected ScriptStatus _scriptToRunInFiber { get; set; }
-        protected List<ScriptStatus> _scripts = new List<ScriptStatus>();
+        protected ProcessHost ProcHost { get; private set; } = new ProcessHost();
+        
+        protected bool canStartNewScript = true;
+        protected bool removeOnStart = true;
 
         //PRIVATE
-        private GameFiber _process;
-        private bool _canRun = true;
+        private List<ScriptStatus> _off = new List<ScriptStatus>();
+        private ScriptStatus _await;
+        private ScriptStatus _running;
+
+        private Dictionary<string, bool> statusOfScripts 
+            = new Dictionary<string, bool>();
+
+        private bool _restartOnFailure;
+
 
         public ScriptManagerBase()
         {
-            _process = new GameFiber(InternalProcess);
-            _process.Start();
+            ProcHost.AddProcess(CheckWaiting);
+            ProcHost.AddProcess(CheckRunningScript);
+            //ProcHost.ActivateProcess(ShowStatusOfScripts);
+            ProcHost.Start();
         }
 
-        public ScriptStatus this[string id]
+        public void AddScript(string id, Type typeImplIScript)
         {
-            get
-            {
-                return _scripts.Find(s => s.Id == id);
-            }
+            _off.Add(new ScriptStatus(id, typeImplIScript));
+            statusOfScripts.Add(id, false);
         }
 
-        public void AddScript(string id, Type type)
+        protected bool StartFromFirstScript()
         {
-            if (type.GetInterfaces().Contains(typeof(Scripts.IScript)))
-            {
-                _scripts.Add(new ScriptStatus(id, type));
-            }
+            if (_off.Count < 1) return false;
+
+            StartScript(_off.First());
+            return true;
         }
 
-        public void StartScript(string id, bool checkIfCanBeStarted)
+        protected bool StartRandomScript()
         {
-            ScriptStatus ss = _scripts.FirstOrDefault(s => s.Id == id);
-            if (ss != null) ss.Start();
+            if (_off.Count < 1) return false;
+
+            StartScript(_off[MathHelper.GetRandomInteger(_off.Count)]);
+            return true;
         }
 
-        //public void StopScript(string id)
+        protected void StartScript(ScriptStatus script)
+        {
+            _await = script;
+            if(removeOnStart) _off.Remove(script);
+            ProcHost.ActivateProcess(CheckWaiting);
+        }
+
+        //private void ShowStatusOfScripts()
         //{
-        //    ScriptStatus ss = _scripts.FirstOrDefault(s => s.Id == id);
-        //    if (ss != null) ss.Script.End();
+        //    Game.DisplaySubtitle("_off.Count: " + _off.Count + 
+        //        " | await: " + (_await != null) + " | running: " + (_running != null) + 
+        //        "~n~" + "canStart: " + canStartNewScript);
         //}
 
-        private void InternalProcess()
+        private void CheckWaiting()
         {
-            while(_canRun)
+            if (_await == null) return;
+
+            if (_await.Start())
             {
-                //is being started from inside a GameFiber because of issues
-                //with initialization from outside
-                if(_scriptToRunInFiber != null)
-                {
-                    _scriptToRunInFiber.Start();
-                    _scriptToRunInFiber = null;
-                }
-
-                Process();
-
-                GameFiber.Yield();
+                _running = _await;
+                _await = null;
+                ProcHost.SwapProcesses(CheckWaiting, CheckRunningScript);
             }
         }
 
-        protected virtual void Process()
+        private void CheckRunningScript()
         {
+            if (_running == null) return;
 
+            if (_running.HasFinishedSuccessfully)
+            {
+                statusOfScripts[_running.Id] = true;
+                _running = null;
+                canStartNewScript = true;
+                ProcHost.DeactivateProcess(CheckRunningScript);
+
+                if(_off.Count == 0)
+                {
+                    HasFinished = true;
+                    Stop();
+                }
+            }
+            //TODO: if unsuccessful -> add current to _await list/add as [0] to _off
+            else if(_running.HasFinishedUnsuccessfully)
+            {
+                _off.Insert(0, _running);
+                _running = null;
+                canStartNewScript = true;
+                ProcHost.DeactivateProcess(CheckRunningScript);
+            }
+        }
+
+        public void Stop() => ProcHost.Stop();
+
+        private ScriptStatus GetScriptById(string id, List<ScriptStatus> from)
+        {
+            ScriptStatus s = from.FirstOrDefault(ss => ss.Id == id);
+            if (s == null)
+            {
+                throw new ArgumentException(
+                    $"{nameof(GetScriptById)}: Script with id [{id}] does not exist.");
+            }
+            else return s;
         }
     }
 }

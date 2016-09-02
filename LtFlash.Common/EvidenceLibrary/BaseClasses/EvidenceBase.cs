@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LtFlash.Common.Processes;
 using Rage;
 using Rage.Native;
-using System.Media;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Media;
 using System.Windows.Forms;
-using LtFlash.Common.Processes;
 
 namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
@@ -33,12 +33,12 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public List<ETraces> Traces { get; } = new List<ETraces>();
         public float ActivationDistance
         {
-            get { return _distanceEvidenceClose; }
-            set { _distanceEvidenceClose = value; }
+            get { return DistanceEvidenceClose; }
+            set { DistanceEvidenceClose = value; }
         }
         public bool CanBeInspected { get; set; } = true;
         public virtual bool IsPlayerClose
-            => Vector3.Distance(PlayerPos, Position) <= _distanceEvidenceClose;
+            => Vector3.Distance(PlayerPos, Position) <= DistanceEvidenceClose;
 
         public string TextInteractWithEvidence { get; set; } = string.Empty;
         public string TextWhileInspecting { get; set; } = string.Empty;
@@ -70,7 +70,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         //PROTECTED
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
         protected abstract Entity EvidenceEntity { get; }
-        protected float _distanceEvidenceClose = 3f;
+        protected float DistanceEvidenceClose { get; set; } = 3f;
 
         //PRIVATE
         private SoundPlayer soundEvidenceNearby 
@@ -168,10 +168,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
             DisplayInfoInteractWithEvidence();
 
-            if(Game.IsKeyDown(KeyInteract))
-            {
-                SwapStages(AwayOrClose, Process);
-            }
+            if(Game.IsKeyDown(KeyInteract)) SwapStages(AwayOrClose, Process);
         }
 
         private void DisplayInfoInteractWithEvidence()

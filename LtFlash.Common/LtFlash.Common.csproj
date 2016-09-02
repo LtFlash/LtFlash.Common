@@ -83,9 +83,7 @@
     <Compile Include="EvidenceLibrary\Resources\MedicalCenters.cs" />
     <Compile Include="EvidenceLibrary\Resources\PoliceStations.cs" />
     <Compile Include="EvidenceLibrary\Services\Coroner.cs" />
-    <Compile Include="EvidenceLibrary\Services\Coroner_.cs" />
     <Compile Include="EvidenceLibrary\Services\EMS.cs" />
-    <Compile Include="EvidenceLibrary\Services\EMS_.cs" />
     <Compile Include="EvidenceLibrary\Services\ServiceBase.cs" />
     <Compile Include="EvidenceLibrary\Services\Transport.cs" />
     <Compile Include="Logging\PerformanceLogger.cs" />
@@ -102,10 +100,8 @@
     </Compile>
     <Compile Include="ScriptManager\Managers\AdvancedScriptManager.cs" />
     <Compile Include="ScriptManager\Managers\Interfaces.cs" />
-    <Compile Include="ScriptManager\Managers\ScriptManagerBase.cs" />
     <Compile Include="ScriptManager\Managers\ScriptStatus.cs" />
     <Compile Include="ScriptManager\Managers\SequentialScriptManager.cs" />
-    <Compile Include="ScriptManager\Managers\TimerBasedScriptManager_Old.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Processes\ProcessHost.cs" />
     <Compile Include="ScriptManager\Resources\Zones.cs" />
