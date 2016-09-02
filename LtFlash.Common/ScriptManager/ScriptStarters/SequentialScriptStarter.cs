@@ -1,6 +1,7 @@
 ﻿using LtFlash.Common.ScriptManager.Managers;
 using LtFlash.Common.Logging;
 using System;
+using LtFlash.Common.ScriptManager.Scripts;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
@@ -9,7 +10,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         private const double INTERVAL = 500;
         private System.Timers.Timer _timer = new System.Timers.Timer(INTERVAL);
 
-        public SequentialScriptStarter(ScriptStatus s, bool autoRestart) 
+        public SequentialScriptStarter(IScript s, bool autoRestart) 
             : base(s, autoRestart)
         {
             _timer.Elapsed += TimerTick;

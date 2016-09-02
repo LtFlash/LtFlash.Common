@@ -1,6 +1,7 @@
 ﻿using LtFlash.Common.Processes;
 using LtFlash.Common.ScriptManager.Managers;
 using LtFlash.Common.ScriptManager.Scripts;
+using System;
 using System.Collections.Generic;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
@@ -8,19 +9,19 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
     internal abstract class ScriptStarterBase : IScriptStarter
     {
         //PUBLIC
+        public string Id => Script.Status.Id;
         public bool HasFinishedSuccessfully => Script.HasFinishedSuccessfully;
 
         public bool HasFinishedUnsuccessfully
         {
-            get { return _finishedUnsuccessfully || Script.HasFinishedUnsuccessfully; }
-            protected set { _finishedUnsuccessfully = value; }
+            get { return finishedUnsuccessfully || Script.HasFinishedUnsuccessfully; }
+            protected set { finishedUnsuccessfully = value; }
         }
-
-        public string Id => Script.Status.Id;
 
         public List<string> NextScriptsToRun => Script.Status.NextScripts;
 
         public IScript Script { get; private set; }
+
         //PROTECTED
         protected bool StartScriptInThisTick { get; set; }
         protected bool ScriptStarted { get; private set; }
@@ -29,11 +30,11 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             = new ProcessHost();
 
         //PRIVATE
-        private bool _finishedUnsuccessfully;
+        private bool finishedUnsuccessfully;
 
-        public ScriptStarterBase(IScript scriptStatus, bool autoRestart)
+        public ScriptStarterBase(IScript script, bool autoRestart)
         {
-            Script = scriptStatus;
+            Script = script;
 
             AutoRestart = autoRestart;
 
@@ -49,9 +50,23 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         {
             if(StartScriptInThisTick/* && ss.IsRunning*/)
             {
-                ScriptStarted = Script.Start();
+                ScriptStarted = Start(Script);
                 StartScriptInThisTick = false;
             }
+        }
+
+        public bool Start(IScript Script)
+        {
+            if (Script.HasFinished)
+            {
+                IScriptStatus s = Script.Status;
+                Script = (IScript)Activator.CreateInstance(Script.GetType());
+                Script.Status = s;
+            }
+            bool b = Script.CanBeStarted();
+
+            if (b) Script.Start();
+            return b;
         }
     }
 }

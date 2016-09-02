@@ -1,29 +1,25 @@
 ﻿using Rage;
 using LtFlash.Common.Logging;
+using LtFlash.Common.ScriptManager.Scripts;
+using System.Timers;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal class TimerControlledScriptStarter : ScriptStarterBase
     {
         //PRIVATE
-        private System.Timers.Timer _timer = new System.Timers.Timer();
-        private double 
-            _intervalMin, 
-            _intervalMax;
+        private Timer _timer = new Timer();
 
         public TimerControlledScriptStarter(
-            Managers.ScriptStatus ss, bool autoRestart = true) 
+            IScript ss, bool autoRestart = true) 
             : base(ss, autoRestart)
         {
-            _intervalMin = ss.TimerIntervalMin;
-            _intervalMax = ss.TimerIntervalMax;
-
-            _timer.Interval = GetRandomInterval(_intervalMin, _intervalMax);
+            _timer.Interval = GetRandomInterval();
             _timer.Elapsed += TimerTick;
             _timer.AutoReset = true;
         }
 
-        private void TimerTick(object sender, System.Timers.ElapsedEventArgs e)
+        private void TimerTick(object sender, ElapsedEventArgs e)
         {
             Logger.Log(nameof(TimerControlledScriptStarter),
                     nameof(TimerTick), "0");
@@ -43,7 +39,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             }
             else if(Script.HasFinishedSuccessfully) _timer.Stop();
 
-            _timer.Interval = GetRandomInterval(_intervalMin, _intervalMax);
+            _timer.Interval = GetRandomInterval();
         }
 
         public override void Start()
@@ -56,9 +52,11 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             _timer.Stop();
         } 
 
-        private double GetRandomInterval(double min, double max)
+        private double GetRandomInterval()
         {
-            return MathHelper.GetRandomDouble(min, max);
+            return MathHelper.GetRandomDouble(
+                Script.Status.TimerIntervalMin, 
+                Script.Status.TimerIntervalMax);
         }
     }
 }

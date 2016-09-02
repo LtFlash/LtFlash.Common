@@ -149,14 +149,16 @@ namespace LtFlash.Common.ScriptManager.Managers
                 s.Status = new New_ScriptStatus(s.Status.Id);
                 s.Status.InitModel = EInitModels.TimerBased;
                 s.Status.ScriptsToFinishPriorThis = new List<List<string>>();
-                ScriptStatus newScript = new ScriptStatus(
-                    s.Id, s.TypeImplIScript, Scripts.EInitModels.TimerBased,
-                    s.NextScriptToRunIds, new List<string[]>(), 
-                    s.TimerIntervalMin, s.TimerIntervalMax);
 
-                //TODO: create new instance of ISCript
+                IScript newScript = (IScript)Activator.CreateInstance(ufs[i].Script.GetType());
+                newScript.Status = new New_ScriptStatus(s.Status.Id);
+                newScript.Status.InitModel = EInitModels.TimerBased;
+                newScript.Status.NextScripts = s.Status.NextScripts;
+                newScript.Status.ScriptsToFinishPriorThis = new List<List<string>>();
+                newScript.Status.TimerIntervalMax = s.Status.TimerIntervalMax;
+                newScript.Status.TimerIntervalMin = s.Status.TimerIntervalMin;
 
-                _queue.Add(newScript/*CreateScriptStarter(s)*/);
+                _queue.Add(newScript);
             }
             Logger.LogDebug(
                 nameof(AdvancedScriptManager), 
@@ -332,7 +334,7 @@ namespace LtFlash.Common.ScriptManager.Managers
             IScript s = GetScriptById(scriptId, from);
             to.Add(s);
             from.Remove(s);
-            Game.LogVerbose($"{nameof(AdvancedScriptManager)}.{nameof(MoveInactiveScriptToQueue)}: {s.Id}");
+            Game.LogVerbose($"{nameof(AdvancedScriptManager)}.{nameof(MoveInactiveScriptToQueue)}: {s.Status.Id}");
         }
 
         private void MoveScriptFromQueueToRunning(
