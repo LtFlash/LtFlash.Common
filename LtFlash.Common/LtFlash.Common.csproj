@@ -87,7 +87,8 @@
     <Compile Include="EvidenceLibrary\Services\ServiceBase.cs" />
     <Compile Include="EvidenceLibrary\Services\Transport.cs" />
     <Compile Include="Logging\PerformanceLogger.cs" />
-    <Compile Include="ScriptManager\Managers\NewScriptManagerBase.cs" />
+    <Compile Include="ScriptManager\Scripts\New_ScriptStatus.cs" />
+    <Compile Include="ScriptManager\Managers\ScriptManagerBase.cs" />
     <Compile Include="ScriptManager\Managers\RandomScriptManager.cs" />
     <Compile Include="ScriptManager\Managers\TimerBasedScriptManager.cs" />
     <Compile Include="ScriptManager\Scripts\CasesAggregator.cs" />

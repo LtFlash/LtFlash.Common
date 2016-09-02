@@ -9,7 +9,10 @@ namespace LtFlash.Common.ScriptManager.Scripts
         //PUBLIC
         public bool HasFinished { get; protected set; }
         public bool Completed { get; protected set; }
+        public bool HasFinishedSuccessfully => HasFinished && Completed;
+        public bool HasFinishedUnsuccessfully => HasFinished && !Completed;
         public bool IsRunning { get; private set; }
+        public IScriptStatus Status { get; set; } = new New_ScriptStatus();
 
         //PROTECTED
         protected virtual IScriptStartController ScriptStartController { get; } 

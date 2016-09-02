@@ -1,10 +1,10 @@
 ﻿using LtFlash.Common.ScriptManager.Scripts;
 using System.Collections.Generic;
 
-namespace LtFlash.Common.ScriptManager.Managers
+namespace LtFlash.Common.ScriptManager.Scripts
 {
     //to use as a member of ScriptBase
-    class New_ScriptStatus
+    public class New_ScriptStatus : IScriptStatus
     {
         public string Id { get; }
         public double TimerIntervalMax { get; set; }
@@ -14,13 +14,18 @@ namespace LtFlash.Common.ScriptManager.Managers
         public List<List<string>> ScriptsToFinishPriorThis { get; set; } = new List<List<string>>();
         public EInitModels InitModel { get; set; } = EInitModels.Sequential;
 
-        public New_ScriptStatus(string id)
+        public New_ScriptStatus()
+        {
+
+        }
+
+        public New_ScriptStatus(string id) : this()
         {
             Id = id;
         }
     }
 
-    interface IScriptStatus
+    public interface IScriptStatus
     {
         string Id { get; }
         double TimerIntervalMax { get; set; }
