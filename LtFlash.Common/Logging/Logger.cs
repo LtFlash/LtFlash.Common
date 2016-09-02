@@ -15,9 +15,7 @@ namespace LtFlash.Common.Logging
         }
 
         public static void Log(string className, string function, string msg)
-        {
-            Log($"{className}.{function}: {msg}");
-        }
+            => Log($"{className}.{function}: {msg}");
 
         public static void Log(string msg)
         {

@@ -1,12 +1,13 @@
 ﻿using Rage;
 using LtFlash.Common.Logging;
+using System.Timers;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal class TimerControlledScriptStarter : ScriptStarterBase
     {
         //PRIVATE
-        private System.Timers.Timer _timer = new System.Timers.Timer();
+        private Timer _timer = new Timer();
         private double 
             _intervalMin, 
             _intervalMax;
@@ -15,6 +16,8 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             Managers.ScriptStatus ss, bool autoRestart = true) 
             : base(ss, autoRestart)
         {
+            //TODO: remove vars and use IScript.IScrtipStatus.InervalMax/Min
+            //directly in GetRandomInterval(), no params
             _intervalMin = ss.TimerIntervalMin;
             _intervalMax = ss.TimerIntervalMax;
 
@@ -23,7 +26,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             _timer.AutoReset = true;
         }
 
-        private void TimerTick(object sender, System.Timers.ElapsedEventArgs e)
+        private void TimerTick(object sender, ElapsedEventArgs e)
         {
             Logger.Log(nameof(TimerControlledScriptStarter),
                     nameof(TimerTick), "0");
@@ -57,8 +60,6 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         } 
 
         private double GetRandomInterval(double min, double max)
-        {
-            return MathHelper.GetRandomDouble(min, max);
-        }
+            => MathHelper.GetRandomDouble(min, max);
     }
 }
