@@ -17,9 +17,9 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 
         private void TimerTick(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!ScriptStarted || script.HasFinishedUnsuccessfully)
+            if (!ScriptStarted || Script.HasFinishedUnsuccessfully)
             {
-                if(ScriptStarted && script.HasFinishedUnsuccessfully && !AutoRestart)
+                if(ScriptStarted && Script.HasFinishedUnsuccessfully && !AutoRestart)
                 {
                     _timer.Stop();
                     HasFinishedUnsuccessfully = true;
@@ -31,7 +31,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
                 Logger.Log(nameof(SequentialScriptStarter),
                     nameof(TimerTick), ScriptStarted.ToString());
             }
-            else if (script.HasFinishedSuccessfully)
+            else if (Script.HasFinishedSuccessfully)
             {
                 _timer.Stop();
             }

@@ -1,25 +1,27 @@
 ﻿using LtFlash.Common.Processes;
 using LtFlash.Common.ScriptManager.Managers;
+using LtFlash.Common.ScriptManager.Scripts;
+using System.Collections.Generic;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal abstract class ScriptStarterBase : IScriptStarter
     {
         //PUBLIC
-        public bool HasFinishedSuccessfully => script.HasFinishedSuccessfully;
+        public bool HasFinishedSuccessfully => Script.HasFinishedSuccessfully;
 
         public bool HasFinishedUnsuccessfully
         {
-            get { return _finishedUnsuccessfully || script.HasFinishedUnsuccessfully; }
+            get { return _finishedUnsuccessfully || Script.HasFinishedUnsuccessfully; }
             protected set { _finishedUnsuccessfully = value; }
         }
 
-        public string Id => script.Id;
+        public string Id => Script.Status.Id;
 
-        public string[] NextScriptsToRun => script.NextScriptToRunIds;
+        public List<string> NextScriptsToRun => Script.Status.NextScripts;
 
+        public IScript Script { get; private set; }
         //PROTECTED
-        protected ScriptStatus script;
         protected bool StartScriptInThisTick { get; set; }
         protected bool ScriptStarted { get; private set; }
         protected bool AutoRestart { get; private set; }
@@ -29,9 +31,9 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         //PRIVATE
         private bool _finishedUnsuccessfully;
 
-        public ScriptStarterBase(ScriptStatus scriptStatus, bool autoRestart)
+        public ScriptStarterBase(IScript scriptStatus, bool autoRestart)
         {
-            script = scriptStatus;
+            Script = scriptStatus;
 
             AutoRestart = autoRestart;
 
@@ -43,16 +45,11 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         public abstract void Start();
         public abstract void Stop();
 
-        public ScriptStatus GetScriptStatus()
-        {
-            return script;
-        }
-
         private void InternalProcess()
         {
             if(StartScriptInThisTick/* && ss.IsRunning*/)
             {
-                ScriptStarted = script.Start();
+                ScriptStarted = Script.Start();
                 StartScriptInThisTick = false;
             }
         }
