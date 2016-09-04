@@ -1,4 +1,4 @@
-﻿
+﻿using LtFlash.Common.ScriptManager.Scripts;
 using System.Collections.Generic;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
@@ -11,6 +11,6 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         List<string> NextScriptsToRun { get; }
         void Start();
         void Stop();
-        Scripts.IScript Script { get; }
+        IScript Script { get; }
     }
 }

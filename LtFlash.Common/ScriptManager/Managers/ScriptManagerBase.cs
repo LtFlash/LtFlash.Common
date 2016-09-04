@@ -33,14 +33,13 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             ProcHost.AddProcess(CheckWaiting);
             ProcHost.AddProcess(CheckRunningScript);
-            //ProcHost.ActivateProcess(ShowStatusOfScripts);
             ProcHost.Start();
         }
 
         public void AddScript(string id, Type typeImplIScript)
         {
             IScript s = (IScript)Activator.CreateInstance(typeImplIScript);
-            s.Status = new New_ScriptStatus(id);
+            s.Status = new ScriptStatus(id);
             _off.Add(s);
             statusOfScripts.Add(id, false);
         }
@@ -67,13 +66,6 @@ namespace LtFlash.Common.ScriptManager.Managers
             if(removeOnStart) _off.Remove(script);
             ProcHost.ActivateProcess(CheckWaiting);
         }
-
-        //private void ShowStatusOfScripts()
-        //{
-        //    Game.DisplaySubtitle("_off.Count: " + _off.Count + 
-        //        " | await: " + (_await != null) + " | running: " + (_running != null) + 
-        //        "~n~" + "canStart: " + canStartNewScript);
-        //}
 
         private void CheckWaiting()
         {

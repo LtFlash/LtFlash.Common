@@ -51,7 +51,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 //id, typeImplIScript, initModel,
                 //nextScriptsToRun, scriptsToFinishPrior,
                 //timerIntervalMin, timerIntervalMax);
-            IScriptStatus s = new New_ScriptStatus(id);
+            IScriptStatus s = new ScriptStatus(id);
             s.InitModel = initModel;
             s.TimerIntervalMin = timerIntervalMin;
             s.TimerIntervalMax = timerIntervalMax;
@@ -146,12 +146,12 @@ namespace LtFlash.Common.ScriptManager.Managers
 
                 IScript s = ufs[i].Script;
 
-                s.Status = new New_ScriptStatus(s.Status.Id);
+                s.Status = new ScriptStatus(s.Status.Id);
                 s.Status.InitModel = EInitModels.TimerBased;
                 s.Status.ScriptsToFinishPriorThis = new List<List<string>>();
 
                 IScript newScript = (IScript)Activator.CreateInstance(ufs[i].Script.GetType());
-                newScript.Status = new New_ScriptStatus(s.Status.Id);
+                newScript.Status = new ScriptStatus(s.Status.Id);
                 newScript.Status.InitModel = EInitModels.TimerBased;
                 newScript.Status.NextScripts = s.Status.NextScripts;
                 newScript.Status.ScriptsToFinishPriorThis = new List<List<string>>();
