@@ -1,4 +1,5 @@
-﻿using Rage;
+﻿using LtFlash.Common.Processes;
+using Rage;
 using System.Windows.Forms;
 
 namespace LtFlash.Common.EvidenceLibrary.Services
@@ -19,24 +20,17 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         protected Ped PedDriver { get; private set; }
         protected Ped PedWorker { get; private set; }
         protected Vehicle Vehicle { get; private set; }
-
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
-
         protected Dialog Dialogue { get; set; }
 
         //PRIVATE
+        protected ProcessHost Proc { get; private set; } = new ProcessHost();
         private string vehModel;
-
         private Blip blipVeh;
-
         private string modelPedDriver;
         private string modelPedWorker;
-
         private SpawnPoint spawnPos;
         private SpawnPoint destPoint;
-
-        protected Processes.ProcessHost Proc { get; private set; } 
-            = new Processes.ProcessHost();
 
         public ServiceBase(
             string vehModel, string modelPedDriver, string modelPedWorker,
@@ -128,8 +122,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         private void DisplayMsgIsCollected()
         {
-            if(MsgIsCollected != string.Empty)
-                Game.DisplayHelp(MsgIsCollected);
+            if(MsgIsCollected != string.Empty) Game.DisplayHelp(MsgIsCollected);
         }
 
         private void CheckIfPedDriverCloseToVeh()

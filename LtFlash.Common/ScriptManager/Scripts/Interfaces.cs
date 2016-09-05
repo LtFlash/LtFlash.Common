@@ -10,7 +10,7 @@
         bool Completed { get; }
         bool HasFinishedSuccessfully { get;}
         bool HasFinishedUnsuccessfully { get; }
-        IScriptStatus Status { get; set; }
+        IScriptAttributes Attributes { get; set; }
 
         bool CanBeStarted();
         void Start();

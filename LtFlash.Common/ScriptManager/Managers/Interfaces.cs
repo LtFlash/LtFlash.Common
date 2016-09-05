@@ -6,7 +6,6 @@ namespace LtFlash.Common.ScriptManager.Managers
     {
         void AddScript(string id, Type typeImplementsIBaseScript);
         void StartScript(string id, bool checkIfCanBeStarted);
-        //ScriptStatus this[string id] { get; }
     }
 
     public interface ITimerBasedScriptManager : IScriptManager

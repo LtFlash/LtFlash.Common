@@ -54,9 +54,14 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 
         private double GetRandomInterval()
         {
+            Logger.LogDebug(
+                nameof(TimerControlledScriptStarter), 
+                nameof(GetRandomInterval), 
+                $"id:{Script.Attributes.Id}: {Script.Attributes.TimerIntervalMin}-{Script.Attributes.TimerIntervalMax}");
+
             return MathHelper.GetRandomDouble(
-                Script.Status.TimerIntervalMin, 
-                Script.Status.TimerIntervalMax);
+                Script.Attributes.TimerIntervalMin, 
+                Script.Attributes.TimerIntervalMax);
         }
     }
 }

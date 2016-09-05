@@ -8,7 +8,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
     internal abstract class ScriptStarterBase : IScriptStarter
     {
         //PUBLIC
-        public string Id => Script.Status.Id;
+        public string Id => Script.Attributes.Id;
         public bool HasFinishedSuccessfully => Script.HasFinishedSuccessfully;
 
         public bool HasFinishedUnsuccessfully
@@ -17,7 +17,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             protected set { finishedUnsuccessfully = value; }
         }
 
-        public List<string> NextScriptsToRun => Script.Status.NextScripts;
+        public List<string> NextScriptsToRun => Script.Attributes.NextScripts;
 
         public IScript Script { get; private set; }
 
@@ -58,9 +58,9 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         {
             if (Script.HasFinished)
             {
-                IScriptStatus s = Script.Status;
+                IScriptAttributes s = Script.Attributes;
                 Script = (IScript)Activator.CreateInstance(Script.GetType());
-                Script.Status = s;
+                Script.Attributes = s;
             }
             bool b = Script.CanBeStarted();
 

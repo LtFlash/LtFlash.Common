@@ -2,28 +2,27 @@
 
 namespace LtFlash.Common.ScriptManager.Scripts
 {
-    public class ScriptStatus : IScriptStatus
+    public class ScriptAttributes : IScriptAttributes
     {
         public string Id { get; }
         public double TimerIntervalMax { get; set; }
         public double TimerIntervalMin { get; set; }
         public List<string> NextScripts { get; set; } = new List<string>();
-        //TODO: check if doesnt thrown null ref on embedded list
         public List<List<string>> ScriptsToFinishPriorThis { get; set; } 
             = new List<List<string>>();
         public EInitModels InitModel { get; set; } = EInitModels.Sequential;
 
-        public ScriptStatus()
+        public ScriptAttributes()
         {
         }
 
-        public ScriptStatus(string id) : this()
+        public ScriptAttributes(string id) : this()
         {
             Id = id;
         }
     }
 
-    public interface IScriptStatus
+    public interface IScriptAttributes
     {
         string Id { get; }
         double TimerIntervalMax { get; set; }

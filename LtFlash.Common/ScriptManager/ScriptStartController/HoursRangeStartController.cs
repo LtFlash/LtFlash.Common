@@ -3,12 +3,12 @@ using Rage;
 
 namespace LtFlash.Common.ScriptManager.ScriptStartController
 {
-    public class TimeRangeStartController : IScriptStartController
+    public class HoursRangeStartController : IScriptStartController
     {
         private TimeSpan HourStart { get; set; }
         private TimeSpan HourEnd { get; set; }
         //TimeSpan.Parse("22:00"); // 10 PM
-        public TimeRangeStartController(TimeSpan hourStart, TimeSpan hourEnd)
+        public HoursRangeStartController(TimeSpan hourStart, TimeSpan hourEnd)
         {
             HourStart = hourStart;
             HourEnd = hourEnd;

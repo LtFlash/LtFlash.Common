@@ -34,11 +34,11 @@ namespace LtFlash.Common.ScriptManager.Managers
             stages.AddProcess(Process_WaitScriptsForFinish);
             stages.AddProcess(Process_CheckIfAllFinished);
         }
-
+        //FULL CTOR
         public void AddScript(
-            Type typeImplIScript, string id, Scripts.EInitModels initModel, 
-            string[] nextScriptsToRun, List<List<string>> scriptsToFinishPrior,
-            double timerIntervalMin, double timerIntervalMax)
+            Type typeImplIScript, string id, EInitModels initModel, 
+            List<string> nextScripts, List<List<string>> scriptsToFinishPrior,
+            double timerMin, double timerMax)
         {
             if (!typeImplIScript.GetInterfaces().Contains(typeof(IScript)))
             {
@@ -47,29 +47,28 @@ namespace LtFlash.Common.ScriptManager.Managers
                     nameof(typeImplIScript));
             }
 
-            //ScriptStatus s = new ScriptStatus(
-                //id, typeImplIScript, initModel,
-                //nextScriptsToRun, scriptsToFinishPrior,
-                //timerIntervalMin, timerIntervalMax);
-            IScriptStatus s = new ScriptStatus(id);
+            IScriptAttributes s = new ScriptAttributes(id);
             s.InitModel = initModel;
-            s.TimerIntervalMin = timerIntervalMin;
-            s.TimerIntervalMax = timerIntervalMax;
-            s.NextScripts = new List<string>(nextScriptsToRun);
+            s.TimerIntervalMin = timerMin;
+            s.TimerIntervalMax = timerMax;
+            s.NextScripts = nextScripts;
             s.ScriptsToFinishPriorThis = scriptsToFinishPrior;
 
-            IScript sc = CreateInstance(typeImplIScript);
-            sc.Status = s;
+            IScript sc = (IScript)Activator.CreateInstance(typeImplIScript);
+            sc.Attributes = s;
+
+            Logger.LogDebug(
+                nameof(AdvancedScriptManager), 
+                nameof(AddScript), 
+                $"id: {sc.Attributes.Id}: {sc.Attributes.TimerIntervalMin}-{sc.Attributes.TimerIntervalMax}");
 
             AddNewScriptToList(sc, id);
         }
 
-        private IScript CreateInstance(Type type)
-            => (IScript)Activator.CreateInstance(type);
-
         public void AddScript(
-            Type typeImplIScript, string id, Scripts.EInitModels initModel,
-            string[] nextScriptsToRun, List<List<string>> scriptsToFinishPrior)
+            Type typeImplIScript, string id, 
+            EInitModels initModel,
+            List<string> nextScriptsToRun, List<List<string>> scriptsToFinishPrior)
         {
             AddScript(typeImplIScript, id, initModel,
                 nextScriptsToRun, scriptsToFinishPrior,
@@ -78,23 +77,23 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public void AddScript(
             Type typeBaseScript, string id,
-            Scripts.EInitModels initModel)
+            EInitModels initModel)
         {
             AddScript(
                 typeBaseScript, id, initModel,
-                new string[0], new List<List<string>>(),
+                new List<string>(), new List<List<string>>(),
                 DefaultTimerIntervalMin, DefaultTimerIntervalMin);
         }
 
         public void Start() 
         {
-            StartScript(_off.First().Status.Id);
+            StartScript(_off.First().Attributes.Id);
         }
 
         public void StartScript(string id)
         {
             //clear prior list to prevent blockage
-            GetScriptById(id, _off).Status.ScriptsToFinishPriorThis = new List<List<string>>();
+            GetScriptById(id, _off).Attributes.ScriptsToFinishPriorThis = new List<List<string>>();
 
             MoveInactiveScriptToQueue(id, _off, _queue);
 
@@ -146,17 +145,17 @@ namespace LtFlash.Common.ScriptManager.Managers
 
                 IScript s = ufs[i].Script;
 
-                s.Status = new ScriptStatus(s.Status.Id);
-                s.Status.InitModel = EInitModels.TimerBased;
-                s.Status.ScriptsToFinishPriorThis = new List<List<string>>();
+                //s.Attributes = new ScriptAttributes(s.Attributes.Id);
+                //s.Attributes.InitModel = EInitModels.TimerBased;
+                //s.Attributes.ScriptsToFinishPriorThis = new List<List<string>>();
 
                 IScript newScript = (IScript)Activator.CreateInstance(ufs[i].Script.GetType());
-                newScript.Status = new ScriptStatus(s.Status.Id);
-                newScript.Status.InitModel = EInitModels.TimerBased;
-                newScript.Status.NextScripts = s.Status.NextScripts;
-                newScript.Status.ScriptsToFinishPriorThis = new List<List<string>>();
-                newScript.Status.TimerIntervalMax = s.Status.TimerIntervalMax;
-                newScript.Status.TimerIntervalMin = s.Status.TimerIntervalMin;
+                newScript.Attributes = new ScriptAttributes(s.Attributes.Id);
+                newScript.Attributes.InitModel = EInitModels.TimerBased;
+                newScript.Attributes.NextScripts = s.Attributes.NextScripts;
+                newScript.Attributes.ScriptsToFinishPriorThis = new List<List<string>>();
+                newScript.Attributes.TimerIntervalMax = s.Attributes.TimerIntervalMax;
+                newScript.Attributes.TimerIntervalMin = s.Attributes.TimerIntervalMin;
 
                 _queue.Add(newScript);
             }
@@ -196,7 +195,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 HasFinished = true;
                 Stop();
 
-                Logging.Logger.Log(
+                Logger.Log(
                     nameof(AdvancedScriptManager), 
                     nameof(Process_CheckIfAllFinished), 
                     "All script finished");
@@ -211,16 +210,16 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private bool CheckIfScriptCanBeStarted(IScript script)
         {
-            if (script.Status.ScriptsToFinishPriorThis.Count < 1)
+            if (script.Attributes.ScriptsToFinishPriorThis.Count < 1)
                 return true;
             else
                 return CheckIfNecessaryScriptsAreFinished(
-                    script.Status.ScriptsToFinishPriorThis, statusOfScripts);
+                    script.Attributes.ScriptsToFinishPriorThis, statusOfScripts);
         }
 
         private IScript GetScriptById(string id, List<IScript> from)
         {
-            IScript s = from.FirstOrDefault(ss => ss.Status.Id == id);
+            IScript s = from.FirstOrDefault(ss => ss.Attributes.Id == id);
             if(s == null)
             {
                 throw new ArgumentException(
@@ -255,14 +254,14 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private IScriptStarter CreateScriptStarter(IScript ss)
         {
-            switch (ss.Status.InitModel)
+            switch (ss.Attributes.InitModel)
             {
                 case EInitModels.Sequential:
                     return new SequentialScriptStarter(ss, true);
 
                 case EInitModels.TimerBased:
                 default:
-                    return new TimerControlledScriptStarter(ss, true);
+                    return new TimerControlledScriptStarter(ss, false);
             }
         }
 
@@ -311,7 +310,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         
 
         private List<IScriptStarter> GetScriptsWithSequentialStarter(List<IScriptStarter> running)
-            => GetScripts(running, s => s.Script.Status.InitModel == EInitModels.Sequential);
+            => GetScripts(running, s => s.Script.Attributes.InitModel == EInitModels.Sequential);
         
 
         private List<IScriptStarter> GetScripts(
@@ -334,7 +333,9 @@ namespace LtFlash.Common.ScriptManager.Managers
             IScript s = GetScriptById(scriptId, from);
             to.Add(s);
             from.Remove(s);
-            Game.LogVerbose($"{nameof(AdvancedScriptManager)}.{nameof(MoveInactiveScriptToQueue)}: {s.Status.Id}");
+
+            Logger.LogDebug(nameof(AdvancedScriptManager), 
+                nameof(MoveInactiveScriptToQueue), s.Attributes.Id);
         }
 
         private void MoveScriptFromQueueToRunning(

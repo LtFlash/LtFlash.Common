@@ -26,6 +26,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         private Dictionary<string, bool> statusOfScripts 
             = new Dictionary<string, bool>();
 
+        //TODO: implement restarting
         private bool _restartOnFailure;
 
 
@@ -39,7 +40,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         public void AddScript(string id, Type typeImplIScript)
         {
             IScript s = (IScript)Activator.CreateInstance(typeImplIScript);
-            s.Status = new ScriptStatus(id);
+            s.Attributes = new ScriptAttributes(id);
             _off.Add(s);
             statusOfScripts.Add(id, false);
         }
@@ -85,7 +86,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             if (_running.HasFinishedSuccessfully)
             {
-                statusOfScripts[_running.Status.Id] = true;
+                statusOfScripts[_running.Attributes.Id] = true;
                 _running = null;
                 canStartNewScript = true;
                 ProcHost.DeactivateProcess(CheckRunningScript);
@@ -110,7 +111,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private IScript GetScriptById(string id, List<IScript> from)
         {
-            IScript s = from.FirstOrDefault(ss => ss.Status.Id == id);
+            IScript s = from.FirstOrDefault(ss => ss.Attributes.Id == id);
             if (s == null)
             {
                 throw new ArgumentException(
