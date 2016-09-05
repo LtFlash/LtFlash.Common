@@ -1,25 +1,27 @@
 ﻿using LtFlash.Common.Processes;
-using LtFlash.Common.ScriptManager.Managers;
+using LtFlash.Common.ScriptManager.Scripts;
+using System;
+using System.Collections.Generic;
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal abstract class ScriptStarterBase : IScriptStarter
     {
         //PUBLIC
-        public bool HasFinishedSuccessfully => script.HasFinishedSuccessfully;
+        public string Id => Script.Attributes.Id;
+        public bool HasFinishedSuccessfully => Script.HasFinishedSuccessfully;
 
         public bool HasFinishedUnsuccessfully
         {
-            get { return _finishedUnsuccessfully || script.HasFinishedUnsuccessfully; }
-            protected set { _finishedUnsuccessfully = value; }
+            get { return finishedUnsuccessfully || Script.HasFinishedUnsuccessfully; }
+            protected set { finishedUnsuccessfully = value; }
         }
 
-        public string Id => script.Id;
+        public List<string> NextScriptsToRun => Script.Attributes.NextScripts;
 
-        public string[] NextScriptsToRun => script.NextScriptToRunIds;
+        public IScript Script { get; private set; }
 
         //PROTECTED
-        protected ScriptStatus script;
         protected bool StartScriptInThisTick { get; set; }
         protected bool ScriptStarted { get; private set; }
         protected bool AutoRestart { get; private set; }
@@ -27,11 +29,11 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             = new ProcessHost();
 
         //PRIVATE
-        private bool _finishedUnsuccessfully;
+        private bool finishedUnsuccessfully;
 
-        public ScriptStarterBase(ScriptStatus scriptStatus, bool autoRestart)
+        public ScriptStarterBase(IScript script, bool autoRestart)
         {
-            script = scriptStatus;
+            Script = script;
 
             AutoRestart = autoRestart;
 
@@ -43,18 +45,27 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         public abstract void Start();
         public abstract void Stop();
 
-        public ScriptStatus GetScriptStatus()
-        {
-            return script;
-        }
-
         private void InternalProcess()
         {
             if(StartScriptInThisTick/* && ss.IsRunning*/)
             {
-                ScriptStarted = script.Start();
+                ScriptStarted = Start(Script);
                 StartScriptInThisTick = false;
             }
+        }
+
+        public bool Start(IScript Script)
+        {
+            if (Script.HasFinished)
+            {
+                IScriptAttributes s = Script.Attributes;
+                Script = (IScript)Activator.CreateInstance(Script.GetType());
+                Script.Attributes = s;
+            }
+            bool b = Script.CanBeStarted();
+
+            if (b) Script.Start();
+            return b;
         }
     }
 }

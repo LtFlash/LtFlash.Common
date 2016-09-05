@@ -9,10 +9,13 @@ namespace LtFlash.Common.ScriptManager.Scripts
         //PUBLIC
         public bool HasFinished { get; protected set; }
         public bool Completed { get; protected set; }
+        public bool HasFinishedSuccessfully => HasFinished && Completed;
+        public bool HasFinishedUnsuccessfully => HasFinished && !Completed;
         public bool IsRunning { get; private set; }
+        public IScriptAttributes Attributes { get; set; } = new ScriptAttributes();
 
         //PROTECTED
-        protected virtual IScriptStartController ScriptStartController { get; } 
+        protected virtual IScriptStartController StartController { get; } 
             = new UnconditionalStartController();
 
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
@@ -25,7 +28,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
             //empty, ctor called to check CanBeStarted()
         }
 
-        public bool CanBeStarted() => ScriptStartController.CanBeStarted();
+        public bool CanBeStarted() => StartController.CanBeStarted();
 
         public void Start()
         {

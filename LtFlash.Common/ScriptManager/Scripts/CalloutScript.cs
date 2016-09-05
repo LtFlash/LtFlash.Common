@@ -8,7 +8,7 @@ using Forms = System.Windows.Forms;
 
 namespace LtFlash.Common.ScriptManager.Scripts
 {
-    public abstract class CalloutScriptBase : ScriptBase, IScript
+    public abstract class CalloutScript : ScriptBase, IScript
     {
         //PUBLIC
         public float DistanceSoundPlayerClosingIn { get; set; } = 80f;
@@ -45,7 +45,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
         private Vector3 blipRoutePosition;
         private Vector3 callPosition;
 
-        public CalloutScriptBase()
+        public CalloutScript()
         {
             RegisterStages();
         }

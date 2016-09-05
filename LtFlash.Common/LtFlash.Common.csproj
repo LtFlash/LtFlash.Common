@@ -87,7 +87,8 @@
     <Compile Include="EvidenceLibrary\Services\ServiceBase.cs" />
     <Compile Include="EvidenceLibrary\Services\Transport.cs" />
     <Compile Include="Logging\PerformanceLogger.cs" />
-    <Compile Include="ScriptManager\Managers\NewScriptManagerBase.cs" />
+    <Compile Include="ScriptManager\Scripts\ScriptAttributes.cs" />
+    <Compile Include="ScriptManager\Managers\ScriptManagerBase.cs" />
     <Compile Include="ScriptManager\Managers\RandomScriptManager.cs" />
     <Compile Include="ScriptManager\Managers\TimerBasedScriptManager.cs" />
     <Compile Include="ScriptManager\Scripts\CasesAggregator.cs" />
@@ -100,7 +101,6 @@
     </Compile>
     <Compile Include="ScriptManager\Managers\AdvancedScriptManager.cs" />
     <Compile Include="ScriptManager\Managers\Interfaces.cs" />
-    <Compile Include="ScriptManager\Managers\ScriptStatus.cs" />
     <Compile Include="ScriptManager\Managers\SequentialScriptManager.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Processes\ProcessHost.cs" />
@@ -109,14 +109,14 @@
     <Compile Include="ScriptManager\ScriptStartController\DelayedStartController.cs" />
     <Compile Include="ScriptManager\ScriptStartController\Interface.cs" />
     <Compile Include="ScriptManager\ScriptStartController\ProximityStartController.cs" />
-    <Compile Include="ScriptManager\ScriptStartController\TimeRangeStartController.cs" />
+    <Compile Include="ScriptManager\ScriptStartController\HoursRangeStartController.cs" />
     <Compile Include="ScriptManager\ScriptStartController\UnconditionalStartController.cs" />
     <Compile Include="ScriptManager\ScriptStarters\IScriptStarter.cs" />
     <Compile Include="ScriptManager\ScriptStarters\ScriptStarterBase.cs" />
     <Compile Include="ScriptManager\ScriptStarters\SequentialScriptStarter.cs" />
     <Compile Include="ScriptManager\ScriptStarters\TimerControlledScriptStarter.cs" />
     <Compile Include="ScriptManager\Scripts\BasicScript.cs" />
-    <Compile Include="ScriptManager\Scripts\CalloutScriptBase.cs" />
+    <Compile Include="ScriptManager\Scripts\CalloutScript.cs" />
     <Compile Include="ScriptManager\Scripts\CaseController.cs" />
     <Compile Include="ScriptManager\Scripts\Enums.cs" />
     <Compile Include="ScriptManager\Scripts\Interfaces.cs" />

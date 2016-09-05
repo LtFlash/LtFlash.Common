@@ -6,16 +6,13 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
     {
         public Ped Ped { get; protected set; }
 
-        public override Vector3 Position
-            { get { return Ped ? Ped.Position : Vector3.Zero; } }
+        public override Vector3 Position => Ped ? Ped.Position : Vector3.Zero;
 
-        public override PoolHandle Handle
-            { get { return Ped ? Ped.Handle : new PoolHandle(); } }
+        public override PoolHandle Handle => Ped ? Ped.Handle : new PoolHandle();
 
-        protected override Entity EvidenceEntity
-            { get { return Ped; } }
+        protected override Entity EvidenceEntity => Ped;
 
-        public EvidencePed(
+        public EvidencePed( 
             string id, string description, 
             SpawnPoint spawn, Model model) : base(id, description)
         {
@@ -35,14 +32,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         public override void Dismiss()
         {
-            Game.LogVerbose("EvidencePerson.Dismiss()");
             End();
+            //if (Ped) Ped.Delete();
             base.Dismiss();
         }
 
-        public override bool IsValid()
-        {
-            return Ped;
-        }
+        public override bool IsValid() => Ped;
     }
 }

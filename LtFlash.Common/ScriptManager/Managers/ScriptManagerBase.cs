@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Rage;
 using LtFlash.Common.Processes;
+using LtFlash.Common.ScriptManager.Scripts;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
@@ -18,13 +19,14 @@ namespace LtFlash.Common.ScriptManager.Managers
         protected bool removeOnStart = true;
 
         //PRIVATE
-        private List<ScriptStatus> _off = new List<ScriptStatus>();
-        private ScriptStatus _await;
-        private ScriptStatus _running;
+        private List<IScript> _off = new List<IScript>();
+        private IScript _await;
+        private IScript _running;
 
         private Dictionary<string, bool> statusOfScripts 
             = new Dictionary<string, bool>();
 
+        //TODO: implement restarting
         private bool _restartOnFailure;
 
 
@@ -32,13 +34,14 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             ProcHost.AddProcess(CheckWaiting);
             ProcHost.AddProcess(CheckRunningScript);
-            //ProcHost.ActivateProcess(ShowStatusOfScripts);
             ProcHost.Start();
         }
 
         public void AddScript(string id, Type typeImplIScript)
         {
-            _off.Add(new ScriptStatus(id, typeImplIScript));
+            IScript s = (IScript)Activator.CreateInstance(typeImplIScript);
+            s.Attributes = new ScriptAttributes(id);
+            _off.Add(s);
             statusOfScripts.Add(id, false);
         }
 
@@ -58,26 +61,19 @@ namespace LtFlash.Common.ScriptManager.Managers
             return true;
         }
 
-        protected void StartScript(ScriptStatus script)
+        protected void StartScript(IScript script)
         {
             _await = script;
             if(removeOnStart) _off.Remove(script);
             ProcHost.ActivateProcess(CheckWaiting);
         }
 
-        //private void ShowStatusOfScripts()
-        //{
-        //    Game.DisplaySubtitle("_off.Count: " + _off.Count + 
-        //        " | await: " + (_await != null) + " | running: " + (_running != null) + 
-        //        "~n~" + "canStart: " + canStartNewScript);
-        //}
-
         private void CheckWaiting()
         {
             if (_await == null) return;
-
-            if (_await.Start())
+            if (_await.CanBeStarted())
             {
+                _await.Start();
                 _running = _await;
                 _await = null;
                 ProcHost.SwapProcesses(CheckWaiting, CheckRunningScript);
@@ -90,7 +86,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             if (_running.HasFinishedSuccessfully)
             {
-                statusOfScripts[_running.Id] = true;
+                statusOfScripts[_running.Attributes.Id] = true;
                 _running = null;
                 canStartNewScript = true;
                 ProcHost.DeactivateProcess(CheckRunningScript);
@@ -113,9 +109,9 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public void Stop() => ProcHost.Stop();
 
-        private ScriptStatus GetScriptById(string id, List<ScriptStatus> from)
+        private IScript GetScriptById(string id, List<IScript> from)
         {
-            ScriptStatus s = from.FirstOrDefault(ss => ss.Id == id);
+            IScript s = from.FirstOrDefault(ss => ss.Attributes.Id == id);
             if (s == null)
             {
                 throw new ArgumentException(

@@ -6,6 +6,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 {
     public class TimerBasedScriptManager : ScriptManagerBase
     {
+        //PRIVATE
         private Timer timer = new Timer();
         private double intervalMax = 3 * 60 * 1000;
         private double intervalMin = 1 * 60 * 1000;

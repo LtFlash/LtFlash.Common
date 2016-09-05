@@ -1,7 +1,11 @@
 ﻿using LtFlash.Common.ScriptManager.Managers;
 using LtFlash.Common.Logging;
 using System;
+<<<<<<< HEAD
+using LtFlash.Common.ScriptManager.Scripts;
+=======
 using System.Timers;
+>>>>>>> refs/remotes/origin/master
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
@@ -10,7 +14,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         private const double INTERVAL = 500;
         private Timer timer = new Timer(INTERVAL);
 
-        public SequentialScriptStarter(ScriptStatus s, bool autoRestart) 
+        public SequentialScriptStarter(IScript s, bool autoRestart) 
             : base(s, autoRestart)
         {
             timer.Elapsed += TimerTick;
@@ -18,9 +22,9 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 
         private void TimerTick(object sender, ElapsedEventArgs e)
         {
-            if (!ScriptStarted || script.HasFinishedUnsuccessfully)
+            if (!ScriptStarted || Script.HasFinishedUnsuccessfully)
             {
-                if(ScriptStarted && script.HasFinishedUnsuccessfully && !AutoRestart)
+                if(ScriptStarted && Script.HasFinishedUnsuccessfully && !AutoRestart)
                 {
                     timer.Stop();
                     HasFinishedUnsuccessfully = true;
@@ -32,7 +36,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
                 Logger.Log(nameof(SequentialScriptStarter),
                     nameof(TimerTick), ScriptStarted.ToString());
             }
-            else if (script.HasFinishedSuccessfully)
+            else if (Script.HasFinishedSuccessfully)
             {
                 timer.Stop();
             }

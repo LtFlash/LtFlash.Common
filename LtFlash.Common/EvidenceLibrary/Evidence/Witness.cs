@@ -51,7 +51,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
             if(Functions.IsPedArrested(Ped))
             {
                 IsArrested = true;
-                Dismiss(); //TODO: test if doesn't 'cancel' the arrest state
+                //Dismiss(); //TODO: test if doesn't 'cancel' the arrest state
             }
 
             switch (_state)

@@ -25,17 +25,27 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         };
 
         private Ped _ped;
-        private Vector3 _positionNearTransportedPed;
+        private Vector3 pickupPos;
 
         private GameFiber _process;
         private bool _canRun = true;
 
-        public Transport(Ped ped, Vector3 pickupPos, EPoliceStations dispatchFrom = EPoliceStations.Closest)
+        public Transport(
+            Ped ped, Vector3 pickupPos, 
+            EPoliceStations dispatchFrom = EPoliceStations.Closest) : 
+            this(
+                ped, pickupPos, 
+                
+                dispatchFrom == EPoliceStations.Closest ? 
+                PoliceStations.GetClosestPoliceStationSpawn(pickupPos) : 
+                PoliceStations.GetPoliceStationSpawn(dispatchFrom))
         {
-            _policeCarSpawn = dispatchFrom == EPoliceStations.Closest ? PoliceStations.GetClosestPoliceStationSpawn(pickupPos) : PoliceStations.GetPoliceStationSpawn(dispatchFrom);
+        }
 
-            _positionNearTransportedPed = pickupPos;
-            _ped = ped;
+        public Transport(Ped ped, Vector3 pickupPos, SpawnPoint dispatchFrom)
+        {
+            _policeCarSpawn = dispatchFrom;
+            this.pickupPos = pickupPos;
             _process = new GameFiber(Process);
             _process.Start();
         }
@@ -82,14 +92,14 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                     case EState.SetTaskDrive: 
 
                         //_positionNearTransportedPed = World.GetNextPositionOnStreet(_ped.Position);
-                        _copDriver.Tasks.DriveToPosition(_positionNearTransportedPed, 10f, VehicleDrivingFlags.StopAtDestination | VehicleDrivingFlags.Emergency);
+                        _copDriver.Tasks.DriveToPosition(pickupPos, 10f, VehicleDrivingFlags.StopAtDestination | VehicleDrivingFlags.Emergency);
 
                         _state = EState.WaitForArrival;
 
                         break;
                     case EState.WaitForArrival:
 
-                        if (_policeCar.Position.DistanceTo(_positionNearTransportedPed) <= 5.5f)
+                        if (_policeCar.Position.DistanceTo(pickupPos) <= 5.5f)
                         {
                             _state = EState.SetPedTaskEnter;
                         }

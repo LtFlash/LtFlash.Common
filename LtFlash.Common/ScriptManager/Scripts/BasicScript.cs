@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LtFlash.Common.ScriptManager.Scripts
+﻿namespace LtFlash.Common.ScriptManager.Scripts
 {
     public abstract class BasicScript : ScriptBase, IScript
     {
@@ -27,7 +21,6 @@ namespace LtFlash.Common.ScriptManager.Scripts
             Initialize();
             SwapStages(InternalInitialize, Process);
         }
-
 
         private void InternalEnd()
         {
