@@ -14,9 +14,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStartController
         }
 
         public bool CanBeStarted()
-        {
-            return Vector3.Distance(_pos, Game.LocalPlayer.Character.Position)
+            => Vector3.Distance(_pos, Game.LocalPlayer.Character.Position)
                 <= _minDist;
-        }
     }
 }

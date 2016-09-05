@@ -1,28 +1,32 @@
 ﻿using LtFlash.Common.ScriptManager.Managers;
 using LtFlash.Common.Logging;
 using System;
+<<<<<<< HEAD
 using LtFlash.Common.ScriptManager.Scripts;
+=======
+using System.Timers;
+>>>>>>> refs/remotes/origin/master
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal class SequentialScriptStarter : ScriptStarterBase
     {
         private const double INTERVAL = 500;
-        private System.Timers.Timer _timer = new System.Timers.Timer(INTERVAL);
+        private Timer timer = new Timer(INTERVAL);
 
         public SequentialScriptStarter(IScript s, bool autoRestart) 
             : base(s, autoRestart)
         {
-            _timer.Elapsed += TimerTick;
+            timer.Elapsed += TimerTick;
         }
 
-        private void TimerTick(object sender, System.Timers.ElapsedEventArgs e)
+        private void TimerTick(object sender, ElapsedEventArgs e)
         {
             if (!ScriptStarted || Script.HasFinishedUnsuccessfully)
             {
                 if(ScriptStarted && Script.HasFinishedUnsuccessfully && !AutoRestart)
                 {
-                    _timer.Stop();
+                    timer.Stop();
                     HasFinishedUnsuccessfully = true;
                     return;
                 }
@@ -34,18 +38,12 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             }
             else if (Script.HasFinishedSuccessfully)
             {
-                _timer.Stop();
+                timer.Stop();
             }
         }
 
-        public override void Start()
-        {
-            _timer.Start();
-        }
+        public override void Start() => timer.Start();
 
-        public override void Stop()
-        {
-            _timer.Stop();
-        }
+        public override void Stop() => timer.Stop();
     }
 }
