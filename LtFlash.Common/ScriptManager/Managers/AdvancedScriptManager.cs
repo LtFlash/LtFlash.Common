@@ -40,13 +40,6 @@ namespace LtFlash.Common.ScriptManager.Managers
             List<string> nextScripts, List<List<string>> scriptsToFinishPrior,
             double timerMin, double timerMax)
         {
-            if (!typeImplIScript.GetInterfaces().Contains(typeof(IScript)))
-            {
-                throw new ArgumentException(
-                    $"Parameter does not implement {nameof(IScript)} interface.",
-                    nameof(typeImplIScript));
-            }
-
             IScriptAttributes s = new ScriptAttributes(id);
             s.InitModel = initModel;
             s.TimerIntervalMin = timerMin;
@@ -54,15 +47,7 @@ namespace LtFlash.Common.ScriptManager.Managers
             s.NextScripts = nextScripts;
             s.ScriptsToFinishPriorThis = scriptsToFinishPrior;
 
-            IScript sc = (IScript)Activator.CreateInstance(typeImplIScript);
-            sc.Attributes = s;
-
-            Logger.LogDebug(
-                nameof(AdvancedScriptManager), 
-                nameof(AddScript), 
-                $"id: {sc.Attributes.Id}: {sc.Attributes.TimerIntervalMin}-{sc.Attributes.TimerIntervalMax}");
-
-            AddNewScriptToList(sc, id);
+            AddScript(typeImplIScript, s);   
         }
 
         public void AddScript(
@@ -83,6 +68,26 @@ namespace LtFlash.Common.ScriptManager.Managers
                 typeBaseScript, id, initModel,
                 new List<string>(), new List<List<string>>(),
                 DefaultTimerIntervalMin, DefaultTimerIntervalMin);
+        }
+        //MAIN CTOR
+        private void AddScript(Type typeOfIScript, IScriptAttributes attrib)
+        {
+            if (!typeOfIScript.GetInterfaces().Contains(typeof(IScript)))
+            {
+                throw new ArgumentException(
+                    $"Parameter does not implement {nameof(IScript)} interface.",
+                    nameof(typeOfIScript));
+            }
+
+            IScript sc = (IScript)Activator.CreateInstance(typeOfIScript);
+            sc.Attributes = attrib;
+
+            AddNewScriptToList(sc, attrib.Id);
+
+            Logger.LogDebug(
+                nameof(AdvancedScriptManager),
+                nameof(AddScript),
+                $"id: {sc.Attributes.Id}: script added.");
         }
 
         public void Start() 
@@ -135,6 +140,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         private void Process_UnsuccessfullyFinishedScripts()
         {
             List<IScriptStarter> ufs = GetUnsuccessfullyFinishedScripts(_running);
+            //gets only those with Sequential starter and change it to TimerBased
             ufs = GetScriptsWithSequentialStarter(ufs);
 
             if (ufs.Count < 1) return;
@@ -144,11 +150,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 ufs[i].Stop();
 
                 IScript s = ufs[i].Script;
-
-                //s.Attributes = new ScriptAttributes(s.Attributes.Id);
-                //s.Attributes.InitModel = EInitModels.TimerBased;
-                //s.Attributes.ScriptsToFinishPriorThis = new List<List<string>>();
-
+                //if StartCtrl == Delay -> re-assign the old one!
                 IScript newScript = (IScript)Activator.CreateInstance(ufs[i].Script.GetType());
                 newScript.Attributes = new ScriptAttributes(s.Attributes.Id);
                 newScript.Attributes.InitModel = EInitModels.TimerBased;
@@ -159,6 +161,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
                 _queue.Add(newScript);
             }
+
             Logger.LogDebug(
                 nameof(AdvancedScriptManager), 
                 nameof(Process_UnsuccessfullyFinishedScripts), 
@@ -190,7 +193,9 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void Process_CheckIfAllFinished()
         {
-            if(_off.Count == 0 && _queue.Count == 0 && _running.Count == 0)
+            //removed off since different path might cause not all scripts are
+            //started 
+            if(/*_off.Count == 0 && */_queue.Count == 0 && _running.Count == 0)
             {
                 HasFinished = true;
                 Stop();
