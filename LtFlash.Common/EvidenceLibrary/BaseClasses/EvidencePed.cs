@@ -19,6 +19,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             Ped = new Ped(model, spawn.Position, spawn.Heading);
             Ped.RandomizeVariation();
             Ped.BlockPermanentEvents = true;
+            Ped.KeepTasks = true;
         }
 
         protected override void End()
