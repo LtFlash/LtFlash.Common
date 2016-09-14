@@ -110,6 +110,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         protected void BackToVehicle()
         {
+            IsCollected = true;
+
             DisplayMsgIsCollected();
 
             PedWorker.Tasks.GoToOffsetFromEntity(Vehicle, 0.1f, 0f, 1f);
