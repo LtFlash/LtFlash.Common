@@ -53,7 +53,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             }
         }
         public bool PlaySoundImportantEvidenceCollected { get; set; } = true;
-
+         
         public SoundPlayer SoundPlayerNearby
             { set { soundEvidenceNearby = value; } }
         public SoundPlayer SoundImportantEvidenceCollected

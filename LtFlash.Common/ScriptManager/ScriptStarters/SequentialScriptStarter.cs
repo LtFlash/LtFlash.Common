@@ -1,11 +1,6 @@
-﻿using LtFlash.Common.ScriptManager.Managers;
-using LtFlash.Common.Logging;
-using System;
-<<<<<<< HEAD
+﻿using LtFlash.Common.Logging;
 using LtFlash.Common.ScriptManager.Scripts;
-=======
 using System.Timers;
->>>>>>> refs/remotes/origin/master
 
 namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
