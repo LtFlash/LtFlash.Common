@@ -64,6 +64,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         private void GoToPatient()
         {
+            AttachNotepadToPedDriver();
+
             PedWorker.Tasks.GoToOffsetFromEntity(patient, 1f, 0f, 5f);
             PedDriver.Tasks.GoToOffsetFromEntity(patient, 4f, 8f, 5f);
 

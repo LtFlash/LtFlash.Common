@@ -76,6 +76,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         private void GoToBody()
         {
+            AttachNotepadToPedDriver();
+
             PedWorker.Tasks.GoToOffsetFromEntity(body, 1f, 0f, 1f);
             PedDriver.Tasks.GoToOffsetFromEntity(body, 4f, 8f, 1f);
 

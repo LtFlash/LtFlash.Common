@@ -1,5 +1,6 @@
 ﻿using LtFlash.Common.Processes;
 using Rage;
+using Rage.Native;
 using System.Windows.Forms;
 
 namespace LtFlash.Common.EvidenceLibrary.Services
@@ -15,10 +16,10 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             = VehicleDrivingFlags.Emergency;
 
         public Keys KeyStartDialogue { get; set; } = Keys.Y;
+        public Ped PedDriver { get; private set; }
+        public Ped PedWorker { get; private set; }
 
         //PROTECTED
-        protected Ped PedDriver { get; private set; }
-        protected Ped PedWorker { get; private set; }
         protected Vehicle Vehicle { get; private set; }
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
         protected Dialog Dialogue { get; set; }
@@ -31,6 +32,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         private string modelPedWorker;
         private SpawnPoint spawnPos;
         private SpawnPoint destPoint;
+        private Object notepad;
 
         public ServiceBase(
             string vehModel, string modelPedDriver, string modelPedWorker,
@@ -45,20 +47,19 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
             Dialogue = new Dialog(dialogue);
 
-            Proc.AddProcess(CreateEntities);
-            Proc.AddProcess(DispatchFromSpawnPoint);
-            Proc.AddProcess(WaitForArrival);
-            Proc.AddProcess(PostArrival);
-            Proc.AddProcess(BackToVehicle);
-            Proc.AddProcess(CheckIfPedDriverCloseToVeh);
-            Proc.AddProcess(CheckIfPedWorkerCloseToVeh);
-            Proc.AddProcess(CheckIfPedsAreInVeh);
-            Proc.AddProcess(DriveBackToSpawn);
-            Proc.AddProcess(CheckIfCanBeDisposed);
-
             Proc.ActivateProcess(CreateEntities);
             Proc.Start();
         }        
+
+        protected void AttachNotepadToPedDriver()
+        {
+            notepad = new Object("prop_notepad_01", PedDriver.Position);
+            int boneId = PedDriver.GetBoneIndex(PedBoneId.LeftPhHand);
+            NativeFunction.Natives.AttachEntityToEntity(
+                notepad, PedDriver, boneId, 
+                0f, 0f, 0f, 0f, 0f, 0f, 
+                true, false, false, false, 2, 1);
+        }
 
         private void CreateEntities()
         {
