@@ -5,30 +5,31 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 {
     public class Transport
     {
-        private Vehicle _policeCar;
-        private readonly string[] _policeCarModels = new string[]
+        private Vehicle policeCar;
+        private Blip carBlip;
+        private readonly string[] policeCarModels = new string[]
         {
             "POLICE",
             "POLICE2",
             "POLICE3",
         };
-        private readonly SpawnPoint[] _policeCarInitPositions = new SpawnPoint[]
+        private readonly SpawnPoint[] policeCarInitPositions = new SpawnPoint[]
         {
             new SpawnPoint(230.815689f, new Vector3(399.9877f,-1598.8855f,28.7242641f)),
         };
-        private SpawnPoint _policeCarSpawn;
+        private SpawnPoint policeCarSpawn;
 
-        private Ped _copDriver;
-        private readonly string[] _copModels = new string[]
+        private Ped copDriver;
+        private readonly string[] copModels = new string[]
         {
             "s_m_y_cop_01",
         };
 
-        private Ped _ped;
+        private Ped ped;
         private Vector3 pickupPos;
 
-        private GameFiber _process;
-        private bool _canRun = true;
+        private GameFiber process;
+        private bool canRun = true;
 
         public Transport(
             Ped ped, Vector3 pickupPos, 
@@ -44,10 +45,11 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         public Transport(Ped ped, Vector3 pickupPos, SpawnPoint dispatchFrom)
         {
-            _policeCarSpawn = dispatchFrom;
+            this.ped = ped;
+            policeCarSpawn = dispatchFrom;
             this.pickupPos = pickupPos;
-            _process = new GameFiber(Process);
-            _process.Start();
+            process = new GameFiber(Process);
+            process.Start();
         }
 
         private enum EState
@@ -66,40 +68,41 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         //TODO: cop get out the rmp -> goes to ped, talks to him -> they get back to veh and drive away
         private void Process()
         {
-            while (_canRun)
+            while (canRun)
             {
                 switch (_state)
                 {
                     case EState.CreateEntities:
+                         
+                        string _policeCarModel = policeCarModels[MathHelper.GetRandomInteger(policeCarModels.Length)];
 
-                        string _policeCarModel = _policeCarModels[MathHelper.GetRandomInteger(_policeCarModels.Length)];
+                        policeCar = new Vehicle(_policeCarModel, policeCarSpawn.Position);
+                        policeCar.Heading = policeCarSpawn.Heading;
+                        carBlip = new Blip(policeCar);
+                        carBlip.Scale = 0.5f;
+                        carBlip.Color = System.Drawing.Color.Blue;
+                        policeCar.IsInvincible = true;
+                        policeCar.MakePersistent();
 
-                        _policeCar = new Vehicle(_policeCarModel, _policeCarSpawn.Position);
-                        _policeCar.Heading = _policeCarSpawn.Heading;
-                        _policeCar.AttachBlip();
-                        _policeCar.IsInvincible = true;
-
-                        string _copModel = _copModels[MathHelper.GetRandomInteger(_copModels.Length)];
-                        _copDriver = new Ped(_copModel, _policeCar.Position.Around(2f), 0f);
-                        _copDriver.WarpIntoVehicle(_policeCar, -1); 
-                        _copDriver.KeepTasks = true;
-                        _copDriver.BlockPermanentEvents = true;
-                        _copDriver.RelationshipGroup = new RelationshipGroup("CIVMALE");
+                        string _copModel = copModels[MathHelper.GetRandomInteger(copModels.Length)];
+                        copDriver = new Ped(_copModel, policeCar.Position.Around(2f), 0f);
+                        copDriver.WarpIntoVehicle(policeCar, -1); 
+                        copDriver.KeepTasks = true;
+                        copDriver.BlockPermanentEvents = true;
 
                         _state = EState.SetTaskDrive;
 
                         break;
                     case EState.SetTaskDrive: 
 
-                        //_positionNearTransportedPed = World.GetNextPositionOnStreet(_ped.Position);
-                        _copDriver.Tasks.DriveToPosition(pickupPos, 10f, VehicleDrivingFlags.StopAtDestination | VehicleDrivingFlags.Emergency);
+                        copDriver.Tasks.DriveToPosition(pickupPos, 10f, VehicleDrivingFlags.StopAtDestination | VehicleDrivingFlags.Emergency);
 
                         _state = EState.WaitForArrival;
 
                         break;
                     case EState.WaitForArrival:
 
-                        if (_policeCar.Position.DistanceTo(pickupPos) <= 5.5f)
+                        if (policeCar.Position.DistanceTo(pickupPos) <= 5.5f)
                         {
                             _state = EState.SetPedTaskEnter;
                         }
@@ -108,20 +111,19 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                     case EState.SetPedTaskEnter:
 
                         Game.LogVerbose("Transport.SetPedTaskEnter.Beginning");
-                        _ped.Tasks.ClearImmediately();
-                        _ped.RelationshipGroup = _copDriver.RelationshipGroup;
 
-                        _ped.Tasks.GoToOffsetFromEntity(_policeCar, 3f, 90f, 1f);
+                        ped.Tasks.ClearImmediately();
 
-                        while(true)
+                        ped.Tasks.GoToOffsetFromEntity(policeCar, 3f, 90f, 1f);
+
+                        while(ped.Position.DistanceTo(policeCar.Position) > 7f)
                         {
-                            if (_ped.Position.DistanceTo(_policeCar.Position) <= 7f) break;
-
                             GameFiber.Yield();
                         }
 
-                        _ped.Tasks.ClearImmediately();
-                        _ped.Tasks.EnterVehicle(_policeCar, 2);
+                        ped.Tasks.ClearImmediately();
+                        ped.Tasks.EnterVehicle(policeCar, 2);
+
                         Game.LogVerbose("Transport.SetPedTaskEnter.End");
 
                         _state = EState.WaitForPed;
@@ -129,24 +131,24 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                         break;
                     case EState.WaitForPed:
 
-                        if (_ped.IsInVehicle(_policeCar, false))
+                        if (ped.IsInVehicle(policeCar, false))
                         {
                             Game.LogVerbose("Transport.WitnessInVehicle");
-                            _policeCar.GetAttachedBlip().Delete();
+                            if (carBlip) carBlip.Delete();
                             _state = EState.DriveAway;
                         }
                          
                         break;
                     case EState.DriveAway: 
                          
-                        _copDriver.Tasks.DriveToPosition(_policeCarSpawn.Position, 10f, VehicleDrivingFlags.Normal);
+                        copDriver.Tasks.DriveToPosition(policeCarSpawn.Position, 10f, VehicleDrivingFlags.Normal);
                         
                         _state = EState.CheckIfCanBeDisposed;
                         break;
                          
                     case EState.CheckIfCanBeDisposed:
                          
-                        if (_policeCar.Position.DistanceTo(Game.LocalPlayer.Character.Position) >= 200f)
+                        if (policeCar.Position.DistanceTo(Game.LocalPlayer.Character.Position) >= 200f)
                         {
                             _state = EState.Dispose;
                         }
@@ -155,12 +157,11 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                          
                     case EState.Dispose:
 
-                        if (_ped.Exists()) _ped.Dismiss(); 
-                        if (_copDriver.Exists()) _copDriver.Dismiss();
-                        if (_policeCar.Exists()) _policeCar.Dismiss();
-
-                        _canRun = false;
-                        //_process.Abort();
+                        if (ped.Exists()) ped.Dismiss(); 
+                        if (copDriver.Exists()) copDriver.Dismiss();
+                        if (policeCar.Exists()) policeCar.Dismiss();
+                        if (carBlip) carBlip.Delete();
+                        canRun = false;
 
                         break;
 
