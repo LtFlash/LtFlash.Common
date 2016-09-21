@@ -40,8 +40,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public virtual bool IsPlayerClose
             => Vector3.Distance(PlayerPos, Position) <= DistanceEvidenceClose;
 
-        public string TextInteractWithEvidence { get; set; } = string.Empty;
-        public string TextWhileInspecting { get; set; } = string.Empty;
+        
         public string AdditionalTextWhileInspecting { get; set; } = string.Empty;
 
         public bool PlaySoundPlayerNearby
@@ -68,6 +67,9 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public abstract PoolHandle Handle { get; }
 
         //PROTECTED
+        protected abstract string TextInteractWithEvidence { get; }
+        protected abstract string TextWhileInspecting { get; }
+
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
         protected abstract Entity EvidenceEntity { get; }
         protected float DistanceEvidenceClose { get; set; } = 3f;
@@ -84,6 +86,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         private Camera camera;
         private Camera gameCam;
         private bool prevState_CanBeActivated; // to play sounds
+        private bool currState_IsPlayerClose;
 
         private const int CAM_INTERPOLATION_TIME = 3000;
         private const int SCREEN_FADE_TIME = 1000;
@@ -116,19 +119,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             if (!CanBeInspected) return;
 
-            if(HasStateChanged(ref prevState_CanBeActivated, IsPlayerClose))
+            currState_IsPlayerClose = IsPlayerClose;
+            if(currState_IsPlayerClose != prevState_CanBeActivated)
             {
-                if(IsPlayerClose) soundEvidenceNearby.Play();
-            }
-        }
-
-        private bool HasStateChanged(ref bool previous, bool current)
-        {
-            if (current == previous) return false;
-            else
-            {
-                previous = current;
-                return true;
+                prevState_CanBeActivated = currState_IsPlayerClose;
+                if (currState_IsPlayerClose) soundEvidenceNearby.Play();
             }
         }
 
@@ -172,9 +167,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         }
 
         private void DisplayInfoInteractWithEvidence()
-        {
-            Game.DisplayHelp(TextInteractWithEvidence, INFO_INTERACT_TIME);
-        }
+            => Game.DisplayHelp(TextInteractWithEvidence, INFO_INTERACT_TIME);
 
         protected abstract void Process();
 
@@ -187,10 +180,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         protected abstract void DisplayInfoEvidenceCollected();
 
-        protected void SetEvidenceLeft()
-        {
-            SwapStages(Process, AwayOrClose);
-        }
+        protected void SetEvidenceLeft() => SwapStages(Process, AwayOrClose);
 
         private void InternalEnd()
         {
@@ -235,6 +225,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             camera.Active = false;
             camera.Delete();
             camera = null;
+
             gameCam.Delete();
             gameCam = null;
 
@@ -285,11 +276,9 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         }
 
         protected string GetTextWhileInspectingWithAdditional()
-        {
-            return AdditionalTextWhileInspecting == string.Empty ?
-                TextWhileInspecting :
-                TextWhileInspecting + "~n~" + AdditionalTextWhileInspecting;
-        }
+            => AdditionalTextWhileInspecting == string.Empty ? 
+            TextWhileInspecting :
+            TextWhileInspecting + "~n~" + AdditionalTextWhileInspecting;
 
         public virtual void Dismiss()
         {
