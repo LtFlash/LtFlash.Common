@@ -1,22 +1,27 @@
 ﻿using System.Windows.Forms;
 using Rage;
 using LtFlash.Common.EvidenceLibrary.BaseClasses;
+using System;
 
 namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class Object : EvidenceObject
     {
+        //PUBLIC
         public string TextHelpWhileExamining { get; set; }
-        //PROTECTED
-        protected Keys _keyRotate = Keys.R;
 
+        protected override string TextInteractWithEvidence
+            => $"Press ~y~{KeyInteract} ~s~to examine the object.";
+        protected override string TextWhileInspecting
+            => $@"Press ~y~{keyRotate} ~s~to flip the object.~n~Press ~y~{KeyCollect} ~s~to include the item to the evidence.~n~Press ~y~{KeyLeave} ~s~to leave the object.";
+        //PROTECTED
+        protected Keys keyRotate = Keys.R;
 
         public Object(
             string id, string description, 
-            Model model, Vector3 position) : base(id, description, model, position)
+            Model model, Vector3 position) 
+            : base(id, description, model, position)
         {
-            TextInteractWithEvidence = $"Press ~y~{KeyInteract} ~s~to examine the object.";
-            TextHelpWhileExamining = $@"Press ~y~{_keyRotate} ~s~to flip the object.~n~Press ~y~{KeyCollect} ~s~to include the item to the evidence.~n~Press ~y~{KeyLeave} ~s~to leave the object.";
         }
 
         private enum EStages
@@ -43,24 +48,25 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
                     Game.DisplayHelp(TextHelpWhileExamining);
 
-                    if (Game.IsKeyDown(_keyRotate))
+                    if (Game.IsKeyDown(keyRotate))
                     {
                         _object.SetRotationRoll(MathHelper.RotateHeading(_object.Rotation.Roll, 180));
                     }
-                    if (Game.IsKeyDown(KeyCollect))
+                    else if (Game.IsKeyDown(KeyCollect))
                     {
                         SetEvidenceCollected();
 
                         InterpolateCameraBack();
                         stage = EStages.InterpolateCam;
                     }
-                    if(Game.IsKeyDown(KeyLeave))
+                    else if(Game.IsKeyDown(KeyLeave))
                     {
                         SetEvidenceLeft();
 
                         InterpolateCameraBack();
                         stage = EStages.InterpolateCam;
                     }
+
                     break;
 
                 default:

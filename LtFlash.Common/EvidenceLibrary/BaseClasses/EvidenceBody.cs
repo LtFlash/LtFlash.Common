@@ -5,6 +5,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
     public abstract class EvidenceBody : EvidencePed
     {
+        protected override string TextInteractWithEvidence
+            => $"Press ~y~{KeyInteract}~s~ to inspect the body.";
+
+        protected override string TextWhileInspecting
+            => $"Press ~y~{KeyLeave}~s~ to quit inspecting the body.";
         protected Keys _keyRotate = Keys.R;
         
         public EvidenceBody(
@@ -13,8 +18,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             base(id, description, spawn, model)
         {
             Ped.Kill();
-            TextInteractWithEvidence = $"Press ~y~{KeyInteract}~s~ to inspect the body.";
-            TextWhileInspecting = $"Press ~y~{KeyLeave}~s~ to quit inspecting the body.";
         }
 
         private enum EState

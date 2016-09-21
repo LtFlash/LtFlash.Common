@@ -1,6 +1,7 @@
 ﻿using Rage;
 using LtFlash.Common.EvidenceLibrary.BaseClasses;
 using LSPD_First_Response.Mod.API;
+using System;
 
 namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
@@ -10,6 +11,12 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         public bool IsArrested { get; protected set; }
         public bool IsCompliant { get; set; }
         public string[] DialogRefuseTransportToStation { get; set; }
+
+        protected override string TextInteractWithEvidence
+            => $"Press ~y~{KeyInteract} ~s~to talk to the witness.";
+
+        protected override string TextWhileInspecting
+            => $"Press ~y~{KeyInteract} ~s~to release the witness.~n~Press ~y~{KeyLeave} ~s~to tell the witness to stay at scene.~n~Press ~y~{KeyCollect} ~s~to transport the witness to the station.";
 
         //PRIVATE
         private Dialog dialog;
@@ -31,9 +38,6 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
             this.pickupPos = pickupPos;
 
             DialogRefuseTransportToStation = dialogRefuseTransport;
-            TextInteractWithEvidence = $"Press ~y~{KeyInteract} ~s~to talk to the witness.";
-
-            TextWhileInspecting = $"Press ~y~{KeyInteract} ~s~to release the witness.~n~Press ~y~{KeyLeave} ~s~to tell the witness to stay at scene.~n~Press ~y~{KeyCollect} ~s~to transport the witness to the station.";
         }
 
         private enum EState
