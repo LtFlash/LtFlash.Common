@@ -50,16 +50,11 @@ namespace LtFlash.Common.InputHandling
         }
 
         private bool _IsActive()
-        {
-            return AreKeyboardControlsActive() || AreControllerControlsActive();
-        }
+            => AreKeyboardControlsActive() || AreControllerControlsActive();
 
         private bool AreKeyboardControlsActive()
-        {
-            return Modifier == Keys.None ? 
-                Game.IsKeyDown(Key) : 
-                Game.IsKeyDownRightNow(Modifier) && Game.IsKeyDown(Key);
-        }
+            => Modifier == Keys.None ? Game.IsKeyDown(Key) : 
+            Game.IsKeyDownRightNow(Modifier) && Game.IsKeyDown(Key);
 
         private bool AreControllerControlsActive()
         {
@@ -69,9 +64,6 @@ namespace LtFlash.Common.InputHandling
             return Game.IsControllerButtonDown(ControllerBtn);
         }
 
-        public static implicit operator bool(ControlSet ctrlSet)
-        {
-            return ctrlSet.IsActive;
-        }
+        public static implicit operator bool(ControlSet ctrlSet) => ctrlSet.IsActive;
     }
 }

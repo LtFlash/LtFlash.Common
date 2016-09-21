@@ -13,7 +13,7 @@ namespace LtFlash.Common.Serialization
             XmlNode n = SelectNodeFromXml(file, node);
 
             if (n == null)
-                throw new KeyNotFoundException("SaveToNode: Specified node does not exists!");
+                throw new KeyNotFoundException($"{nameof(SaveToNode)}: Specified node does not exists!");
 
             n.InnerText = value;
             var doc = new XmlDocument();

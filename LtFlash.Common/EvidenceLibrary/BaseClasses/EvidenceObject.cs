@@ -26,11 +26,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             PlaceOnGround(_object);
 
             ActivateStage(Process_PlaceOnGround); 
-            //PlaceObjectOnGround(_object);
-
-            //NativeFunction.Natives.SetEntityHasGravity(_object, true);
-            //GameFiber.Sleep(3000);
-            //_object.IsPositionFrozen = true;
         }
 
         private void Process_PlaceOnGround()
@@ -59,9 +54,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             base.Dismiss();
         }
 
-        public override bool IsValid()
-        {
-            return _object;
-        }
+        public override bool IsValid() => _object;
     }
 }

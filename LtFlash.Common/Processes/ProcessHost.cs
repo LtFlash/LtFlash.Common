@@ -57,10 +57,7 @@ namespace LtFlash.Common.Processes
             canRun = false;
         }
 
-        public void AddProcess(Action proc)
-        {
-            AddProcess(proc, false);
-        }
+        public void AddProcess(Action proc) => AddProcess(proc, false);
 
         public void AddProcess(Action proc, bool isActive)
         {
@@ -78,15 +75,10 @@ namespace LtFlash.Common.Processes
             if(IsListed(proc)) Find(proc).Active = false;
         }
 
-        private Proc Find(Action proc)
-        {
-            return processes.Find(a => a.Function == proc);
-        }
+        private Proc Find(Action proc) => processes.Find(a => a.Function == proc);
 
         private bool IsListed(Action proc)
-        {
-            return processes.FirstOrDefault(s => s.Function == proc) != null;
-        }
+            => processes.FirstOrDefault(s => s.Function == proc) != null;
 
         public void SwapProcesses(Action toDisable, Action toEnable)
         {

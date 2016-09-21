@@ -28,29 +28,16 @@ namespace LtFlash.Common.InputHandling
             }
         }
 
-        public void SaveConfig()
-        {
-            SaveConfig(path);
-        }
+        public void SaveConfig() => SaveConfig(path);
 
         public void SaveConfig(string pathToSaveTo)
-        {
-            Serializer.SerializeControls(Controls, pathToSaveTo);
-        }
+            => Serializer.SerializeControls(Controls, pathToSaveTo);
 
-        public bool GetControlStatus(TEnum action)
-        {
-            return Controls[action].IsActive;
-        }
+        public bool GetControlStatus(TEnum action) => Controls[action].IsActive;
 
-        public string GetControlDescription(TEnum action)
-        {
-            return Controls[action].Description;
-        }
+        public string GetControlDescription(TEnum action) => Controls[action].Description;
 
         public void AddContolSet(TEnum action, ControlSet ctrlSet)
-        {
-            Controls.Add(action, ctrlSet);
-        }
+            => Controls.Add(action, ctrlSet);
     }
 }

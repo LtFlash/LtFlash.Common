@@ -169,6 +169,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
             
             if(timeElapsed)
             {
+                Logging.Logger.LogDebug(nameof(CalloutScript), nameof(WaitForAcceptKey), "Timeout");
                 RemoveAreaBlip();
                 SwapStages(WaitForAcceptKey, InternalNotAccepted);
                 callNotAcceptedTimer.Dispose();

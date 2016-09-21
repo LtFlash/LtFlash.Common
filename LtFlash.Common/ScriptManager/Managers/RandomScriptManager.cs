@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LtFlash.Common.ScriptManager.Managers
+﻿namespace LtFlash.Common.ScriptManager.Managers
 {
     public class RandomScriptManager : TimerBasedScriptManager
     {

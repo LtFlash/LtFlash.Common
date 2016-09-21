@@ -34,6 +34,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
                 }
 
                 StartScriptInThisTick = true;
+
                 Logger.Log(nameof(TimerControlledScriptStarter), 
                     nameof(TimerTick), ScriptStarted.ToString());
             }

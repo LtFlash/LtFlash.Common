@@ -29,11 +29,8 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public AdvancedScriptManager()
         {
-            stages.AddProcess(Process_RunScriptsFromQueue);
-            stages.AddProcess(Process_UnsuccessfullyFinishedScripts);
-            stages.AddProcess(Process_WaitScriptsForFinish);
-            stages.AddProcess(Process_CheckIfAllFinished);
         }
+
         //FULL CTOR
         public void AddScript(
             Type typeImplIScript, string id, EInitModels initModel, 
@@ -200,7 +197,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 HasFinished = true;
                 Stop();
 
-                Logger.Log(
+                Logger.LogDebug(
                     nameof(AdvancedScriptManager), 
                     nameof(Process_CheckIfAllFinished), 
                     "All script finished");
@@ -265,8 +262,8 @@ namespace LtFlash.Common.ScriptManager.Managers
                     return new SequentialScriptStarter(ss, true);
 
                 case EInitModels.TimerBased:
-                default:
-                    return new TimerControlledScriptStarter(ss, false);
+                default: //TODO: autoStart to some damn var 
+                    return new TimerControlledScriptStarter(ss, true);
             }
         }
 
@@ -339,7 +336,8 @@ namespace LtFlash.Common.ScriptManager.Managers
             to.Add(s);
             from.Remove(s);
 
-            Logger.LogDebug(nameof(AdvancedScriptManager), 
+            Logger.LogDebug(
+                nameof(AdvancedScriptManager), 
                 nameof(MoveInactiveScriptToQueue), s.Attributes.Id);
         }
 
@@ -351,7 +349,9 @@ namespace LtFlash.Common.ScriptManager.Managers
             s.Start();
             to.Add(s);
             from.Remove(scriptToRun);
-            Game.LogVerbose(nameof(AdvancedScriptManager) + "." + nameof(MoveScriptFromQueueToRunning) + ":" + s.Id);
+            Logger.LogDebug(
+                nameof(AdvancedScriptManager), 
+                nameof(MoveScriptFromQueueToRunning), s.Id);
         }
 
         private void AddScriptsToQueue(List<string> scriptsToRun)

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using LtFlash.Common.ScriptManager.Managers;
+﻿using LtFlash.Common.ScriptManager.Managers;
 
 namespace LtFlash.Common.ScriptManager.Scripts
 {

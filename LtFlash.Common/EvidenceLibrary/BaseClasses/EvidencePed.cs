@@ -5,11 +5,8 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
     public abstract class EvidencePed : EvidenceBase
     {
         public Ped Ped { get; protected set; }
-
         public override Vector3 Position => Ped ? Ped.Position : Vector3.Zero;
-
         public override PoolHandle Handle => Ped ? Ped.Handle : new PoolHandle();
-
         protected override Entity EvidenceEntity => Ped;
 
         public EvidencePed( 
