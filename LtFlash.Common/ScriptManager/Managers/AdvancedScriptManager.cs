@@ -87,7 +87,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 $"id: {sc.Attributes.Id}: script added.");
         }
 
-        public void Start() 
+        public void Start()
         {
             StartScript(_off.First().Attributes.Id);
         }
