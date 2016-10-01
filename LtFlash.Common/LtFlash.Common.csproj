@@ -86,6 +86,7 @@
     <Compile Include="EvidenceLibrary\Services\EMS.cs" />
     <Compile Include="EvidenceLibrary\Services\ServiceBase.cs" />
     <Compile Include="EvidenceLibrary\Services\Transport.cs" />
+    <Compile Include="Logging\BenchmarkData.cs" />
     <Compile Include="Logging\PerformanceLogger.cs" />
     <Compile Include="ScriptManager\Scripts\ScriptAttributes.cs" />
     <Compile Include="ScriptManager\Managers\ScriptManagerBase.cs" />
