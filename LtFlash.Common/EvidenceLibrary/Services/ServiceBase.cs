@@ -22,6 +22,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public Keys KeyStartDialogue { get; set; } = Keys.Y;
         public Ped PedDriver { get; private set; }
         public Ped PedWorker { get; private set; }
+        public SpawnPoint SpawnPosition { get; set; }
 
         //PROTECTED
         protected Vehicle Vehicle { get; private set; }
@@ -31,7 +32,6 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         //PRIVATE
         protected ProcessHost Proc { get; private set; } = new ProcessHost();
         private Blip blipVeh;
-        private SpawnPoint spawnPos;
         private SpawnPoint destPoint;
         private Object notepad;
 
@@ -43,7 +43,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             ModelPedWorker = modelPedWorker;
             ModelPedDriver = modelPedDriver;
 
-            this.spawnPos = spawnPos;
+            SpawnPosition = spawnPos;
             destPoint = dest;
 
             Dialogue = new Dialog(dialogue);
@@ -67,8 +67,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         private void CreateEntities()
         {
-            Vehicle = new Vehicle(ModelVehicle, spawnPos.Position);
-            Vehicle.Heading = spawnPos.Heading;
+            Vehicle = new Vehicle(ModelVehicle, SpawnPosition.Position);
+            Vehicle.Heading = SpawnPosition.Heading;
             Vehicle.MakePersistent();
             blipVeh = new Blip(Vehicle);
             blipVeh.Scale = 0.5f;
@@ -164,7 +164,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (blipVeh.IsValid()) blipVeh.Delete();
 
             PedDriver.Tasks.DriveToPosition(
-                spawnPos.Position, VehicleDrivingSpeed, VehDrivingFlags);
+                SpawnPosition.Position, VehicleDrivingSpeed, VehDrivingFlags);
 
             Proc.SwapProcesses(DriveBackToSpawn, CheckIfCanBeDisposed);
         }
@@ -172,7 +172,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         private void CheckIfCanBeDisposed()
         {
             if (Vector3.Distance(PlayerPos, Vehicle.Position) >= DisposeDistance ||
-                Vector3.Distance(Vehicle.Position, spawnPos.Position) <= 10f)
+                Vector3.Distance(Vehicle.Position, SpawnPosition.Position) <= 10f)
             {
                 Proc.DeactivateProcess(CheckIfCanBeDisposed);
                 InternalDispose();
