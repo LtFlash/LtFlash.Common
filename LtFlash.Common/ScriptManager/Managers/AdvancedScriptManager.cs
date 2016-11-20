@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Rage;
 using LtFlash.Common.ScriptManager.ScriptStarters;
 using LtFlash.Common.Processes;
 using LtFlash.Common.Logging;
@@ -149,13 +148,14 @@ namespace LtFlash.Common.ScriptManager.Managers
                 IScript s = ufs[i].Script;
                 //if StartCtrl == Delay -> re-assign the old one!
                 IScript newScript = (IScript)Activator.CreateInstance(ufs[i].Script.GetType());
-                newScript.Attributes = new ScriptAttributes(s.Attributes.Id);
-                newScript.Attributes.InitModel = EInitModels.TimerBased;
-                newScript.Attributes.NextScripts = s.Attributes.NextScripts;
-                newScript.Attributes.ScriptsToFinishPriorThis = new List<List<string>>();
-                newScript.Attributes.TimerIntervalMax = s.Attributes.TimerIntervalMax;
-                newScript.Attributes.TimerIntervalMin = s.Attributes.TimerIntervalMin;
-
+                newScript.Attributes = new ScriptAttributes(s.Attributes.Id)
+                {
+                    InitModel = EInitModels.TimerBased,
+                    NextScripts = s.Attributes.NextScripts,
+                    ScriptsToFinishPriorThis = new List<List<string>>(),
+                    TimerIntervalMax = s.Attributes.TimerIntervalMax,
+                    TimerIntervalMin = s.Attributes.TimerIntervalMin
+                };
                 _queue.Add(newScript);
             }
 
@@ -200,7 +200,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 Logger.LogDebug(
                     nameof(AdvancedScriptManager), 
                     nameof(Process_CheckIfAllFinished), 
-                    "All script finished");
+                    "All scripts finished");
             }
         }
 
