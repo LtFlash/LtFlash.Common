@@ -89,6 +89,17 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             PostSpawn();
 
             Proc.SwapProcesses(CreateEntities, DispatchFromSpawnPoint);
+            Proc.ActivateProcess(AntiRollOver);
+        }
+
+        private void AntiRollOver()
+        {
+            if (!Vehicle.Exists()) Proc.DeactivateProcess(AntiRollOver);
+
+            if (Vehicle.Rotation.Roll > 70f || Vehicle.Rotation.Roll < -70f)
+            {
+                Vehicle.SetRotationRoll(0f);
+            }
         }
 
         protected abstract void PostSpawn();
@@ -175,6 +186,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                 Vector3.Distance(Vehicle.Position, SpawnPosition.Position) <= 10f)
             {
                 Proc.DeactivateProcess(CheckIfCanBeDisposed);
+                Proc.DeactivateProcess(AntiRollOver);
                 InternalDispose();
             }
         }
