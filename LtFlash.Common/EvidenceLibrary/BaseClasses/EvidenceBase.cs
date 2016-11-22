@@ -194,16 +194,16 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             
             Collected = true;
             DisplayInfoEvidenceCollected();
-            SwapStages(Process, InternalEnd);
             PlayerExaminingEvidence = false;
+            SwapStages(Process, InternalEnd);
         }
 
         protected abstract void DisplayInfoEvidenceCollected();
 
         protected void SetEvidenceLeft()
         {
-            SwapStages(Process, AwayOrClose);
             PlayerExaminingEvidence = false;
+            SwapStages(Process, AwayOrClose);
         }
 
         private void InternalEnd()
