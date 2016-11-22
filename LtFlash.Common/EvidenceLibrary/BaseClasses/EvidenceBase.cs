@@ -75,6 +75,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         protected float DistanceEvidenceClose { get; set; } = 3f;
 
         //PRIVATE
+        private static bool PlayerExaminingEvidence = false;
         private SoundPlayer soundEvidenceNearby 
             = new SoundPlayer(Properties.Resources.EvidenceNearby);
 
