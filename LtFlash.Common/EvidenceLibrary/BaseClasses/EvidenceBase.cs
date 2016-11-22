@@ -36,7 +36,20 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             get { return DistanceEvidenceClose; }
             set { DistanceEvidenceClose = value; }
         }
-        public bool CanBeInspected { get; set; } = true;
+
+        private bool _canBeInspected = true;
+        public bool CanBeInspected
+        {
+            get
+            {
+                return _canBeInspected && !PlayerExaminingEvidence;
+            }
+            set
+            {
+                _canBeInspected = value;
+            }
+        }
+
         public virtual bool IsPlayerClose
             => Vector3.Distance(PlayerPos, Position) <= DistanceEvidenceClose;
 
@@ -75,6 +88,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         protected float DistanceEvidenceClose { get; set; } = 3f;
 
         //PRIVATE
+        private static bool PlayerExaminingEvidence = false;  //Prevents multiple evidence pieces from being examined at once. Used in CanBeInspected.
         private SoundPlayer soundEvidenceNearby 
             = new SoundPlayer(Properties.Resources.EvidenceNearby);
 
@@ -163,7 +177,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
             DisplayInfoInteractWithEvidence();
 
-            if(Game.IsKeyDown(KeyInteract)) SwapStages(AwayOrClose, Process);
+            if (Game.IsKeyDown(KeyInteract))
+            {
+                PlayerExaminingEvidence = true;
+                SwapStages(AwayOrClose, Process);
+            }
         }
 
         private void DisplayInfoInteractWithEvidence()
@@ -173,14 +191,20 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         protected void SetEvidenceCollected()
         {
+            
             Collected = true;
             DisplayInfoEvidenceCollected();
             SwapStages(Process, InternalEnd);
+            PlayerExaminingEvidence = false;
         }
 
         protected abstract void DisplayInfoEvidenceCollected();
 
-        protected void SetEvidenceLeft() => SwapStages(Process, AwayOrClose);
+        protected void SetEvidenceLeft()
+        {
+            SwapStages(Process, AwayOrClose);
+            PlayerExaminingEvidence = false;
+        }
 
         private void InternalEnd()
         {
