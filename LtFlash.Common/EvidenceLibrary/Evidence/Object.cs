@@ -10,7 +10,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         //PUBLIC
         public string TextHelpWhileExamining { get; set; }
 
-        protected override string TextInteractWithEvidence
+        public override string TextInteractWithEvidence
             => $"Press ~y~{KeyInteract} ~s~to examine the object.";
         protected override string TextWhileInspecting
             => $@"Press ~y~{keyRotate} ~s~to flip the object.~n~Press ~y~{KeyCollect} ~s~to include the item to the evidence.~n~Press ~y~{KeyLeave} ~s~to leave the object.";
@@ -39,18 +39,19 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
                     Vector3 camPos = new Vector3(Position.X, Position.Y, Position.Z + 0.25f);
 
-                    FocusCamOnObjectWithInterpolation(camPos, _object);
+                    FocusCamOnObjectWithInterpolation(camPos, @object);
                     Checked = true;
                     stage = EStages.ManipulateItem;
 
                     break;
                 case EStages.ManipulateItem:
 
-                    Game.DisplayHelp(TextHelpWhileExamining);
+                    //Game.DisplayHelp(TextHelpWhileExamining);
+                    Game.DisplayHelp(TextWhileInspecting);
 
                     if (Game.IsKeyDown(keyRotate))
                     {
-                        _object.SetRotationRoll(MathHelper.RotateHeading(_object.Rotation.Roll, 180));
+                        @object.SetRotationRoll(MathHelper.RotateHeading(@object.Rotation.Roll, 180));
                     }
                     else if (Game.IsKeyDown(KeyCollect))
                     {
@@ -81,7 +82,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
         protected override void End()
         {
-            if(_object) _object.Delete();
+            if(@object) @object.Delete();
             RemoveBlip();
         }
     }

@@ -9,13 +9,13 @@ using System.Windows.Forms;
 
 namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
-    public abstract class EvidenceBase : IHandleable
+    public abstract class EvidenceBase : IHandleable, IEvidence
     {
         //PUBLIC
         public string Id { get; private set; }
         public string Description { get; private set; }
         public abstract Vector3 Position { get; }
-        public bool Collected
+        public bool IsCollected
         {
             get
             {
@@ -42,7 +42,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             get
             {
-                return _canBeInspected && !PlayerExaminingEvidence;
+                return _canBeInspected;
             }
             set
             {
@@ -67,7 +67,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public bool PlaySoundImportantEvidenceCollected { get; set; } = true;
          
         public SoundPlayer SoundPlayerNearby
-            { set { soundEvidenceNearby = value; } }
+            { set { soundEvidenceNearby = value; } get { return soundEvidenceNearby; } }
         public SoundPlayer SoundImportantEvidenceCollected
             { set { soundImportantEvidenceCollected = value; } }
 
@@ -76,19 +76,18 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public Keys KeyInteract { get; set; } = Keys.I;
         public Keys KeyCollect { get; set; } = Keys.C;
         public Keys KeyLeave { get; set; } = Keys.L;
+        public float DistanceEvidenceClose { get; set; } = 3f;
+        public abstract string TextInteractWithEvidence { get; }
 
         public abstract PoolHandle Handle { get; }
 
         //PROTECTED
-        protected abstract string TextInteractWithEvidence { get; }
         protected abstract string TextWhileInspecting { get; }
 
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
         protected abstract Entity EvidenceEntity { get; }
-        protected float DistanceEvidenceClose { get; set; } = 3f;
 
         //PRIVATE
-        private static bool PlayerExaminingEvidence = false;  //Prevents multiple evidence pieces from being examined at once. Used in CanBeInspected.
         private SoundPlayer soundEvidenceNearby 
             = new SoundPlayer(Properties.Resources.EvidenceNearby);
 
@@ -131,7 +130,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         
         private void PlaySoundEvidenceNearby()
         {
-            if (!CanBeInspected) return;
+            //if (!CanBeInspected) return;
 
             currState_IsPlayerClose = IsPlayerClose;
             if(currState_IsPlayerClose != prevState_CanBeActivated)
@@ -179,10 +178,11 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
             if (Game.IsKeyDown(KeyInteract))
             {
-                PlayerExaminingEvidence = true;
                 SwapStages(AwayOrClose, Process);
             }
         }
+
+        public void Interact() => SwapStages(AwayOrClose, Process);
 
         private void DisplayInfoInteractWithEvidence()
             => Game.DisplayHelp(TextInteractWithEvidence, INFO_INTERACT_TIME);
@@ -192,10 +192,9 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         protected void SetEvidenceCollected()
         {
             
-            Collected = true;
+            IsCollected = true;
             DisplayInfoEvidenceCollected();
             SwapStages(Process, InternalEnd);
-            PlayerExaminingEvidence = false;
         }
 
         protected abstract void DisplayInfoEvidenceCollected();
@@ -203,7 +202,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         protected void SetEvidenceLeft()
         {
             SwapStages(Process, AwayOrClose);
-            PlayerExaminingEvidence = false;
         }
 
         private void InternalEnd()
@@ -315,5 +313,10 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         public abstract bool IsValid();
 
         public bool Equals(IHandleable other) => ReferenceEquals(other, this);
+        
+        ~EvidenceBase()
+        {
+            InterpolateCameraBack();
+        }
     }
 }

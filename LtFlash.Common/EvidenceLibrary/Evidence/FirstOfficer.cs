@@ -4,7 +4,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class FirstOfficer : Witness
     {
-        protected override string TextInteractWithEvidence
+        public override string TextInteractWithEvidence
             => $"Press ~y~{KeyInteract}~s~ to talk to the first officer at scene.";
 
         protected override string TextWhileInspecting => string.Empty;

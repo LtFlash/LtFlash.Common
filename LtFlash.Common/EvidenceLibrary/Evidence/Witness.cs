@@ -12,7 +12,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         public bool IsCompliant { get; set; }
         public string[] DialogRefuseTransportToStation { get; set; }
 
-        protected override string TextInteractWithEvidence
+        public override string TextInteractWithEvidence
             => $"Press ~y~{KeyInteract} ~s~to talk to the witness.";
 
         protected override string TextWhileInspecting
@@ -62,7 +62,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
             {
                 case EState.InitDialog:
 
-                    if (Collected) return;
+                    if (IsCollected) return;
 
                     dialog.StartDialog(Ped, Game.LocalPlayer.Character);
                     Checked = true;
@@ -72,7 +72,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
                 case EState.CheckIfDialogFinished:
                     if(dialog.HasEnded)
                     {
-                        Collected = true;
+                        IsCollected = true;
                         _state = EState.WaitForFurtherInstructions;
                     }
                     break;

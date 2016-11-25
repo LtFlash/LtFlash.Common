@@ -75,6 +75,7 @@
     <Compile Include="EvidenceLibrary\Dialog.cs" />
     <Compile Include="EvidenceLibrary\Enums.cs" />
     <Compile Include="EvidenceLibrary\Evidence\DeadBody.cs" />
+    <Compile Include="EvidenceLibrary\Evidence\EvidenceController.cs" />
     <Compile Include="EvidenceLibrary\Evidence\FirstOfficer.cs" />
     <Compile Include="EvidenceLibrary\Evidence\Object.cs" />
     <Compile Include="EvidenceLibrary\Evidence\Witness.cs" />

@@ -7,23 +7,23 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
     {
         //PUBLIC
         public override Vector3 Position 
-            => _object ? _object.Position : Vector3.Zero;
+            => @object ? @object.Position : Vector3.Zero;
 
         public override PoolHandle Handle
-            => _object ? _object.Handle : new PoolHandle();
+            => @object ? @object.Handle : new PoolHandle();
 
-        protected override Entity EvidenceEntity => _object;
+        protected override Entity EvidenceEntity => @object;
 
         //PROTECTED
-        protected Object _object;
+        public Object @object;
 
         public EvidenceObject(
             string id, string description, Model model, Vector3 position) 
             : base(id, description)
         {
-            _object = new Object(model, position);
+            @object = new Object(model, position);
 
-            PlaceOnGround(_object);
+            PlaceOnGround(@object);
 
             ActivateStage(Process_PlaceOnGround); 
         }
@@ -32,7 +32,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             if(Vector3.Distance(PlayerPos, Position) < DistanceEvidenceClose)
             {
-                PlaceOnGround(_object);
+                PlaceOnGround(@object);
                 DeactivateStage(Process_PlaceOnGround);
             }
         }
@@ -50,10 +50,10 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         public override void Dismiss()
         {
-            if(_object) _object.Dismiss();
+            if(@object) @object.Dismiss();
             base.Dismiss();
         }
 
-        public override bool IsValid() => _object;
+        public override bool IsValid() => @object;
     }
 }

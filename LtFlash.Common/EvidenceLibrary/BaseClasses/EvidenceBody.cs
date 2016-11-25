@@ -5,7 +5,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 {
     public abstract class EvidenceBody : EvidencePed
     {
-        protected override string TextInteractWithEvidence
+        public override string TextInteractWithEvidence
             => $"Press ~y~{KeyInteract}~s~ to inspect the body.";
 
         protected override string TextWhileInspecting
@@ -32,7 +32,7 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             if (!Ped)
             {
-                Collected = true;
+                IsCollected = true;
                 Dismiss();
             }
 
