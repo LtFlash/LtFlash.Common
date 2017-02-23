@@ -37,37 +37,22 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
             set { DistanceEvidenceClose = value; }
         }
 
-        private bool _canBeInspected = true;
-        public bool CanBeInspected
-        {
-            get
-            {
-                return _canBeInspected;
-            }
-            set
-            {
-                _canBeInspected = value;
-            }
-        }
+        public bool CanBeInspected { get; set; }
 
         public virtual bool IsPlayerClose
             => Vector3.Distance(PlayerPos, Position) <= DistanceEvidenceClose;
 
-        
         public string AdditionalTextWhileInspecting { get; set; } = string.Empty;
 
         public bool PlaySoundPlayerNearby
-        {
-            set
-            {
-                if (value) ActivateStage(PlaySoundEvidenceNearby);
-                else DeactivateStage(PlaySoundEvidenceNearby);
-            }
-        }
+            { set { ProcHost[PlaySoundEvidenceNearby] = value; } }
         public bool PlaySoundImportantEvidenceCollected { get; set; } = true;
          
         public SoundPlayer SoundPlayerNearby
-            { set { soundEvidenceNearby = value; } get { return soundEvidenceNearby; } }
+        {
+            set { soundEvidenceNearby = value; }
+            get { return soundEvidenceNearby; }
+        }
         public SoundPlayer SoundImportantEvidenceCollected
             { set { soundImportantEvidenceCollected = value; } }
 
