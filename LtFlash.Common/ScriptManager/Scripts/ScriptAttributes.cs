@@ -20,6 +20,17 @@ namespace LtFlash.Common.ScriptManager.Scripts
         {
             Id = id;
         }
+
+        public static ScriptAttributes Clone(IScriptAttributes toClone)
+        {
+            ScriptAttributes s = new ScriptAttributes(toClone.Id);
+            s.TimerIntervalMax = toClone.TimerIntervalMax;
+            s.TimerIntervalMin = toClone.TimerIntervalMin;
+            s.NextScripts = toClone.NextScripts;
+            s.ScriptsToFinishPriorThis = toClone.ScriptsToFinishPriorThis;
+            s.InitModel = toClone.InitModel;
+            return s;
+        }
     }
 
     public interface IScriptAttributes
