@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
 using LtFlash.Common.InputHandling;
+using System;
 
 namespace LtFlash.Common.Serialization
 {
@@ -83,6 +84,13 @@ namespace LtFlash.Common.Serialization
             }
 
             return item;
+        }
+
+        public static void ModifyItemInXML<T>(string path, Action<T> modification)
+        {
+            T item = LoadItemFromXML<T>(path);
+            modification(item);
+            SaveItemToXML<T>(item, path);
         }
 
         public static Dictionary<TEnum, ControlSet>
