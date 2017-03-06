@@ -7,7 +7,6 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 {
     internal abstract class ScriptStarterBase : IScriptStarter
     {
-        //PUBLIC
         public string Id => Script.Attributes.Id;
         public bool HasFinishedSuccessfully => Script.HasFinishedSuccessfully;
 
@@ -21,14 +20,12 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 
         public IScript Script { get; private set; }
 
-        //PROTECTED
         protected bool StartScriptInThisTick { get; set; }
         protected bool ScriptStarted { get; private set; }
         protected bool AutoRestart { get; private set; }
         protected ProcessHost Stages { get; private set; } 
             = new ProcessHost();
 
-        //PRIVATE
         private bool finishedUnsuccessfully;
 
         public ScriptStarterBase(IScript script, bool autoRestart)
@@ -58,7 +55,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
         {
             if (Script.HasFinished)
             {
-                IScriptAttributes s = Script.Attributes;
+                IScriptAttributes s = ScriptAttributes.Clone(Script.Attributes);
                 Script = (IScript)Activator.CreateInstance(Script.GetType());
                 Script.Attributes = s;
             }
