@@ -93,6 +93,12 @@ namespace LtFlash.Common.Serialization
             SaveItemToXML<T>(item, path);
         }
 
+        public static T GetSelectedListElementFromXml<T>(string file, Func<List<T>, T> selector)
+        {
+            List<T> deserialized = LoadItemFromXML<List<T>>(file);
+            return selector(deserialized);
+        }
+
         public static Dictionary<TEnum, ControlSet>
             DeserializeControls<TEnum>(string path)
         {
