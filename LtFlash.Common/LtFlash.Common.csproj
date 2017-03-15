@@ -83,6 +83,10 @@
     <Compile Include="EvidenceLibrary\Resources\Aggregator.cs" />
     <Compile Include="EvidenceLibrary\Resources\MedicalCenters.cs" />
     <Compile Include="EvidenceLibrary\Resources\PoliceStations.cs" />
+    <Compile Include="EvidenceLibrary\Serialization\EvidenceData.cs" />
+    <Compile Include="EvidenceLibrary\Serialization\EvidenceFactory.cs" />
+    <Compile Include="EvidenceLibrary\Serialization\ServiceData.cs" />
+    <Compile Include="EvidenceLibrary\Serialization\ServiceFactory.cs" />
     <Compile Include="EvidenceLibrary\Services\Coroner.cs" />
     <Compile Include="EvidenceLibrary\Services\EMS.cs" />
     <Compile Include="EvidenceLibrary\Services\ServiceBase.cs" />
