@@ -18,8 +18,9 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         protected override string TextWhileInspecting
             => $"Press ~y~{KeyInteract} ~s~to release the witness.~n~Press ~y~{KeyLeave} ~s~to tell the witness to stay at scene.~n~Press ~y~{KeyCollect} ~s~to transport the witness to the station.";
 
+        public Dialog Dialog { get; private set; }
+
         //PRIVATE
-        private Dialog dialog;
         private Services.Transport transport;
         private Vector3 pickupPos;
         private string[] dialogRefuseTransport = new string[]
@@ -34,7 +35,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
             string[] dialog, Vector3 pickupPos) 
             : base(id, description, spawn, model)
         {
-            this.dialog = new Dialog(dialog);
+            this.Dialog = new Dialog(dialog);
             this.pickupPos = pickupPos;
 
             DialogRefuseTransportToStation = dialogRefuseTransport;
@@ -64,13 +65,13 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
                     if (IsCollected) return;
 
-                    dialog.StartDialog(Ped, Game.LocalPlayer.Character);
+                    Dialog.StartDialog(Ped, Game.LocalPlayer.Character);
                     Checked = true;
                     _state = EState.CheckIfDialogFinished;
 
                     break;
                 case EState.CheckIfDialogFinished:
-                    if(dialog.HasEnded)
+                    if(Dialog.HasEnded)
                     {
                         IsCollected = true;
                         _state = EState.WaitForFurtherInstructions;
