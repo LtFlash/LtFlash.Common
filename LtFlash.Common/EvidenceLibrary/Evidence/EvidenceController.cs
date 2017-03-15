@@ -7,8 +7,8 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 {
     public class EvidenceController
     {
-        //PRIVATE
-        private List<IEvidence> list = new List<IEvidence>();
+        public List<IEvidence> Evidence { get; private set; } = new List<IEvidence>();
+
         private ProcessHost proc = new ProcessHost();
         private const int INFO_INTERACT_TIME = 100;
         private IEvidence closest;
@@ -25,13 +25,13 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         {
             evidence.CanBeInspected = false;
             evidence.PlaySoundPlayerNearby = false;
-            list.Add(evidence);
+            Evidence.Add(evidence);
         }
         private void Process()
         {
             if(!inspecting)
             {
-                if (list.Count < 1) return;
+                if (Evidence.Count < 1) return;
 
                 RemoveCollectedEvidence();
 
@@ -78,10 +78,10 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         }
 
         private void RemoveCollectedEvidence()
-            => list.RemoveAll(e => e.IsCollected);
+            => Evidence.RemoveAll(e => e.IsCollected);
 
         private IEvidence GetClosestEvidence()
-            => list.OrderBy(e => DistToPlayer(e.Position)).FirstOrDefault();
+            => Evidence.OrderBy(e => DistToPlayer(e.Position)).FirstOrDefault();
 
         private bool IsEvidenceWithinDetectionDistance(IEvidence e)
             => DistToPlayer(e.Position) <= e.DistanceEvidenceClose;
