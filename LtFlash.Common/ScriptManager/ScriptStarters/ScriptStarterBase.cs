@@ -51,19 +51,12 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             }
         }
 
-        private static T CreateInstance<T>(Type t, object[] ctorParams)
-        {
-            if (ctorParams != null && ctorParams.Length > 0)
-                return (T)Activator.CreateInstance(t, ctorParams);
-            else return (T)Activator.CreateInstance(t);
-        }
-
         public bool Start(IScript Script)
         {
             if (Script.HasFinished)
             {
                 IScriptAttributes s = ScriptAttributes.Clone(Script.Attributes);
-                Script = CreateInstance<IScript>(Script.GetType(), s.CtorParams);
+                Script = Managers.AdvancedScriptManager.CreateInstance<IScript>(Script.GetType(), s.CtorParams);
                 Script.Attributes = s;
             }
             bool b = Script.CanBeStarted();

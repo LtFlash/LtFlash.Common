@@ -95,7 +95,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 $"id: {sc.Attributes.Id}: script added.");
         }
 
-        private static T CreateInstance<T>(Type t, object[] ctorParams)
+        internal static T CreateInstance<T>(Type t, object[] ctorParams)
         {
             if (ctorParams != null && ctorParams.Length > 0)
                 return (T)Activator.CreateInstance(t, ctorParams);
