@@ -8,9 +8,9 @@ namespace LtFlash.Common.ScriptManager.Scripts
         public double TimerIntervalMax { get; set; }
         public double TimerIntervalMin { get; set; }
         public List<string> NextScripts { get; set; } = new List<string>();
-        public List<List<string>> ScriptsToFinishPriorThis { get; set; } 
-            = new List<List<string>>();
+        public List<List<string>> ScriptsToFinishPriorThis { get; set; } = new List<List<string>>();
         public EInitModels InitModel { get; set; } = EInitModels.Sequential;
+        public object[] CtorParams { get; set; }
 
         public ScriptAttributes()
         {
@@ -29,6 +29,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
             s.NextScripts = toClone.NextScripts;
             s.ScriptsToFinishPriorThis = toClone.ScriptsToFinishPriorThis;
             s.InitModel = toClone.InitModel;
+            s.CtorParams = toClone.CtorParams;
             return s;
         }
     }
@@ -41,5 +42,6 @@ namespace LtFlash.Common.ScriptManager.Scripts
         List<string> NextScripts { get; set; }
         List<List<string>> ScriptsToFinishPriorThis { get; set; }
         EInitModels InitModel { get; set; }
+        object[] CtorParams { get; set; }
     }
 }

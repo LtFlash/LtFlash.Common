@@ -32,7 +32,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         //FULL CTOR
         public void AddScript(
-            Type typeImplIScript, string id, EInitModels initModel, 
+            Type typeImplIScript, object[] ctorParams, string id, EInitModels initModel,
             List<string> nextScripts, List<List<string>> scriptsToFinishPrior,
             double timerMin, double timerMax)
         {
@@ -42,8 +42,17 @@ namespace LtFlash.Common.ScriptManager.Managers
             s.TimerIntervalMax = timerMax;
             s.NextScripts = nextScripts;
             s.ScriptsToFinishPriorThis = scriptsToFinishPrior;
+            s.CtorParams = ctorParams;
 
-            AddScript(typeImplIScript, s);   
+            AddScript(typeImplIScript, s);
+        }
+
+        public void AddScript(
+            Type typeImplIScript, string id, EInitModels initModel, 
+            List<string> nextScripts, List<List<string>> scriptsToFinishPrior,
+            double timerMin, double timerMax)
+        {
+            AddScript(typeImplIScript, null, id, initModel, nextScripts, scriptsToFinishPrior, timerMin, timerMax);
         }
 
         public void AddScript(
@@ -75,7 +84,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                     nameof(typeOfIScript));
             }
 
-            IScript sc = (IScript)Activator.CreateInstance(typeOfIScript);
+            IScript sc = CreateInstance<IScript>(typeOfIScript, attrib.CtorParams);
             sc.Attributes = attrib;
 
             AddNewScriptToList(sc, attrib.Id);
@@ -84,6 +93,13 @@ namespace LtFlash.Common.ScriptManager.Managers
                 nameof(AdvancedScriptManager),
                 nameof(AddScript),
                 $"id: {sc.Attributes.Id}: script added.");
+        }
+
+        private static T CreateInstance<T>(Type t, object[] ctorParams)
+        {
+            if (ctorParams != null && ctorParams.Length > 0)
+                return (T)Activator.CreateInstance(t, ctorParams);
+            else return (T)Activator.CreateInstance(t);
         }
 
         public void Start()
@@ -147,15 +163,12 @@ namespace LtFlash.Common.ScriptManager.Managers
 
                 IScript s = ufs[i].Script;
                 //if StartCtrl == Delay -> re-assign the old one!
-                IScript newScript = (IScript)Activator.CreateInstance(ufs[i].Script.GetType());
-                newScript.Attributes = new ScriptAttributes(s.Attributes.Id)
-                {
-                    InitModel = EInitModels.TimerBased,
-                    NextScripts = s.Attributes.NextScripts,
-                    ScriptsToFinishPriorThis = new List<List<string>>(),
-                    TimerIntervalMax = s.Attributes.TimerIntervalMax,
-                    TimerIntervalMin = s.Attributes.TimerIntervalMin
-                };
+                IScript newScript = CreateInstance<IScript>(s.GetType(), s.Attributes.CtorParams);
+                var newAttrib = ScriptAttributes.Clone(s.Attributes);
+                newAttrib.InitModel = EInitModels.TimerBased;
+                newAttrib.ScriptsToFinishPriorThis = new List<List<string>>();
+                newScript.Attributes = newAttrib;
+
                 _queue.Add(newScript);
             }
 
