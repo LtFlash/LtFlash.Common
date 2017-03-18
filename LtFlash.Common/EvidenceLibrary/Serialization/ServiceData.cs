@@ -20,6 +20,11 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
 
         public VehicleDrivingFlags? VehDrivingFlags { get; set; }
         public bool ShouldSerializeVehDrivingFlags() => VehDrivingFlags.HasValue;
+
+        public ServiceData()
+        {
+
+        }
     }
 
     public class TalkableServiceData : ServiceData
@@ -27,21 +32,39 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
         public string DialogID;
         public string ReportID;
         public bool SpawnAtScene;
+
+        public TalkableServiceData() 
+        {
+
+        }
     }
 
     public class EMSData : TalkableServiceData
     {
         public EHospitals DispatchFrom;
         public bool TransportToHospital;
+
+        public EMSData()
+        {
+                
+        }
     }
 
     public class CoronerData : TalkableServiceData
     {
+        public CoronerData()
+        {
+
+        }
     }
 
     public class TransportData : ServiceData
     {
         public Vector3 PickupPos;
         public EPoliceStations DispatchFrom;
+        public TransportData()
+        {
+
+        }
     }
 }

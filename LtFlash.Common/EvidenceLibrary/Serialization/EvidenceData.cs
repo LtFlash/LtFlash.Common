@@ -61,6 +61,10 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
         {
             Model = e.Model;
         }
+        public EvidenceObjectData() : base()
+        {
+
+        }
     }
 
     public class ObjectData : EvidenceObjectData
@@ -69,6 +73,11 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
         public ObjectData(ObjectData o) : base(o)
         {
             TextHelpWhileExamining = o.TextHelpWhileExamining;
+        }
+
+        public ObjectData() : base()
+        {
+
         }
     }
 
@@ -79,11 +88,21 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
         {
             Model = e.Model;
         }
+
+        public EvidencePedData() : base()
+        {
+
+        }
     }
 
     public class DeadBodyData : EvidencePedData
     {
         public DeadBodyData(DeadBodyData d) : base(d) 
+        {
+
+        }
+
+        public DeadBodyData() : base()
         {
 
         }
@@ -102,11 +121,21 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
             DialogRefuseTransportID = w.DialogRefuseTransportID;
             PickupPos = w.PickupPos;
         }
+
+        public WitnessData() : base()
+        {
+
+        }
     }
 
     public class FirstOfficerData : WitnessData
     {
         public FirstOfficerData(FirstOfficerData o) : base(o)
+        {
+
+        }
+
+        public FirstOfficerData() : base()
         {
 
         }
@@ -116,5 +145,10 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
     {
         public string ID { get; set; }
         public string[] Dialog;
+
+        public DialogData()
+        {
+
+        }
     }
 }
