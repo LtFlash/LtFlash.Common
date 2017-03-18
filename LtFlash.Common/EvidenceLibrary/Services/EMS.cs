@@ -6,6 +6,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 {
     public class EMS : ServiceBase
     {
+        public bool TakePatientToHospital => takeToHospital;
+
         private Ped patient;
         private bool takeToHospital;
         private Blip blipEmt;
