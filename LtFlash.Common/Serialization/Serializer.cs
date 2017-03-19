@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Xml.Serialization;
+﻿using LtFlash.Common.InputHandling;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using LtFlash.Common.InputHandling;
-using System;
+using System.Xml.Serialization;
 
 namespace LtFlash.Common.Serialization
 {
@@ -13,8 +13,7 @@ namespace LtFlash.Common.Serialization
         {
             XmlNode n = SelectNodeFromXml(file, node);
 
-            if (n == null)
-                throw new KeyNotFoundException($"{nameof(SaveToNode)}: Specified node does not exists!");
+            if (n == null) throw new KeyNotFoundException($"{nameof(SaveToNode)}: specified node does not exists!");
 
             n.InnerText = value;
             var doc = new XmlDocument();
@@ -26,71 +25,59 @@ namespace LtFlash.Common.Serialization
             return SelectNodeFromXml(file, node).InnerText;
         }
 
-        private static XmlNode SelectNodeFromXml(string file, string node)
+        private static XmlNode SelectNodeFromXml(string filePath, string node)
         {
-            var doc = new XmlDocument();
-            using (TextReader reader = new StreamReader(file))
+            if (!File.Exists(filePath)) throw new FileNotFoundException($"{nameof(SelectNodeFromXml)}(): specified file does not exist: {filePath}");
+
+            using (TextReader reader = new StreamReader(filePath))
             {
+                var doc = new XmlDocument();
                 doc.Load(reader);
+                return doc.SelectSingleNode(node);
             }
-            return doc.SelectSingleNode(node);
         }
 
-        public static List<T> LoadAllXML<T>(string path)
+        public static List<T> LoadAllXML<T>(string dirPath, SearchOption searchOption = SearchOption.AllDirectories)
         {
-            return LoadAllXML<T>(path, SearchOption.AllDirectories);            
-        }
+            if (!Directory.Exists(dirPath)) throw new DirectoryNotFoundException($"{nameof(LoadAllXML)}(): specified directory could not be found: {dirPath}");
 
-        public static List<T> LoadAllXML<T>(string path, SearchOption searchOption)
-        {
+            string[] files = Directory.GetFiles(dirPath, "*.xml", searchOption);
+
             List<T> result = new List<T>();
 
-            string[] files = Directory.GetFiles(path, "*.xml", searchOption);
-
-            for (int i = 0; i < files.Length; i++)
-            {
-                result.AddRange(LoadFromXML<T>(files[i]));
-            }
+            Array.ForEach(files, f => result.AddRange(LoadFromXML<T>(f)));
 
             return result;
         }
 
-        public static void SaveToXML<T>(List<T> list, string path)
+        public static void SaveToXML<T>(List<T> list, string filePath)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(List<T>));
-            using (TextWriter writer = new StreamWriter(path))
-            {
-                serializer.Serialize(writer, list);
-            }
+            SaveItemToXML(list, filePath);
         }
 
         public static void SaveItemToXML<T>(T item, string path)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
             using (TextWriter writer = new StreamWriter(path))
             {
-                serializer.Serialize(writer, item);
+                new XmlSerializer(typeof(T)).Serialize(writer, item);
             }
         }
 
-        public static T LoadItemFromXML<T>(string sFullPath)
+        public static T LoadItemFromXML<T>(string filePath)
         {
-            T item;
+            if (!File.Exists(filePath)) throw new FileNotFoundException($"{nameof(LoadItemFromXML)}(): specified file does not exist: {filePath}");
 
-            XmlSerializer deserializer = new XmlSerializer(typeof(T));
-            using (TextReader reader = new StreamReader(sFullPath))
+            using (TextReader reader = new StreamReader(filePath))
             {
-                item = (T)deserializer.Deserialize(reader);
+                return (T)new XmlSerializer(typeof(T)).Deserialize(reader);
             }
-
-            return item;
         }
 
-        public static void ModifyItemInXML<T>(string path, Action<T> modification)
+        public static void ModifyItemInXML<T>(string filePath, Action<T> modification)
         {
-            T item = LoadItemFromXML<T>(path);
+            T item = LoadItemFromXML<T>(filePath);
             modification(item);
-            SaveItemToXML<T>(item, path);
+            SaveItemToXML<T>(item, filePath);
         }
 
         public static T GetSelectedListElementFromXml<T>(string file, Func<List<T>, T> selector)
@@ -99,8 +86,7 @@ namespace LtFlash.Common.Serialization
             return selector(deserialized);
         }
 
-        public static Dictionary<TEnum, ControlSet>
-            DeserializeControls<TEnum>(string path)
+        public static Dictionary<TEnum, ControlSet> DeserializeControls<TEnum>(string path)
         {
             var dic = new Dictionary<TEnum, ControlSet>();
 
@@ -130,29 +116,16 @@ namespace LtFlash.Common.Serialization
             SaveToXML(list, path);
         }
 
-        public static List<T> LoadFromXML<T>(string path)
+        public static List<T> LoadFromXML<T>(string filePath)
         {
-            List<T> list = new List<T>();
-
-            var deserializer = new XmlSerializer(typeof(List<T>));
-            using (TextReader reader = new StreamReader(path))
-            {
-                list = (List<T>)deserializer.Deserialize(reader);
-            }
-
-            return list;
+            return LoadItemFromXML<List<T>>(filePath);
         }
 
         public static void AppendToXML<T>(T objectToAdd, string path)
         {
-            List<T> list = new List<T>();
-
-            if (ValidatePath(path)) list = LoadFromXML<T>(path);
-
-            list.Add(objectToAdd);
-
-            SaveToXML<T>(list, path);
+            ModifyItemInXML<List<T>>(path, t => t.Add(objectToAdd));
         }
+
         /// <summary>
         /// Creates folder in case it doesn't exist and checks file existance.
         /// </summary>
