@@ -10,24 +10,28 @@ namespace LtFlash.Common.ScriptManager.Managers
 {
     public class AdvancedScriptManager
     {
-        //PUBLIC
+        public string ID { get; private set; }
         public bool IsRunning { get; private set; }
         public double DefaultTimerIntervalMax { get; set; } = 30000;
         public double DefaultTimerIntervalMin { get; set; } = 15000;
         public bool AutoSwapFromSequentialToTimer { get; set; } = true;
         public bool HasFinished { get; private set; }
 
-        //PRIVATE
-        private List<IScript> _off = new List<IScript>();
-        private List<IScript> _queue = new List<IScript>();
-        private List<IScriptStarter> _running = new List<IScriptStarter>();
+        private readonly List<IScript> _off = new List<IScript>();
+        private readonly List<IScript> _queue = new List<IScript>();
+        private readonly List<IScriptStarter> _running = new List<IScriptStarter>();
 
-        private Dictionary<string, bool> statusOfScripts = new Dictionary<string, bool>();
+        private readonly Dictionary<string, bool> statusOfScripts = new Dictionary<string, bool>();
 
-        private ProcessHost stages = new ProcessHost();
+        private readonly ProcessHost stages = new ProcessHost();
 
         public AdvancedScriptManager()
         {
+        }
+
+        public AdvancedScriptManager(string id) : this()
+        {
+            ID = id;
         }
 
         //FULL CTOR
@@ -79,9 +83,8 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             if (!typeOfIScript.GetInterfaces().Contains(typeof(IScript)))
             {
-                throw new ArgumentException(
-                    $"Parameter does not implement {nameof(IScript)} interface.",
-                    nameof(typeOfIScript));
+                var msg = $"{nameof(AddScript)}(type, attrib): parameter does not implement {nameof(IScript)} interface: {typeOfIScript}";
+                throw new ArgumentException(msg);
             }
 
             IScript sc = CreateInstance<IScript>(typeOfIScript, attrib.CtorParams);
@@ -109,7 +112,6 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         public void StartScript(string id)
         {
-            //clear prior list to prevent blockage
             GetScriptById(id, _off).Attributes.ScriptsToFinishPriorThis = new List<List<string>>();
 
             MoveInactiveScriptToQueue(id, _off, _queue);
@@ -122,8 +124,7 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             if(!statusOfScripts.ContainsKey(id))
             {
-                throw new ArgumentException(
-                    $"{nameof(HasScriptFinished)}: Script with id [{id}] does not exist.");
+                throw new KeyNotFoundException($"{nameof(HasScriptFinished)}(id): script with id [{id}] does not exist.");
             }
 
             return statusOfScripts[id];
@@ -131,10 +132,10 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void RegisterProcesses()
         {
-            stages.ActivateProcess(Process_RunScriptsFromQueue);
-            stages.ActivateProcess(Process_UnsuccessfullyFinishedScripts);
-            stages.ActivateProcess(Process_WaitScriptsForFinish);
-            stages.ActivateProcess(Process_CheckIfAllFinished);
+            stages[Process_RunScriptsFromQueue] = true;
+            stages[Process_UnsuccessfullyFinishedScripts] = true;
+            stages[Process_WaitScriptsForFinish] = true;
+            stages[Process_CheckIfAllFinished] = true;
             stages.Start();
         }
 
@@ -378,6 +379,12 @@ namespace LtFlash.Common.ScriptManager.Managers
         private void Stop()
         {
             stages.Stop();
+        }
+
+        ~AdvancedScriptManager()
+        {
+            //TODO: terminate script
+            Stop();
         }
     }
 }
