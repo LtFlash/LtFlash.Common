@@ -6,13 +6,15 @@ public class ProcessHostExample
 
     public ProcessHostExample()
     {
-        //turn on any REGISTERED function you like
+        //turn on a function you like to be called in ticks
         procHost.ActivateProcess(CheckIfPlayerIsClose);
         //OR
         procHost[CheckIfPlayerIsClose] = true;
         
         //start processing your functions
         procHost.Start();
+        //you can also call procHost.Process() inside Process() of your callout
+        // in such case you _don't_ call procHost.Start()
     }
 
     private void CheckIfPlayerIsClose()
@@ -44,5 +46,6 @@ public class ProcessHostExample
     {
         //stop the internal loop of ProcessHost
         procHost.Stop();
+        //it does not need to be called if you did not Start() it
     }
 }
