@@ -5,117 +5,151 @@ using Rage;
 using LtFlash.Common.Processes;
 using LtFlash.Common.ScriptManager.Scripts;
 
+//CHANGES:
+// - added RemoveScriptWhenSuccessful and RemoveScriptWhenUnsuccessful
+// - added StartScriptById(id)
+
 namespace LtFlash.Common.ScriptManager.Managers
 {
     public class ScriptManagerBase
     {
-        //PUBLIC
         public bool HasFinished { get; private set; }
+        public bool RemoveScriptWhenSuccessful { get; set; }
+        public bool RemoveScriptWhenUnsuccessful { get; set; }
 
-        //PROTECTED
         protected ProcessHost ProcHost { get; private set; } = new ProcessHost();
         
         protected bool canStartNewScript = true;
-        protected bool removeOnStart = true;
 
-        //PRIVATE
-        private List<IScript> _off = new List<IScript>();
-        private IScript _await;
-        private IScript _running;
+        private readonly List<IScript> off = new List<IScript>();
+        private IScript await;
+        private IScript running;
 
-        private Dictionary<string, bool> statusOfScripts 
-            = new Dictionary<string, bool>();
-
-        //TODO: implement restarting
-        private bool _restartOnFailure;
-
+        private Dictionary<string, bool> statusOfScripts = new Dictionary<string, bool>();
 
         public ScriptManagerBase()
         {
-            ProcHost.AddProcess(CheckWaiting);
-            ProcHost.AddProcess(CheckRunningScript);
             ProcHost.Start();
         }
 
         public void AddScript(string id, Type typeImplIScript)
         {
-            IScript s = (IScript)Activator.CreateInstance(typeImplIScript);
-            s.Attributes = new ScriptAttributes(id);
-            _off.Add(s);
+            if (!typeImplIScript.GetInterfaces().Contains(typeof(IScript)))
+            {
+                var msg = $"{nameof(AddScript)}(id, type): parameter does not implement {nameof(IScript)} interface: {typeImplIScript}";
+                throw new ArgumentException(msg);
+            }
+
+            if(statusOfScripts.ContainsKey(id))
+            {
+                var msg = $"{nameof(AddScript)}(id, type): given id already exists: {id}";
+                throw new ArgumentException(msg);
+            }
+
+            AddScriptFinishedSuccessfullyToQueue(off, typeImplIScript, id);
             statusOfScripts.Add(id, false);
+        }
+
+        public void StartScriptById(string id)
+        {
+            if (!canStartNewScript) return;
+            var s = GetScriptById(id, off);
+            StartScript(s);
+        }
+
+        private static void AddScriptFinishedSuccessfullyToQueue(List<IScript> queue, Type s, string id)
+        {
+            IScript scr = CreateInstanceWithId(s, id);
+            queue.Add(scr);
+        }
+
+        private static void AddScriptFinishedUnsuccessfullyToQueue(List<IScript> queue, Type s, string id)
+        {
+            IScript scr = CreateInstanceWithId(s, id);
+            queue.Insert(0, scr);
+        }
+
+        private static IScript CreateInstanceWithId(Type t, string id)
+        {
+            IScript scr = (IScript)Activator.CreateInstance(t);
+            scr.Attributes = new ScriptAttributes(id);
+            return scr;
         }
 
         protected bool StartFromFirstScript()
         {
-            if (_off.Count < 1) return false;
+            if (off.Count < 1) return false;
 
-            StartScript(_off.First());
+            StartScript(off.First());
             return true;
         }
 
         protected bool StartRandomScript()
         {
-            if (_off.Count < 1) return false;
-
-            StartScript(_off[MathHelper.GetRandomInteger(_off.Count)]);
+            if (off.Count < 1) return false;
+            var scr = MathHelper.Choose<IScript>(off);
+            StartScript(scr);
             return true;
         }
 
         protected void StartScript(IScript script)
         {
-            _await = script;
-            if(removeOnStart) _off.Remove(script);
-            ProcHost.ActivateProcess(CheckWaiting);
+            await = script;
+            off.Remove(script);
+            ProcHost[CheckWaiting] = true;
         }
 
         private void CheckWaiting()
         {
-            if (_await == null) return;
-            if (_await.CanBeStarted())
+            if (await == null) return;
+            if (await.CanBeStarted())
             {
-                _await.Start();
-                _running = _await;
-                _await = null;
+                await.Start();
+                running = await;
+                await = null;
                 ProcHost.SwapProcesses(CheckWaiting, CheckRunningScript);
             }
         }
 
         private void CheckRunningScript()
         {
-            if (_running == null) return;
+            if (running == null) return;
 
-            if (_running.HasFinishedSuccessfully)
+            if (!running.HasFinished) return;
+
+            if(running.HasFinishedSuccessfully && !RemoveScriptWhenSuccessful)
             {
-                statusOfScripts[_running.Attributes.Id] = true;
-                _running = null;
-                canStartNewScript = true;
-                ProcHost.DeactivateProcess(CheckRunningScript);
-
-                if(_off.Count == 0)
-                {
-                    HasFinished = true;
-                    Stop();
-                }
+                AddScriptFinishedSuccessfullyToQueue(off, running.GetType(), running.Attributes.Id);
             }
-            //TODO: if unsuccessful -> add current to _await list/add as [0] to _off
-            else if(_running.HasFinishedUnsuccessfully)
+
+            if (running.HasFinishedUnsuccessfully && !RemoveScriptWhenUnsuccessful)
             {
-                _off.Insert(0, _running);
-                _running = null;
-                canStartNewScript = true;
-                ProcHost.DeactivateProcess(CheckRunningScript);
+                AddScriptFinishedUnsuccessfullyToQueue(off, running.GetType(), running.Attributes.Id);
+            }
+
+            statusOfScripts[running.Attributes.Id] = running.HasFinishedSuccessfully;
+
+            running = null;
+            canStartNewScript = true;
+
+            ProcHost[CheckRunningScript] = false;
+
+            if (off.Count == 0)
+            {
+                HasFinished = true;
+                Stop();
             }
         }
 
         public void Stop() => ProcHost.Stop();
 
-        private IScript GetScriptById(string id, List<IScript> from)
+        private static IScript GetScriptById(string id, List<IScript> from)
         {
             IScript s = from.FirstOrDefault(ss => ss.Attributes.Id == id);
-            if (s == null)
+            if (s == default(IScript))
             {
-                throw new ArgumentException(
-                    $"{nameof(GetScriptById)}: Script with id [{id}] does not exist.");
+                var msg = $"{nameof(GetScriptById)}: script with id [{id}] does not exist.";
+                throw new ArgumentException(msg);
             }
             else return s;
         }

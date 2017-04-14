@@ -5,7 +5,6 @@
         public RandomScriptManager(double intervalMin, double intervalMax) 
             : base(intervalMin, intervalMax)
         {
-            removeOnStart = false;
         }
 
         protected override void StartScript() => StartRandomScript();
