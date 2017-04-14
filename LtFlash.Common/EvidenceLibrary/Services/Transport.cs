@@ -1,35 +1,47 @@
 ﻿using Rage;
 using LtFlash.Common.EvidenceLibrary.Resources;
 
+//TODO:
+// - nullref handling
+//CHANGES:
+// + Added Dispatch(), Dispose(), properties
+
 namespace LtFlash.Common.EvidenceLibrary.Services
 {
     public class Transport
     {
-        private Vehicle policeCar;
-        private Blip carBlip;
-        private readonly string[] policeCarModels = new string[]
+        public VehicleDrivingFlags DrivingFlagsArrival { get; set; } = VehicleDrivingFlags.StopAtDestination | VehicleDrivingFlags.Emergency;
+        public VehicleDrivingFlags DrivingFlagsDeparture { get; set; } = VehicleDrivingFlags.Normal;
+        public float SpeedArrival { get; set; } = 10f;
+        public float SpeedDeparture { get; set; } = 10f;
+        public string VehicleModel { get; set; } = MathHelper.Choose(vehModels);
+        public string CopDriverModel { get; set; } = MathHelper.Choose(copModels);
+
+        private Vehicle veh;
+        private Blip blipVeh;
+        private Ped copDriver;
+        private Ped ped;
+
+        private SpawnPoint vehSpawn;
+        private Vector3 pickupPos;
+
+        private readonly static string[] vehModels =
         {
             "POLICE",
             "POLICE2",
             "POLICE3",
         };
-        private readonly SpawnPoint[] policeCarInitPositions = new SpawnPoint[]
-        {
-            new SpawnPoint(230.815689f, new Vector3(399.9877f,-1598.8855f,28.7242641f)),
-        };
-        private SpawnPoint policeCarSpawn;
-
-        private Ped copDriver;
-        private readonly string[] copModels = new string[]
+        private readonly static string[] copModels =
         {
             "s_m_y_cop_01",
         };
 
-        private Ped ped;
-        private Vector3 pickupPos;
-
-        private GameFiber process;
         private bool canRun = true;
+        private const float DIST_AT_SCENE = 5.5f;
+        private const float DIST_DISPOSAL = 200f;
+        private const float BLIP_VEH_SCALE = 0.5f;
+
+        private readonly Processes.ProcessHost ph = new Processes.ProcessHost();
 
         public Transport(
             Ped ped, Vector3 pickupPos, 
@@ -46,131 +58,89 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public Transport(Ped ped, Vector3 pickupPos, SpawnPoint dispatchFrom)
         {
             this.ped = ped;
-            policeCarSpawn = dispatchFrom;
+            vehSpawn = dispatchFrom;
             this.pickupPos = pickupPos;
-            process = new GameFiber(Process);
-            process.Start();
         }
 
-        private enum EState
+        public void Dispatch()
         {
-            CreateEntities,
-            SetTaskDrive,
-            WaitForArrival,
-            SetPedTaskEnter, //if dist > x -> task goto pos,then enter
-            WaitForPed,
-            DriveAway,
-            CheckIfCanBeDisposed,
-            Dispose,
+            ph[CreateEntities] = true;
+            ph.Start();
         }
-        private EState _state = EState.CreateEntities;
 
-        //TODO: cop get out the rmp -> goes to ped, talks to him -> they get back to veh and drive away
-        private void Process()
+        private void CreateEntities()
         {
-            while (canRun)
+            veh = new Vehicle(VehicleModel, vehSpawn.Position);
+            veh.Heading = vehSpawn.Heading;
+            veh.IsInvincible = true;
+            veh.MakePersistent();
+
+            blipVeh = new Blip(veh);
+            blipVeh.Scale = BLIP_VEH_SCALE;
+            blipVeh.Color = System.Drawing.Color.Blue;
+
+            copDriver = new Ped(CopDriverModel, veh.Position.Around(2f), 0f);
+            copDriver.WarpIntoVehicle(veh, -1);
+            copDriver.KeepTasks = true;
+            copDriver.BlockPermanentEvents = true;
+
+            copDriver.Tasks.DriveToPosition(pickupPos, SpeedArrival, DrivingFlagsArrival);
+
+            ph.SwapProcesses(CreateEntities, WaitForArrival);
+        }
+
+        private void WaitForArrival()
+        {
+            if (Vector3.Distance(veh.Position, pickupPos) <= DIST_AT_SCENE)
             {
-                switch (_state)
-                {
-                    case EState.CreateEntities:
-                         
-                        string _policeCarModel = policeCarModels[MathHelper.GetRandomInteger(policeCarModels.Length)];
-
-                        policeCar = new Vehicle(_policeCarModel, policeCarSpawn.Position);
-                        policeCar.Heading = policeCarSpawn.Heading;
-                        carBlip = new Blip(policeCar);
-                        carBlip.Scale = 0.5f;
-                        carBlip.Color = System.Drawing.Color.Blue;
-                        policeCar.IsInvincible = true;
-                        policeCar.MakePersistent();
-
-                        string _copModel = copModels[MathHelper.GetRandomInteger(copModels.Length)];
-                        copDriver = new Ped(_copModel, policeCar.Position.Around(2f), 0f);
-                        copDriver.WarpIntoVehicle(policeCar, -1); 
-                        copDriver.KeepTasks = true;
-                        copDriver.BlockPermanentEvents = true;
-
-                        _state = EState.SetTaskDrive;
-
-                        break;
-                    case EState.SetTaskDrive: 
-
-                        copDriver.Tasks.DriveToPosition(pickupPos, 10f, VehicleDrivingFlags.StopAtDestination | VehicleDrivingFlags.Emergency);
-
-                        _state = EState.WaitForArrival;
-
-                        break;
-                    case EState.WaitForArrival:
-
-                        if (policeCar.Position.DistanceTo(pickupPos) <= 5.5f)
-                        {
-                            _state = EState.SetPedTaskEnter;
-                        }
-
-                        break;
-                    case EState.SetPedTaskEnter:
-
-                        Game.LogVerbose("Transport.SetPedTaskEnter.Beginning");
-
-                        ped.Tasks.ClearImmediately();
-
-                        ped.Tasks.GoToOffsetFromEntity(policeCar, 3f, 90f, 1f);
-
-                        while(ped.Position.DistanceTo(policeCar.Position) > 7f)
-                        {
-                            GameFiber.Yield();
-                        }
-
-                        ped.Tasks.ClearImmediately();
-                        ped.Tasks.EnterVehicle(policeCar, 2);
-
-                        Game.LogVerbose("Transport.SetPedTaskEnter.End");
-
-                        _state = EState.WaitForPed;
-
-                        break;
-                    case EState.WaitForPed:
-
-                        if (ped.IsInVehicle(policeCar, false))
-                        {
-                            Game.LogVerbose("Transport.WitnessInVehicle");
-                            if (carBlip) carBlip.Delete();
-                            _state = EState.DriveAway;
-                        }
-                         
-                        break;
-                    case EState.DriveAway: 
-                         
-                        copDriver.Tasks.DriveToPosition(policeCarSpawn.Position, 10f, VehicleDrivingFlags.Normal);
-                        
-                        _state = EState.CheckIfCanBeDisposed;
-                        break;
-                         
-                    case EState.CheckIfCanBeDisposed:
-                         
-                        if (policeCar.Position.DistanceTo(Game.LocalPlayer.Character.Position) >= 200f)
-                        {
-                            _state = EState.Dispose;
-                        }
-
-                        break; 
-                         
-                    case EState.Dispose:
-
-                        if (ped.Exists()) ped.Dismiss(); 
-                        if (copDriver.Exists()) copDriver.Dismiss();
-                        if (policeCar.Exists()) policeCar.Dismiss();
-                        if (carBlip) carBlip.Delete();
-                        canRun = false;
-
-                        break;
-
-                    default:
-                        break;
-                }
-
-                GameFiber.Yield(); 
+                ph.SwapProcesses(WaitForArrival, SetPedTaskEnter);
             }
+        }
+
+        private void SetPedTaskEnter()
+        {
+            ped.Tasks.ClearImmediately();
+
+            ped.Tasks.GoToOffsetFromEntity(veh, 3f, 90f, 1f);
+
+            while (Vector3.Distance(ped.Position, veh.Position) > 7f)
+            {
+                GameFiber.Yield();
+            }
+
+            ped.Tasks.ClearImmediately();
+            ped.Tasks.EnterVehicle(veh, 2);
+
+            ph.SwapProcesses(SetPedTaskEnter, WaitForPed);
+        }
+
+        private void WaitForPed()
+        {
+            if (ped.IsInVehicle(veh, false))
+            {
+                if (blipVeh) blipVeh.Delete();
+                copDriver.Tasks.DriveToPosition(vehSpawn.Position, SpeedDeparture, DrivingFlagsDeparture);
+                ph.SwapProcesses(WaitForPed, CanBeDisposed);
+            }
+        }
+
+        private void CanBeDisposed()
+        {
+            if (Vector3.Distance(veh.Position, Game.LocalPlayer.Character.Position) >= DIST_DISPOSAL)
+            {
+                Dispose();
+                ph[CanBeDisposed] = false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (ped.Exists()) ped.Dismiss();
+            if (copDriver.Exists()) copDriver.Dismiss();
+            if (veh.Exists()) veh.Dismiss();
+            if (blipVeh) blipVeh.Delete();
+            canRun = false;
+            ph.Stop();
         }
     }
 }
