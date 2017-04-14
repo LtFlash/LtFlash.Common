@@ -103,11 +103,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
 
         private void RegisterStages()
         {
-            AddStage(AwayOrClose);
-            AddStage(Process);
-            AddStage(InternalEnd);
-
-            AddStage(PlaySoundEvidenceNearby);
             ActivateStage(PlaySoundEvidenceNearby);
 
             ActivateStage(AwayOrClose);
@@ -141,8 +136,6 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             if (Blip.Exists()) Blip.Delete();
         }
-
-        protected void AddStage(Action stage) => ProcHost.AddProcess(stage);
 
         protected void ActivateStage(Action stage) 
             => ProcHost.ActivateProcess(stage);

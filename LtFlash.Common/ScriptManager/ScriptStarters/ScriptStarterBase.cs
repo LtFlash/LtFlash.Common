@@ -34,7 +34,6 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 
             AutoRestart = autoRestart;
 
-            Stages.AddProcess(InternalProcess);
             Stages.ActivateProcess(InternalProcess);
             Stages.Start();
         }

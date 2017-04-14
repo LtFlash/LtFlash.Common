@@ -52,16 +52,6 @@ namespace LtFlash.Common.ScriptManager.Scripts
 
         private void RegisterStages()
         {
-            AddStage(InternalInitialize);
-            AddStage(WaitForAcceptKey);
-            AddStage(InternalAccepted);
-            AddStage(Process);
-            AddStage(InternalNotAccepted);
-            AddStage(InternalEnd);
-            AddStage(RemoveAreaWhenClose);
-
-            AddStage(PlaySoundWhenPlayerNearby);
-
             ActivateStage(InternalInitialize);
         }
 

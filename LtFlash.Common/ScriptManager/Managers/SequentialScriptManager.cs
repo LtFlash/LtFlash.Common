@@ -4,8 +4,8 @@
     {
         public SequentialScriptManager() : base()
         {
-            ProcHost.AddProcess(StartNewScript);
             ProcHost.ActivateProcess(StartNewScript);
+            RemoveScriptWhenSuccessful = true;
         }
 
         private void StartNewScript()

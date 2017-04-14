@@ -9,10 +9,6 @@
 
         private void RegisterStages()
         {
-            AddStage(InternalInitialize);
-            AddStage(Process);
-            AddStage(InternalEnd);
-
             ActivateStage(InternalInitialize);
         }
 

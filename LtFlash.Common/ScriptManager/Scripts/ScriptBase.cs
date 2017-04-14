@@ -43,8 +43,6 @@ namespace LtFlash.Common.ScriptManager.Scripts
             IsRunning = false;
         }
 
-        protected void AddStage(Action stage) => ProcHost.AddProcess(stage);
-
         protected void ActivateStage(Action stage)
             => ProcHost.ActivateProcess(stage);
 
