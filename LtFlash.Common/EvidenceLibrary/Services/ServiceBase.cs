@@ -37,9 +37,19 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         public ServiceBase(
             string vehModel, string modelPedDriver, string modelPedWorker,
-            SpawnPoint spawnPos, SpawnPoint dest, string[] dialogue) : 
-            this(vehModel, modelPedDriver, modelPedWorker, spawnPos, dest, new Dialog(dialogue))
+            SpawnPoint spawnPos, SpawnPoint dest, string[] dialogue)
         {
+            ModelVehicle = vehModel;
+            ModelPedWorker = modelPedWorker;
+            ModelPedDriver = modelPedDriver;
+
+            SpawnPosition = spawnPos;
+            destPoint = dest;
+
+            var d = new Dialog(dialogue);
+            d.PedOne = PedWorker;
+            d.PedTwo = Game.LocalPlayer.Character;
+            Dialogue = d;
         }
 
         public ServiceBase(

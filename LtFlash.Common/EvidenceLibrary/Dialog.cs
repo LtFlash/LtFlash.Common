@@ -11,6 +11,8 @@ namespace LtFlash.Common.EvidenceLibrary
         public bool HasEnded { get; private set; }
         public int TimerInterval { get; set; } = 3000;
         public int LineDuration { get; set; } = 2500;
+        public Ped PedOne { get; set; }
+        public Ped PedTwo { get; set; }
 
         //use to play anims?
         //private Ped _ped1;
@@ -36,19 +38,18 @@ namespace LtFlash.Common.EvidenceLibrary
         public void StartDialog()
         {
             if (IsRunning) return;
+
+            if(PedOne && PedTwo)
+            {
+                TurnTo(PedOne, PedTwo);
+                TurnTo(PedTwo, PedOne);
+            }
+
             timer.Start();
             ShowLine();
             IsRunning = true;
             HasEnded = false;
         }
-
-        public void StartDialog(Ped ped1, Ped ped2)
-        {
-            TurnTo(ped1, ped2);
-            TurnTo(ped2, ped1);
-
-            StartDialog();
-        } 
          
         private void TurnTo(Ped ped, Entity entity, int duration = 1500)
             => NativeFunction.Natives.TaskTurnPedToFaceEntity(ped, entity, duration);

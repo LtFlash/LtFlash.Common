@@ -65,7 +65,9 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
 
                     if (IsCollected) return;
 
-                    Dialog.StartDialog(Ped, Game.LocalPlayer.Character);
+                    Dialog.PedOne = Ped;
+                    Dialog.PedTwo = Game.LocalPlayer.Character;
+                    Dialog.StartDialog();
                     Checked = true;
                     _state = EState.CheckIfDialogFinished;
 

@@ -152,7 +152,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                 {
                     if (blipEmt) blipEmt.Delete();
 
-                    Dialogue.StartDialog(PedWorker, Game.LocalPlayer.Character);
+                    Dialogue.StartDialog();
                     Proc.SwapProcesses(WaitForDialogueActivation, CheckForDialogueFinished);
                 }
             }

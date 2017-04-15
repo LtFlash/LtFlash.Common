@@ -9,7 +9,6 @@ namespace LtFlash.Common.EvidenceLibrary
     {
         bool HasEnded { get; }
         void StartDialog();
-        void StartDialog(Ped p1, Ped p2);
     }
 
     public interface ICollectable
