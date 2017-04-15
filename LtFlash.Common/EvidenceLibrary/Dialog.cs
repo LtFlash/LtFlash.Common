@@ -4,7 +4,7 @@ using Rage.Native;
 
 namespace LtFlash.Common.EvidenceLibrary
 {
-    public class Dialog
+    public class Dialog : IDialog
     {
         // PUBLIC
         public bool IsRunning { get; private set; }

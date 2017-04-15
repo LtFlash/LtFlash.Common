@@ -44,6 +44,38 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             takeToHospital = transportToHospital;
         }
 
+        public EMS(
+            Ped patient,
+            SpawnPoint dispTo,
+            IDialog dialog,
+            bool transportToHospital,
+            bool spawnAtScene = false,
+            EHospitals dispatchFrom = EHospitals.Closest)
+            : base(
+                  "AMBULANCE", "s_m_m_paramedic_01", "s_m_m_paramedic_01",
+                  GetSpawn(spawnAtScene, dispatchFrom, dispTo),
+                  dispTo, dialog)
+        {
+            this.patient = patient;
+            takeToHospital = transportToHospital;
+        }
+
+        public EMS(
+            Ped patient,
+            SpawnPoint dispTo,
+            IDialog dialog,
+            bool transportToHospital,
+            bool spawnAtScene,
+            SpawnPoint dispatchFrom)
+            : base(
+                  "AMBULANCE", "s_m_m_paramedic_01", "s_m_m_paramedic_01",
+                  dispatchFrom,
+                  dispTo, dialog)
+        {
+            this.patient = patient;
+            takeToHospital = transportToHospital;
+        }
+
         private static SpawnPoint GetSpawn(
             bool _spawnAtScene, EHospitals dispatchFrom, SpawnPoint dispatchTo)
         {

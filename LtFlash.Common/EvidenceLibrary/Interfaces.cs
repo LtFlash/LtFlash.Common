@@ -5,6 +5,13 @@ using System.Media;
 
 namespace LtFlash.Common.EvidenceLibrary
 {
+    public interface IDialog
+    {
+        bool HasEnded { get; }
+        void StartDialog();
+        void StartDialog(Ped p1, Ped p2);
+    }
+
     public interface ICollectable
     {
         bool IsCollected { get; }

@@ -46,6 +46,39 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             this.body = body;
         }
 
+        public Coroner(
+            Ped body,
+            SpawnPoint dispatchTo,
+            IDialog dialogue,
+            bool spawnAtScene = false) :
+            base(
+                GetVehModel(),
+                GetPedModel(),
+                GetPedModel(),
+                spawnAtScene ? dispatchTo : _coronersOffice,
+                dispatchTo,
+                dialogue)
+        {
+            this.body = body;
+        }
+
+        public Coroner(
+            Ped body,
+            SpawnPoint dispatchTo,
+            SpawnPoint dispatchFrom,
+            IDialog dialogue,
+            bool spawnAtScene = false) :
+            base(
+                GetVehModel(),
+                GetPedModel(),
+                GetPedModel(),
+                spawnAtScene ? dispatchTo : dispatchFrom,
+                dispatchTo,
+                dialogue)
+        {
+            this.body = body;
+        }
+
         private static string GetPedModel()
         {
             string[] _pedModels = new string[]

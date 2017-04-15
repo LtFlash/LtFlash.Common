@@ -27,7 +27,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         //PROTECTED
         protected Vehicle Vehicle { get; private set; }
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
-        protected Dialog Dialogue { get; set; }
+        protected IDialog Dialogue { get; set; }
 
         //PRIVATE
         protected ProcessHost Proc { get; private set; } = new ProcessHost();
@@ -37,7 +37,14 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
         public ServiceBase(
             string vehModel, string modelPedDriver, string modelPedWorker,
-            SpawnPoint spawnPos, SpawnPoint dest, string[] dialogue)
+            SpawnPoint spawnPos, SpawnPoint dest, string[] dialogue) : 
+            this(vehModel, modelPedDriver, modelPedWorker, spawnPos, dest, new Dialog(dialogue))
+        {
+        }
+
+        public ServiceBase(
+            string vehModel, string modelPedDriver, string modelPedWorker,
+            SpawnPoint spawnPos, SpawnPoint dest, IDialog dialog)
         {
             ModelVehicle = vehModel;
             ModelPedWorker = modelPedWorker;
@@ -46,7 +53,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             SpawnPosition = spawnPos;
             destPoint = dest;
 
-            Dialogue = new Dialog(dialogue);
+            Dialogue = dialog;
         }
 
         public void Dispatch()
