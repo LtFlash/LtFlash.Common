@@ -34,6 +34,9 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
 
         public ETraces[] Traces { get; set; }
 
+        public string[] ReportsID;
+        public string[] NotesID;
+
         public EvidenceData()
         {
         }
@@ -84,9 +87,16 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
     public class EvidencePedData : EvidenceData
     {
         public string Model;
+        public string Scenario;
+        public string AnimDic;
+        public string AnimName;
+
         public EvidencePedData(EvidencePedData e) : base(e)
         {
             Model = e.Model;
+            Scenario = e.Scenario;
+            AnimDic = e.AnimDic;
+            AnimName = e.AnimName;
         }
 
         public EvidencePedData() : base()
