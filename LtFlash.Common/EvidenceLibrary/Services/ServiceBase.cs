@@ -1,6 +1,7 @@
 ﻿using LtFlash.Common.Processes;
 using Rage;
 using Rage.Native;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace LtFlash.Common.EvidenceLibrary.Services
@@ -20,20 +21,27 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public string ModelPedWorker { get; set; }
 
         public Keys KeyStartDialogue { get; set; } = Keys.Y;
+        public Keys KeyTeleportToDestination { get; set; } = Keys.D8;
+
         public Ped PedDriver { get; private set; }
         public Ped PedWorker { get; private set; }
+
         public SpawnPoint SpawnPosition { get; set; }
+        public bool AlwaysNotifyToTeleport { get; set; }
 
         //PROTECTED
         protected Vehicle Vehicle { get; private set; }
         protected Vector3 PlayerPos => Game.LocalPlayer.Character.Position;
         protected IDialog Dialogue { get; set; }
+        protected abstract string MessageNotifyTPWhenStuck { get; }
 
         //PRIVATE
         protected ProcessHost Proc { get; private set; } = new ProcessHost();
         private Blip blipVeh;
         private SpawnPoint destPoint;
         private Object notepad;
+        private Stopwatch timerNotifyTPWhenStuck;
+        private Vector3 previousPosition;
 
         public ServiceBase(
             string vehModel, string modelPedDriver, string modelPedWorker,
@@ -81,7 +89,7 @@ namespace LtFlash.Common.EvidenceLibrary.Services
                 0f, 0f, 0f, 0f, 0f, 0f, 
                 true, false, false, false, 2, 1);
         }
-
+        
         private void CreateEntities()
         {
             Vehicle = new Vehicle(ModelVehicle, SpawnPosition.Position);
@@ -107,6 +115,11 @@ namespace LtFlash.Common.EvidenceLibrary.Services
 
             Proc.SwapProcesses(CreateEntities, DispatchFromSpawnPoint);
             Proc.ActivateProcess(AntiRollOver);
+
+            previousPosition = Vehicle.Position;
+            timerNotifyTPWhenStuck = new Stopwatch();
+            timerNotifyTPWhenStuck.Start();
+            Proc.ActivateProcess(NotifyWhenStuck);
         }
 
         private void AntiRollOver()
@@ -116,6 +129,43 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (Vehicle.Rotation.Roll > 70f || Vehicle.Rotation.Roll < -70f)
             {
                 Vehicle.SetRotationRoll(0f);
+            }
+        }
+
+        private void NotifyWhenStuck()
+        {
+            if (timerNotifyTPWhenStuck.Elapsed.Seconds < 35) return;
+
+            timerNotifyTPWhenStuck.Restart();
+
+            if(Vector3.Distance(previousPosition, Vehicle.Position) < 10f ||
+                AlwaysNotifyToTeleport)
+            {
+                Game.DisplayHelp(string.Format(MessageNotifyTPWhenStuck, KeyTeleportToDestination));
+
+                Proc.ActivateProcess(VehicleStuck);
+            }
+
+            previousPosition = Vehicle.Position;
+        }
+
+        private void VehicleStuck()
+        {
+            if (Game.IsKeyDown(KeyTeleportToDestination))
+            {
+                if (Vehicle && PedDriver.IsInVehicle(Vehicle, false) && PedWorker.IsInVehicle(Vehicle, false))
+                {
+                    Vehicle.SetPositionWithSnap(destPoint.Position);
+                    Vehicle.Heading = destPoint.Heading;
+
+                    Proc.DeactivateProcess(NotifyWhenStuck);
+                    Proc.DeactivateProcess(VehicleStuck);
+
+                    Proc.DeactivateProcess(WaitForArrival);
+                    Proc.ActivateProcess(PostArrival);
+
+                    timerNotifyTPWhenStuck.Stop();
+                }
             }
         }
 
@@ -135,6 +185,11 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             if (Vector3.Distance(Vehicle.Position, destPoint.Position) <= 10f && 
                 Vehicle.Speed == 0f)
             {
+                Proc.DeactivateProcess(NotifyWhenStuck);
+                Proc.DeactivateProcess(VehicleStuck);
+
+                timerNotifyTPWhenStuck.Stop();
+
                 Proc.SwapProcesses(WaitForArrival, PostArrival);
             }
         }

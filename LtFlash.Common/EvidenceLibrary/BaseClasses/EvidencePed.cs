@@ -23,8 +23,9 @@ namespace LtFlash.Common.EvidenceLibrary.BaseClasses
         {
             if (Ped)
             {
-                Ped.Tasks.Wander();
-                Ped.Dismiss();
+                //Ped.Tasks.Wander();
+                //Ped.Dismiss();
+                if (Ped) Ped.Delete();
             }
         }
 

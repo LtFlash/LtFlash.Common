@@ -1,4 +1,5 @@
-﻿using LtFlash.Common.EvidenceLibrary.Resources;
+﻿using System;
+using LtFlash.Common.EvidenceLibrary.Resources;
 using Rage;
 using Rage.Native;
 
@@ -7,6 +8,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
     public class EMS : ServiceBase
     {
         public bool TakePatientToHospital => takeToHospital;
+
+        protected override string MessageNotifyTPWhenStuck => "Press ~y~{0}~s~ to hurry the EMS up.";
 
         private Ped patient;
         private bool takeToHospital;
