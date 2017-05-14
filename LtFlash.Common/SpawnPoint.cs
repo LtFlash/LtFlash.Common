@@ -17,7 +17,16 @@ namespace LtFlash.Common
         public SpawnPoint(float heading, float x, float y, float z)
             : this(heading, new Vector3(x, y, z))
         {
+        }
 
+        public static bool operator==(SpawnPoint s1, SpawnPoint s2)
+        {
+            return s1.Heading == s2.Heading && s1.Position == s2.Position;
+        }
+
+        public static bool operator !=(SpawnPoint s1, SpawnPoint s2)
+        {
+            return s1.Heading != s2.Heading && s1.Position != s2.Position;
         }
 
         public float Distance(SpawnPoint spawn)
