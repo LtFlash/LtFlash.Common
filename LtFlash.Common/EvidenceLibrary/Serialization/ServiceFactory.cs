@@ -6,14 +6,24 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
     {
         public static EMS CreateEMS(Rage.Ped patient, string[] dialog, EMSData ed)
         {
-            var e = new Services.EMS(patient, ed.DispatchTo, dialog, ed.TransportToHospital, ed.SpawnAtScene, ed.DispatchFrom);
+            var e = new EMS(patient, ed.DispatchTo, dialog, ed.TransportToHospital, ed.SpawnAtScene, ed.DispatchFromHospital);
             ApplyServiceProperties(e, ed);
             return e;
         }
 
         public static Coroner CreateCoroner(Rage.Ped victim, string[] dialog, CoronerData cd)
         {
-            var c = new Coroner(victim, cd.DispatchTo, dialog, cd.SpawnAtScene);
+            Coroner c;
+
+            if (cd.DispatchFrom != SpawnPoint.Zero)
+            {
+                c = new Coroner(victim, cd.DispatchTo, cd.DispatchFrom, dialog, cd.SpawnAtScene);
+            }
+            else
+            {
+                c = new Coroner(victim, cd.DispatchTo, dialog, cd.SpawnAtScene);
+            }
+
             ApplyServiceProperties(c, cd);
             return c;
         }

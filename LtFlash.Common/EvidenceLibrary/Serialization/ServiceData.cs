@@ -6,6 +6,7 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
     {
         public string ID { get; set; }
         public string VehModel;
+        public SpawnPoint DispatchFrom;
         public SpawnPoint DispatchTo;
         public string PedClientID;
 
@@ -41,7 +42,7 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
 
     public class EMSData : TalkableServiceData
     {
-        public EHospitals DispatchFrom;
+        public EHospitals DispatchFromHospital;
         public bool TransportToHospital;
 
         public EMSData()
@@ -54,17 +55,16 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
     {
         public CoronerData()
         {
-
         }
     }
 
     public class TransportData : ServiceData
     {
         public Vector3 PickupPos;
-        public EPoliceStations DispatchFrom;
+        public EPoliceStations DispatchFromStation;
+
         public TransportData()
         {
-
         }
     }
 }
