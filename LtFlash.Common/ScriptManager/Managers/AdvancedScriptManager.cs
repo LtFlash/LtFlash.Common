@@ -5,6 +5,7 @@ using LtFlash.Common.ScriptManager.ScriptStarters;
 using LtFlash.Common.Processes;
 using LtFlash.Common.Logging;
 using LtFlash.Common.ScriptManager.Scripts;
+using Rage;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
@@ -196,7 +197,10 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             for (int i = 0; i < fs.Count; i++)
             {
-                AddScriptsToQueue(fs[i].NextScriptsToRun);
+                if (fs[i].NextScriptsToRun.Count > 0)
+                {
+                    AddScriptsToQueue(fs[i].NextScriptsToRun);
+                }
             }
 
             RemoveScripts(fs, _running);
@@ -226,20 +230,26 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private bool CheckIfScriptCanBeStarted(IScript script)
         {
-            if (script.Attributes.ScriptsToFinishPriorThis.Count < 1)
+            var priorScripts = script.Attributes.ScriptsToFinishPriorThis;
+
+            if (priorScripts.Count < 1)
+            {
                 return true;
+            }
             else
-                return CheckIfNecessaryScriptsAreFinished(
-                    script.Attributes.ScriptsToFinishPriorThis, statusOfScripts);
+            {
+                return CheckIfNecessaryScriptsAreFinished(priorScripts, statusOfScripts);
+            }
         }
 
         private IScript GetScriptById(string id, List<IScript> from)
         {
             IScript s = from.FirstOrDefault(ss => ss.Attributes.Id == id);
+
             if(s == null)
             {
-                throw new ArgumentException(
-                    $"{nameof(GetScriptById)}: Script with id [{id}] does not exist.");
+                var msg = $"{nameof(GetScriptById)}: Script with id [{id}] does not exist.";
+                throw new ArgumentException(msg);
             }
             else return s;
         }
@@ -300,10 +310,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void StartScripts(List<IScriptStarter> starters)
         {
-            for (int i = 0; i < starters.Count; i++)
-            {
-                starters[i].Start();
-            }
+            starters.ForEach(s => s.Start());
         }
 
         private void RemoveScripts(
