@@ -12,6 +12,7 @@ namespace LtFlash.Common.InputHandling
 
         public bool IsActive => _IsActive();
         public string Description { get; private set; }
+        public string ColorTag { set => CTAG = value; }
 
         //PRIVATE
         private string CTAG = "~g~";
