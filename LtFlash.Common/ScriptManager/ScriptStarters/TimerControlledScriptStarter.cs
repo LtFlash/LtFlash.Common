@@ -24,7 +24,7 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             Logger.Log(nameof(TimerControlledScriptStarter),
                     nameof(TimerTick), "0");
 
-            if(!ScriptStarted || Script.HasFinishedUnsuccessfully)
+            if (!ScriptStarted || Script.HasFinishedUnsuccessfully)
             {
                 if (ScriptStarted && Script.HasFinishedUnsuccessfully && !AutoRestart)
                 {
@@ -35,10 +35,13 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
 
                 StartScriptInThisTick = true;
 
-                Logger.Log(nameof(TimerControlledScriptStarter), 
+                Logger.Log(nameof(TimerControlledScriptStarter),
                     nameof(TimerTick), ScriptStarted.ToString());
             }
-            else if(Script.HasFinishedSuccessfully) timer.Stop();
+            else if (Script.HasFinishedSuccessfully)
+            {
+                timer.Stop();
+            }
 
             timer.Interval = GetRandomInterval();
         }

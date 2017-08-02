@@ -11,11 +11,15 @@ using LtFlash.Common.ScriptManager.Scripts;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
+    public delegate void ScriptFinishedHandler(string id);
+
     public class ScriptManagerBase
     {
         public bool HasFinished { get; private set; }
         public bool RemoveScriptWhenSuccessful { get; set; }
         public bool RemoveScriptWhenUnsuccessful { get; set; }
+        
+        public event ScriptFinishedHandler OnScriptFinished;
 
         protected ProcessHost ProcHost { get; private set; } = new ProcessHost();
         
@@ -26,11 +30,14 @@ namespace LtFlash.Common.ScriptManager.Managers
         private IScript running;
 
         private Dictionary<string, bool> statusOfScripts = new Dictionary<string, bool>();
+        private Dictionary<string, object[]> scriptCtorParams = new Dictionary<string, object[]>();
 
         public ScriptManagerBase()
         {
             ProcHost.Start();
         }
+
+        public bool HasScriptFinished(string id) => statusOfScripts[id];
 
         public void AddScript(string id, Type typeImplIScript)
         {
@@ -50,6 +57,13 @@ namespace LtFlash.Common.ScriptManager.Managers
             statusOfScripts.Add(id, false);
         }
 
+        public void AddScript(string id, Type typeImplIScript, object[] ctorParams)
+        {
+            scriptCtorParams.Add(id, ctorParams); //has to be the 1st otherwise the dic is empty - change the implementation!
+
+            AddScript(id, typeImplIScript);
+        }
+
         public void StartScriptById(string id)
         {
             if (!canStartNewScript) return;
@@ -57,21 +71,24 @@ namespace LtFlash.Common.ScriptManager.Managers
             StartScript(s);
         }
 
-        private static void AddScriptFinishedSuccessfullyToQueue(List<IScript> queue, Type s, string id)
+        private void AddScriptFinishedSuccessfullyToQueue(List<IScript> queue, Type s, string id)
         {
             IScript scr = CreateInstanceWithId(s, id);
             queue.Add(scr);
         }
 
-        private static void AddScriptFinishedUnsuccessfullyToQueue(List<IScript> queue, Type s, string id)
+        private void AddScriptFinishedUnsuccessfullyToQueue(List<IScript> queue, Type s, string id)
         {
             IScript scr = CreateInstanceWithId(s, id);
             queue.Insert(0, scr);
         }
 
-        private static IScript CreateInstanceWithId(Type t, string id)
+        private IScript CreateInstanceWithId(Type t, string id)
         {
-            IScript scr = (IScript)Activator.CreateInstance(t);
+            IScript scr = scriptCtorParams.ContainsKey(id) ? 
+                          (IScript)Activator.CreateInstance(t, scriptCtorParams[id]) :
+                          (IScript)Activator.CreateInstance(t);
+
             scr.Attributes = new ScriptAttributes(id);
             return scr;
         }
@@ -128,6 +145,8 @@ namespace LtFlash.Common.ScriptManager.Managers
             }
 
             statusOfScripts[running.Attributes.Id] = running.HasFinishedSuccessfully;
+
+            OnScriptFinished?.Invoke(running.Attributes.Id);
 
             running = null;
             canStartNewScript = true;

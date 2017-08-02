@@ -80,7 +80,7 @@ namespace LtFlash.Common.ScriptManager.Managers
                 DefaultTimerIntervalMin, DefaultTimerIntervalMin);
         }
         //MAIN CTOR
-        private void AddScript(Type typeOfIScript, IScriptAttributes attrib)
+        public void AddScript(Type typeOfIScript, IScriptAttributes attrib)
         {
             if (!typeOfIScript.GetInterfaces().Contains(typeof(IScript)))
             {
@@ -163,6 +163,8 @@ namespace LtFlash.Common.ScriptManager.Managers
             {
                 ufs[i].Stop();
 
+                Game.LogTrivial("Script finished unsuccessfully: " + ufs[i].Id);
+
                 IScript s = ufs[i].Script;
                 //if StartCtrl == Delay -> re-assign the old one!
                 IScript newScript = CreateInstance<IScript>(s.GetType(), s.Attributes.CtorParams);
@@ -197,7 +199,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
             for (int i = 0; i < fs.Count; i++)
             {
-                if (fs[i].NextScriptsToRun.Count > 0)
+                if (fs[i].NextScriptsToRun != null)
                 {
                     AddScriptsToQueue(fs[i].NextScriptsToRun);
                 }
@@ -377,10 +379,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void AddScriptsToQueue(List<string> scriptsToRun)
         {
-            for (int i = 0; i < scriptsToRun.Count; i++)
-            {
-                MoveInactiveScriptToQueue(scriptsToRun[i], _off, _queue);
-            }
+            scriptsToRun.ForEach(s => MoveInactiveScriptToQueue(s, _off, _queue));
         }
 
         private void Stop()

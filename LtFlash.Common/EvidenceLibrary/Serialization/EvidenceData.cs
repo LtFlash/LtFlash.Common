@@ -11,6 +11,7 @@ namespace LtFlash.Common.EvidenceLibrary.Serialization
     public class EvidenceData : IIdentifiable
     {
         public string ID { get; set; }
+        public string Name;
         public string Description;
         public bool IsImportant;
         public SpawnPoint Spawn;

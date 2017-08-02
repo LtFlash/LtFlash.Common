@@ -1,11 +1,14 @@
 ﻿using Rage;
 using Rage.Native;
+using System.Drawing;
 
 namespace LtFlash.Common.EvidenceLibrary.Services
 {
     public class Coroner : ServiceBase
     {
         protected override string MessageNotifyTPWhenStuck => "Press ~y~{0}~s~ to hurry the Coroner up.";
+        protected override BlipSprite BlipVehSprite => (BlipSprite)153;
+        protected override Color BlipVehColor => Color.Black;
 
         private Ped body;
         private Blip blipEmt;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using LtFlash.Common.EvidenceLibrary.Resources;
 using Rage;
 using Rage.Native;
@@ -10,6 +11,8 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         public bool TakePatientToHospital => takeToHospital;
 
         protected override string MessageNotifyTPWhenStuck => "Press ~y~{0}~s~ to hurry the EMS up.";
+        protected override BlipSprite BlipVehSprite => (BlipSprite)153;
+        protected override Color BlipVehColor => Color.Red;
 
         private Ped patient;
         private bool takeToHospital;

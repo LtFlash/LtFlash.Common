@@ -53,11 +53,14 @@ namespace LtFlash.Common.EvidenceLibrary
          
         private void TurnTo(Ped ped, Entity entity, int duration = 1500)
             => NativeFunction.Natives.TaskTurnPedToFaceEntity(ped, entity, duration);
+        //USE: Rage.Native.NativeFunction.Natives.TASK_ACHIEVE_HEADING(officer.Ped, heading, 3000);
 
         private void ShowLine()
         {
             GameFiber.StartNew(delegate
             {
+                if (Game.IsPaused) return;
+
                 Game.DisplaySubtitle(dialog[currentLine], LineDuration);
              
                 currentLine++;

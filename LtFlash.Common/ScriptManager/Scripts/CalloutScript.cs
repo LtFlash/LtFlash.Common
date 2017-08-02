@@ -147,6 +147,7 @@ namespace LtFlash.Common.ScriptManager.Scripts
         {
             if(Game.IsKeyDown(KeyAcceptCallout))
             {
+                callNotAcceptedTimer.Dispose();
                 RemoveAreaBlip();
                 SwapStages(WaitForAcceptKey, InternalAccepted);
                 return;

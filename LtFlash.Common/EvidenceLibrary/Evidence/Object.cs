@@ -77,7 +77,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         
         protected override void DisplayInfoEvidenceCollected()
         {
-            Game.DisplayNotification($"Object: {Description} has been included to the evidence.");
+            Game.DisplayNotification($"Object: ~y~{Description}~w~ has been added to the evidence.");
         }
 
         protected override void End()

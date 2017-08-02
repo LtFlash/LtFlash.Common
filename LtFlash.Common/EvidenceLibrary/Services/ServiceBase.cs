@@ -35,6 +35,9 @@ namespace LtFlash.Common.EvidenceLibrary.Services
         protected IDialog Dialogue { get; set; }
         protected abstract string MessageNotifyTPWhenStuck { get; }
 
+        protected abstract BlipSprite BlipVehSprite { get; }
+        protected abstract System.Drawing.Color BlipVehColor { get; }
+
         //PRIVATE
         protected ProcessHost Proc { get; private set; } = new ProcessHost();
         private Blip blipVeh;
@@ -95,9 +98,12 @@ namespace LtFlash.Common.EvidenceLibrary.Services
             Vehicle = new Vehicle(ModelVehicle, SpawnPosition.Position);
             Vehicle.Heading = SpawnPosition.Heading;
             Vehicle.MakePersistent();
-            blipVeh = new Blip(Vehicle);
-            blipVeh.Scale = 0.5f;
             Vehicle.IsInvincible = true;
+
+            blipVeh = new Blip(Vehicle);
+            blipVeh.Sprite = BlipVehSprite;
+            blipVeh.Color = BlipVehColor;
+            blipVeh.Scale = 1f;
 
             PedDriver = new Ped(ModelPedDriver, Vehicle.Position.Around2D(5f), 0f);
             PedDriver.RandomizeVariation();

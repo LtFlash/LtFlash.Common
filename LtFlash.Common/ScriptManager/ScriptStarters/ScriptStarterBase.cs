@@ -50,12 +50,12 @@ namespace LtFlash.Common.ScriptManager.ScriptStarters
             }
         }
 
-        public bool Start(IScript Script)
+        public bool Start(IScript script)
         {
             if (Script.HasFinished)
             {
-                IScriptAttributes s = ScriptAttributes.Clone(Script.Attributes);
-                Script = Managers.AdvancedScriptManager.CreateInstance<IScript>(Script.GetType(), s.CtorParams);
+                IScriptAttributes s = ScriptAttributes.Clone(script.Attributes);
+                Script = Managers.AdvancedScriptManager.CreateInstance<IScript>(script.GetType(), s.CtorParams);
                 Script.Attributes = s;
             }
             bool b = Script.CanBeStarted();

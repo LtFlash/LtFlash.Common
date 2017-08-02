@@ -8,6 +8,7 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
     public class EvidenceController
     {
         public List<IEvidence> Evidence { get; private set; } = new List<IEvidence>();
+        public bool IsActive { get; set; } = true;
 
         private ProcessHost proc = new ProcessHost();
         private const int INFO_INTERACT_TIME = 100;
@@ -29,15 +30,19 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
         }
         private void Process()
         {
+            if (!IsActive) return;
+
             if(!inspecting)
             {
                 if (Evidence.Count < 1) return;
 
-                RemoveCollectedEvidence();
+                DisableCollectedEvidence();
 
                 closest = GetClosestEvidence();
 
                 if (closest == null) return;
+
+                if (closest.IsCollected) return;
 
                 if (!IsEvidenceWithinDetectionDistance(closest))
                 {
@@ -77,8 +82,16 @@ namespace LtFlash.Common.EvidenceLibrary.Evidence
             }
         }
 
-        private void RemoveCollectedEvidence()
-            => Evidence.RemoveAll(e => e.IsCollected);
+        private void DisableCollectedEvidence()
+        {
+            for (int i = 0; i < Evidence.Count; i++)
+            {
+                if(Evidence[i].IsCollected)
+                {
+                    Evidence[i].CanBeInspected = false;
+                }
+            }
+        }
 
         private IEvidence GetClosestEvidence()
             => Evidence.OrderBy(e => DistToPlayer(e.Position)).FirstOrDefault();
