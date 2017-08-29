@@ -61,16 +61,17 @@ namespace LtFlash.Common.EvidenceLibrary
             {
                 if (Game.IsPaused) return;
 
-                Game.DisplaySubtitle(dialog[currentLine], LineDuration);
-             
-                currentLine++;
-
-                if (currentLine == linesInDialog) 
-                {
+                if (currentLine == linesInDialog) //here to prevent setting HasEnded when sub
+                {                                 // still on the screen
                     timer.Stop();
                     HasEnded = true;
                     IsRunning = false;
+                    return;
                 }
+
+                Game.DisplaySubtitle(dialog[currentLine], LineDuration);
+             
+                currentLine++;
             });
         }
     }
