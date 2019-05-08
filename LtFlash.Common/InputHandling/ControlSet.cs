@@ -1,14 +1,17 @@
 ﻿using System.Windows.Forms;
 using Rage;
+using System.Xml.Serialization;
+using System.Xml;
+using System;
 
 namespace LtFlash.Common.InputHandling
 {
     public class ControlSet
     {
         //PUBLIC
-        public Keys Key { get; private set; }
-        public Keys Modifier { get; private set; }
-        public ControllerButtons ControllerBtn { get; private set; }
+        public Keys Key { get; set; }
+        public Keys Modifier { get; set; }
+        public ControllerButtons ControllerBtn { get; set; }
 
         public bool IsActive => _IsActive();
         public string Description { get; private set; }
@@ -17,6 +20,8 @@ namespace LtFlash.Common.InputHandling
         //PRIVATE
         private string CTAG = "~g~";
         private const string RTAG = "~s~"; //color reset
+
+        public ControlSet() { }
 
         public ControlSet(Keys key, Keys modifier, ControllerButtons ctrlBtn)
         {

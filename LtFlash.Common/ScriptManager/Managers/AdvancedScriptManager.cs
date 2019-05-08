@@ -6,6 +6,7 @@ using LtFlash.Common.Processes;
 using LtFlash.Common.Logging;
 using LtFlash.Common.ScriptManager.Scripts;
 using Rage;
+using SSL = System.Collections.Generic.List<LtFlash.Common.ScriptManager.ScriptStarters.IScriptStarter>;
 
 namespace LtFlash.Common.ScriptManager.Managers
 {
@@ -20,7 +21,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private readonly List<IScript> _off = new List<IScript>();
         private readonly List<IScript> _queue = new List<IScript>();
-        private readonly List<IScriptStarter> _running = new List<IScriptStarter>();
+        private readonly SSL _running = new SSL();
 
         private readonly Dictionary<string, bool> statusOfScripts = new Dictionary<string, bool>();
 
@@ -153,7 +154,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void Process_UnsuccessfullyFinishedScripts()
         {
-            List<IScriptStarter> ufs = GetUnsuccessfullyFinishedScripts(_running);
+            SSL ufs = GetUnsuccessfullyFinishedScripts(_running);
             //gets only those with Sequential starter and change it to TimerBased
             ufs = GetScriptsWithSequentialStarter(ufs);
 
@@ -191,7 +192,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void Process_WaitScriptsForFinish()
         {
-            List<IScriptStarter> fs = GetSuccessfullyFinishedScripts(_running);
+            SSL fs = GetSuccessfullyFinishedScripts(_running);
 
             if (fs.Count < 1) return;
 
@@ -234,14 +235,8 @@ namespace LtFlash.Common.ScriptManager.Managers
         {
             var priorScripts = script.Attributes.ScriptsToFinishPriorThis;
 
-            if (priorScripts.Count < 1)
-            {
-                return true;
-            }
-            else
-            {
-                return CheckIfNecessaryScriptsAreFinished(priorScripts, statusOfScripts);
-            }
+            return priorScripts.Count < 1 ? true :
+                   CheckIfNecessaryScriptsAreFinished(priorScripts, statusOfScripts);
         }
 
         private IScript GetScriptById(string id, List<IScript> from)
@@ -264,20 +259,9 @@ namespace LtFlash.Common.ScriptManager.Managers
             return CreateScriptStarter(s);
         }
 
-        private List<IScriptStarter> CreateScriptsStartersByIds(
-            string[] ids, 
-            List<IScript> scripts)
+        private SSL CreateScriptsStartersByIds(string[] ids, List<IScript> scripts)
         {
-            List<IScriptStarter> result = new List<IScriptStarter>();
-
-            for (int i = 0; i < ids.Length; i++)
-            {
-                IScriptStarter ss = CreateScriptStarterByScriptId(ids[i], scripts);
-
-                result.Add(ss);
-            }
-
-            return result;
+            return ids.Select(i => CreateScriptStarterByScriptId(i, scripts)).ToList();
         }
 
         private IScriptStarter CreateScriptStarter(IScript ss)
@@ -310,13 +294,12 @@ namespace LtFlash.Common.ScriptManager.Managers
             return arrays.Any(b => b == true);
         }
 
-        private void StartScripts(List<IScriptStarter> starters)
+        private void StartScripts(SSL starters)
         {
             starters.ForEach(s => s.Start());
         }
 
-        private void RemoveScripts(
-            List<IScriptStarter> scriptsToRemove, List<IScriptStarter> from)
+        private void RemoveScripts(SSL scriptsToRemove, SSL from)
         {
             for (int i = 0; i < scriptsToRemove.Count; i++)
             {
@@ -327,28 +310,23 @@ namespace LtFlash.Common.ScriptManager.Managers
             }
         }
 
-        private List<IScriptStarter> GetSuccessfullyFinishedScripts(List<IScriptStarter> running)
+        private SSL GetSuccessfullyFinishedScripts(SSL running)
             => GetScripts(running, s => s.HasFinishedSuccessfully);
 
-        private List<IScriptStarter> GetUnsuccessfullyFinishedScripts(List<IScriptStarter> running)
+        private SSL GetUnsuccessfullyFinishedScripts(SSL running)
             => GetScripts(running, s => s.HasFinishedUnsuccessfully);
         
 
-        private List<IScriptStarter> GetScriptsWithSequentialStarter(List<IScriptStarter> running)
+        private SSL GetScriptsWithSequentialStarter(SSL running)
             => GetScripts(running, s => s.Script.Attributes.InitModel == EInitModels.Sequential);
         
 
-        private List<IScriptStarter> GetScripts(
-            List<IScriptStarter> running,
-            Func<IScriptStarter, bool> conditions)
+        private SSL GetScripts(SSL running, Func<IScriptStarter, bool> conditions)
             => running.Where(conditions).ToList();
 
-        private void SetScriptStatusAsFinished(List<IScriptStarter> scripts)
+        private void SetScriptStatusAsFinished(SSL scripts)
         {
-            for (int i = 0; i < scripts.Count; i++)
-            {
-                statusOfScripts[scripts[i].Id] = true;
-            }
+            scripts.ForEach(s => statusOfScripts[s.Id] = true);
         }
 
         private void MoveInactiveScriptToQueue(
@@ -366,7 +344,7 @@ namespace LtFlash.Common.ScriptManager.Managers
 
         private void MoveScriptFromQueueToRunning(
             IScript scriptToRun, 
-            List<IScript> from, List<IScriptStarter> to)
+            List<IScript> from, SSL to)
         {
             IScriptStarter s = CreateScriptStarter(scriptToRun);
             s.Start();
